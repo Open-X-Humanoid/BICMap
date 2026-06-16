@@ -103,42 +103,6 @@
           </div>
         </Transition>
 
-        <!-- 机器人头顶气泡（跟随 map.project 实时定位，无依赖 window.maplibregl） -->
-        <!-- 外层 anchor 定位，内层 Transition 做弹出动画，两者 transform 互不干扰 -->
-        <div
-          v-if="bubbleVisible"
-          class="robot-bubble-anchor"
-          :style="{ transform: `translate(${bubblePos.x - 86}px, ${bubblePos.y - 166}px)` }"
-        >
-          <Transition name="rb-anim" appear>
-          <div
-            class="robot-bubble"
-          >
-            <div class="rb-header">
-              <span class="rb-header__icon">⚠</span>
-              <span class="rb-header__title">违停告警</span>
-              <span class="rb-header__badge">INS-001</span>
-            </div>
-            <div class="rb-body">
-              <div class="rb-scan-label">车牌识别</div>
-              <div class="rb-plate">
-                <span class="rb-plate__prov">京</span>
-                <span class="rb-plate__num" :class="plateScanning ? 'rb-scanning' : 'rb-revealed'">
-                  {{ plateText }}
-                </span>
-              </div>
-              <div class="rb-footer">
-                <span class="rb-footer__loc">社区东入口</span>
-                <span class="rb-footer__status" :class="{ 'rb-footer__status--locked': !plateScanning }">
-                  {{ plateScanning ? '扫描中' : '已锁定' }}
-                </span>
-              </div>
-            </div>
-            <div class="rb-tail-outer"></div>
-            <div class="rb-tail-inner"></div>
-          </div>
-          </Transition>
-        </div>
       </div>
     </main>
 
@@ -497,10 +461,6 @@ const violationAlert = ref(false)
 const alertTime = ref('')
 const detectedPlate = ref('识别中…')
 const panelCollapsed = ref(false)
-const bubbleVisible = ref(false)
-const bubblePos = ref({ x: 0, y: 0 })
-const plateText = ref('识别中…')
-const plateScanning = ref(true)
 
 // ===== computed =====
 const progressPercent = computed(() => Math.round(progress.value * 1000) / 10)
@@ -531,28 +491,76 @@ let pausedElapsedMs = 0
 let lastBearingDeg = 0
 let endpointCircleAdded = false
 let plateTimers = []
+let bubbleCtrl = null
 
 /**
- * 用 map.project(ENDPOINT) 实时同步气泡屏幕位置
- * 注册到 map 的 render 事件，保证平移/缩放/旋转时也能跟随
+ * 注入气泡动画关键帧（幂等，每页只执行一次）
  */
-function updateBubblePos() {
-  const m = map.value
-  if (!m || !bubbleVisible.value) return
-  const pt = m.project(ENDPOINT)
-  bubblePos.value = { x: Math.round(pt.x), y: Math.round(pt.y) }
+function ensureBubbleStyles() {
+  const id = 'bic-vb-styles'
+  if (document.getElementById(id)) return
+  const s = document.createElement('style')
+  s.id = id
+  s.textContent = `
+    @keyframes bicvb-pop {
+      0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
+      65%  { transform: translateY(-3px) scale(1.03); }
+      100% { opacity: 1; transform: none; }
+    }
+    @keyframes bicvb-blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+    @keyframes bicvb-reveal { from{letter-spacing:.35em;opacity:.4} to{letter-spacing:.22em;opacity:1} }
+  `
+  document.head.appendChild(s)
+}
+
+/**
+ * 生成违停告警气泡的 HTML（内联样式，无外部依赖）
+ */
+function buildViolationBubbleHTML() {
+  return `
+    <div style="
+      position: relative;
+      width: 172px;
+      background: rgba(255,255,255,0.97);
+      border-radius: 12px;
+      border: 1.5px solid rgba(239,68,68,0.55);
+      box-shadow: 0 6px 24px rgba(239,68,68,0.22),0 2px 8px rgba(0,0,0,0.1);
+      font-family: PingFang SC,Microsoft YaHei,system-ui,sans-serif;
+      animation: bicvb-pop 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
+    ">
+      <div style="background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:10px 10px 0 0;padding:6px 10px;display:flex;align-items:center;gap:5px;">
+        <span style="font-size:13px;">⚠</span>
+        <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;">违停告警</span>
+        <span style="margin-left:auto;background:rgba(255,255,255,.22);color:#fff;font-size:9px;font-weight:600;padding:1px 5px;border-radius:4px;">INS-001</span>
+      </div>
+      <div style="padding:8px 10px 4px;">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:4px;letter-spacing:.04em;">车牌识别</div>
+        <div style="background:#003087;border-radius:5px;padding:4px 8px;display:flex;align-items:center;justify-content:center;gap:3px;border:1.5px solid #1a4fa0;">
+          <span style="color:#fff;background:#e8a000;border-radius:2px;font-size:9px;font-weight:800;padding:1px 3px;line-height:1.3;">京</span>
+          <span class="bic-vb-plate" style="color:#fff;font-size:13px;font-weight:800;letter-spacing:.22em;font-family:ui-monospace,'SF Mono',monospace;animation:bicvb-blink .5s linear infinite;">识别中…</span>
+        </div>
+      </div>
+      <div style="padding:0 10px 8px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:9px;color:#94a3b8;">社区东入口</span>
+        <span class="bic-vb-status" style="font-size:9px;color:#f59e0b;font-weight:600;">扫描中</span>
+      </div>
+      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(239,68,68,.55);"></div>
+      <div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid rgba(255,255,255,.97);"></div>
+    </div>
+  `
 }
 
 /**
  * 显示机器人头顶气泡并启动车牌逐字识别动画
  */
 function showViolationBubble() {
-  plateText.value = '识别中…'
-  plateScanning.value = true
-  bubbleVisible.value = true
+  if (!bubbleCtrl) return
+  ensureBubbleStyles()
+  bubbleCtrl.show(ENDPOINT, buildViolationBubbleHTML())
 
-  updateBubblePos()
-  map.value?.on('render', updateBubblePos)
+  const wrapper = bubbleCtrl.getElement()
+  const plateEl = wrapper.querySelector('.bic-vb-plate')
+  const statusEl = wrapper.querySelector('.bic-vb-status')
 
   const chars = MOCK_PLATE.split('')
   let revealed = ''
@@ -562,9 +570,10 @@ function showViolationBubble() {
   chars.forEach((ch, i) => {
     const t = setTimeout(() => {
       revealed += ch
-      plateText.value = revealed + (i < chars.length - 1 ? '_' : '')
+      if (plateEl) plateEl.textContent = revealed + (i < chars.length - 1 ? '_' : '')
       if (i === chars.length - 1) {
-        plateScanning.value = false
+        if (plateEl) plateEl.style.animation = 'bicvb-reveal .4s ease both'
+        if (statusEl) { statusEl.textContent = '已锁定'; statusEl.style.color = '#ef4444' }
         detectedPlate.value = MOCK_PLATE
       }
     }, 600 + i * 220)
@@ -578,11 +587,8 @@ function showViolationBubble() {
 function removeViolationBubble() {
   plateTimers.forEach(t => clearTimeout(t))
   plateTimers = []
-  bubbleVisible.value = false
-  plateScanning.value = true
-  plateText.value = '识别中…'
+  bubbleCtrl?.hide()
   detectedPlate.value = '识别中…'
-  map.value?.off('render', updateBubblePos)
 }
 
 // ===== 动画逻辑 =====
@@ -761,6 +767,8 @@ function initLayers() {
     heading: lastBearingDeg,
   })
 
+  bubbleCtrl = bicMap.createLabelBubble(m, { anchor: 'bottom', offset: [0, -80] })
+
   m.once('moveend', () => { refreshPathMetrics() })
 }
 
@@ -770,6 +778,8 @@ onMounted(() => { initMap() })
 onBeforeUnmount(() => {
   stopRaf()
   removeViolationBubble()
+  bubbleCtrl?.remove()
+  bubbleCtrl = null
   robot3DLayer.value?.destroy?.()
   polylinesCtrl.value?.remove?.()
   endpointCircleCtrl.value?.remove?.()
@@ -1236,170 +1246,4 @@ async function loadSlamMap() {
   }
 }
 
-/* ===== 机器人头顶气泡 ===== */
-.robot-bubble-anchor {
-  position: absolute;
-  left: 0;
-  top: 0;
-  pointer-events: none;
-}
-
-.robot-bubble {
-  width: 172px;
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 12px;
-  border: 1.5px solid rgba(239, 68, 68, 0.55);
-  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-
-  .rb-header {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    border-radius: 10px 10px 0 0;
-    padding: 6px 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-
-    &__icon {
-      font-size: 13px;
-      animation: rb-ring 1.2s ease-in-out infinite;
-    }
-
-    &__title {
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-    }
-
-    &__badge {
-      margin-left: auto;
-      background: rgba(255, 255, 255, 0.22);
-      color: #fff;
-      font-size: 9px;
-      font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 4px;
-    }
-  }
-
-  .rb-body {
-    padding: 8px 10px 4px;
-  }
-
-  .rb-scan-label {
-    font-size: 9px;
-    color: #94a3b8;
-    margin-bottom: 4px;
-    letter-spacing: 0.04em;
-  }
-
-  .rb-plate {
-    background: #003087;
-    border-radius: 5px;
-    padding: 4px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    border: 1.5px solid #1a4fa0;
-
-    &__prov {
-      color: #fff;
-      background: #e8a000;
-      border-radius: 2px;
-      font-size: 9px;
-      font-weight: 800;
-      padding: 1px 3px;
-      line-height: 1.3;
-    }
-
-    &__num {
-      color: #fff;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.22em;
-      font-family: ui-monospace, 'SF Mono', monospace;
-
-      &.rb-scanning { animation: rb-blink 0.5s linear infinite; }
-      &.rb-revealed { animation: rb-reveal 0.4s ease both; }
-    }
-  }
-
-  .rb-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 0 4px;
-
-    &__loc {
-      font-size: 9px;
-      color: #94a3b8;
-    }
-
-    &__status {
-      font-size: 9px;
-      color: #f59e0b;
-      font-weight: 600;
-
-      &--locked {
-        color: #ef4444;
-      }
-    }
-  }
-
-  /* 气泡尾巴 */
-  .rb-tail-outer,
-  .rb-tail-inner {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-  }
-
-  .rb-tail-outer {
-    bottom: -10px;
-    border-top: 10px solid rgba(239, 68, 68, 0.55);
-  }
-
-  .rb-tail-inner {
-    bottom: -8px;
-    border-top: 9px solid rgba(255, 255, 255, 0.97);
-    border-left-width: 7px;
-    border-right-width: 7px;
-  }
-}
-
-/* 气泡弹出动画 */
-.rb-anim-enter-active {
-  animation: rb-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-.rb-anim-leave-active {
-  animation: rb-pop 0.25s ease-in reverse both;
-}
-
-@keyframes rb-pop {
-  0%   { opacity: 0; transform: translateY(12px) scale(0.88); }
-  65%  { transform: translateY(-4px) scale(1.04); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes rb-ring {
-  0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
-  50%       { filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.8)); }
-}
-
-@keyframes rb-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
-}
-
-@keyframes rb-reveal {
-  from { letter-spacing: 0.35em; opacity: 0.4; }
-  to   { letter-spacing: 0.22em; opacity: 1; }
-}
 </style>

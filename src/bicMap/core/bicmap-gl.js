@@ -52,6 +52,9 @@ import {
   addZoomControl 
 } from './controls/index.js';
 
+// 导入自定义 HTML 气泡标注功能
+import { createLabelBubble } from './labelBubble/index.js';
+
 // 导入绘制工具功能
 import { enableRectangleDrawing, enablePolygonDrawing, enablePolylineDrawing, enableCircleRadiusDrawing } from './drawing/index.js';
 
@@ -613,6 +616,39 @@ class BicMap {
       throw new Error('地图未初始化。');
     }
     return enablePolylineDrawing(this.turf, map, options);
+  }
+
+  /**
+   * 创建一个跟随地图坐标的自定义 HTML 气泡标注
+   *
+   * 基于 maplibregl.Marker，支持传入任意 HTML 字符串或 DOM 元素；
+   * 气泡会自动随地图平移 / 缩放 / 旋转实时同步，无需外部做坐标转换。
+   *
+   * @param {Object} map - 地图实例
+   * @param {Object} [options]
+   * @param {'bottom'|'top'|'left'|'right'|'center'|
+   *         'top-left'|'top-right'|'bottom-left'|'bottom-right'} [options.anchor='bottom']
+   *   Marker 锚点位置
+   * @param {[number, number]} [options.offset=[0, 0]]
+   *   像素偏移 [x, y]
+   * @param {string} [options.className='']
+   *   附加在气泡容器上的自定义 CSS class
+   * @returns {{
+   *   show(lngLat: [number, number], htmlOrElement?: string | HTMLElement): void,
+   *   hide(): void,
+   *   setLngLat(lngLat: [number, number]): void,
+   *   setHTML(html: string): void,
+   *   setElement(el: HTMLElement): void,
+   *   getElement(): HTMLElement,
+   *   setOffset(offset: [number, number]): void,
+   *   remove(): void
+   * }}
+   */
+  createLabelBubble(map, options = {}) {
+    if (!this.isLoaded || !map) {
+      throw new Error('地图未初始化。');
+    }
+    return createLabelBubble(this.maplibregl, map, options);
   }
 
   /**
