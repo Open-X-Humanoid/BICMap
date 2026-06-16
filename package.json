@@ -1,0 +1,46 @@
+{
+  "name": "@x-humanoid-cloud/bic-map",
+  "private": false,
+  "version": "1.0.0",
+  "description": "封装GL地图库，用于北京人形机器人创新中心公司内部项目",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/bic-map.umd.js",
+  "module": "./dist/bic-map.mjs",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:cdn": "vite build --mode cdn",
+    "build:all": "pnpm run build && pnpm run build:cdn",
+    "build:debug": "cross-env KEEP_CONSOLE=true vite build",
+    "build:cdn:debug": "cross-env KEEP_CONSOLE=true vite build --mode cdn",
+    "build:web": "vite build --mode web",
+    "build:all:debug": "cross-env KEEP_CONSOLE=true pnpm run build && cross-env KEEP_CONSOLE=true pnpm run build:cdn",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@turf/turf": "7.3.5",
+    "maplibre-gl": "3.6.2",
+    "three": "0.149.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.2",
+    "@x-humanoid-cloud/URDFPlugin": "^1.0.7",
+    "cross-env": "^7.0.3",
+    "events": "^3.3.0",
+    "fabric": "^6.7.0",
+    "lucide-vue-next": "^0.577.0",
+    "sass-embedded": "^1.99.0",
+    "terser": "^5.42.0",
+    "uuid": "^14.0.0",
+    "vite": "^6.3.1",
+    "vue-router": "^5.0.3"
+  }
+}

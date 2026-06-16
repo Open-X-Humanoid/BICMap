@@ -1,0 +1,309 @@
+/*
+ * @Author: Ella ella.yin@x-humanoid.com
+ * @Date: 2026-06-09
+ * @Description: 飞机场导览 — POI 点位与坐标换算
+ * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/airportLayout.js
+ * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
+ */
+
+import {
+  MAP_RESOLUTION,
+  MAP_START_X,
+  MAP_START_Y,
+  MAP_WIDTH_M,
+  MAP_HEIGHT_M,
+  MAP_ZOOM_FACTOR,
+} from './constants.js'
+
+/** 按导览顺序排列的机场 POI 点位 */
+export const AIRPORT_POIS = [
+  {
+    id: 'poi-domestic-entry',
+    order: 1,
+    icon: 'icon-entry',
+    name: '国内入口',
+    type: '入口',
+    xFrac: 0.0446,
+    yFrac: 0.4699,
+    description: '国内航班旅客进站主入口。',
+  },
+  {
+    id: 'poi-explosive-check',
+    order: 2,
+    icon: 'icon-security',
+    name: '防爆检查',
+    type: '安检',
+    xFrac: 0.1238,
+    yFrac: 0.4819,
+    description: '进站前防爆安检区域。',
+  },
+  {
+    id: 'poi-auto-ticket',
+    order: 3,
+    icon: 'icon-self-ticket',
+    name: '自动值机',
+    type: '票务',
+    xFrac: 0.1627,
+    yFrac: 0.5823,
+    description: '自助取票与行程单打印。',
+  },
+  {
+    id: 'poi-checkin-a',
+    order: 4,
+    icon: 'icon-self-ticket',
+    name: '值机柜台A',
+    type: '值机',
+    xFrac: 0.2366,
+    yFrac: 0.6506,
+    description: '人工值机与行李托运柜台。',
+  },
+  {
+    id: 'poi-checkin-b',
+    order: 5,
+    icon: 'icon-self-ticket',
+    name: '值机柜台B',
+    type: '值机',
+    xFrac: 0.2396,
+    yFrac: 0.4016,
+    description: '人工值机与行李托运柜台。',
+  },
+  {
+    id: 'poi-fast-checkin',
+    order: 6,
+    icon: 'icon-self-ticket',
+    name: '快速值机',
+    type: '值机',
+    xFrac: 0.2411,
+    yFrac: 0.28,
+    description: '自助值机与快速托运通道。',
+  },
+  {
+    id: 'poi-baggage-claim',
+    order: 7,
+    icon: 'icon-cart',
+    name: '行李提取',
+    type: '行李',
+    xFrac: 0.0805,
+    yFrac: 0.2182,
+    description: '到达旅客行李提取转盘区。',
+  },
+  {
+    id: 'poi-robot-standby',
+    order: 8,
+    icon: 'icon-robot-standby',
+    name: '机器人等待区',
+    type: '机器人',
+    xFrac: 0.1089,
+    yFrac: 0.6452,
+    description: '导览机器人充电与待命区域。',
+  },
+  {
+    id: 'poi-info-desk',
+    order: 9,
+    icon: 'icon-service-center',
+    name: '咨询处',
+    type: '服务',
+    xFrac: 0.2463,
+    yFrac: 0.4793,
+    description: '旅客问询与失物招领服务台。',
+  },
+  {
+    id: 'poi-security-a',
+    order: 10,
+    icon: 'icon-gate',
+    name: '安检口A',
+    type: '安检',
+    xFrac: 0.3554,
+    yFrac: 0.5727,
+    description: 'A 区安检通道入口。',
+  },
+  {
+    id: 'poi-security-b',
+    order: 11,
+    icon: 'icon-gate',
+    name: '安检口B',
+    type: '安检',
+    xFrac: 0.361,
+    yFrac: 0.4324,
+    description: 'B 区安检通道入口。',
+  },
+  {
+    id: 'poi-boarding-a',
+    order: 12,
+    icon: 'icon-gate',
+    name: '登机口A',
+    type: '登机',
+    xFrac: 0.4407,
+    yFrac: 0.5784,
+    description: 'A 区登机口，前往登机廊桥。',
+  },
+  {
+    id: 'poi-boarding-b',
+    order: 13,
+    icon: 'icon-gate',
+    name: '登机口B',
+    type: '登机',
+    xFrac: 0.44,
+    yFrac: 0.3843,
+    description: 'B 区登机口，前往登机廊桥。',
+  },
+  {
+    id: 'poi-boarding-corridor',
+    order: 14,
+    icon: 'icon-transfer',
+    name: '登机通道',
+    type: '通道',
+    xFrac: 0.6424,
+    yFrac: 0.4994,
+    description: '连接候机区与登机口的旅客通道。',
+  },
+  {
+    id: 'poi-waiting-a',
+    order: 15,
+    icon: 'icon-waiting',
+    name: '候机区A',
+    type: '候机',
+    xFrac: 0.3573,
+    yFrac: 0.7247,
+    description: '南侧候机休息区。',
+  },
+  {
+    id: 'poi-waiting-b',
+    order: 16,
+    icon: 'icon-waiting',
+    name: '候机区B',
+    type: '候机',
+    xFrac: 0.3518,
+    yFrac: 0.2214,
+    description: '北侧候机休息区。',
+  },
+  {
+    id: 'poi-stand-1',
+    order: 17,
+    icon: 'icon-platform',
+    name: '停机位1',
+    type: '停机位',
+    xFrac: 0.5968,
+    yFrac: 0.6693,
+    description: '近机位停靠区 1。',
+  },
+  {
+    id: 'poi-stand-2',
+    order: 18,
+    icon: 'icon-platform',
+    name: '停机位2',
+    type: '停机位',
+    xFrac: 0.6804,
+    yFrac: 0.6734,
+    description: '近机位停靠区 2。',
+  },
+  {
+    id: 'poi-stand-3',
+    order: 19,
+    icon: 'icon-platform',
+    name: '停机位3',
+    type: '停机位',
+    xFrac: 0.7529,
+    yFrac: 0.672,
+    description: '近机位停靠区 3。',
+  },
+  {
+    id: 'poi-stand-4',
+    order: 20,
+    icon: 'icon-platform',
+    name: '停机位4',
+    type: '停机位',
+    xFrac: 0.8366,
+    yFrac: 0.6827,
+    description: '近机位停靠区 4。',
+  },
+  {
+    id: 'poi-stand-5',
+    order: 21,
+    icon: 'icon-platform',
+    name: '停机位5',
+    type: '停机位',
+    xFrac: 0.9427,
+    yFrac: 0.6734,
+    description: '近机位停靠区 5。',
+  },
+  {
+    id: 'poi-stand-6',
+    order: 22,
+    icon: 'icon-platform',
+    name: '停机位6',
+    type: '停机位',
+    xFrac: 0.5885,
+    yFrac: 0.3092,
+    description: '近机位停靠区 6。',
+  },
+  {
+    id: 'poi-stand-7',
+    order: 23,
+    icon: 'icon-platform',
+    name: '停机位7',
+    type: '停机位',
+    xFrac: 0.6722,
+    yFrac: 0.328,
+    description: '近机位停靠区 7。',
+  },
+  {
+    id: 'poi-stand-8',
+    order: 24,
+    icon: 'icon-platform',
+    name: '停机位8',
+    type: '停机位',
+    xFrac: 0.7544,
+    yFrac: 0.328,
+    description: '近机位停靠区 8。',
+  },
+  {
+    id: 'poi-stand-9',
+    order: 25,
+    icon: 'icon-platform',
+    name: '停机位9',
+    type: '停机位',
+    xFrac: 0.8433,
+    yFrac: 0.3333,
+    description: '近机位停靠区 9。',
+  },
+  {
+    id: 'poi-stand-10',
+    order: 26,
+    icon: 'icon-platform',
+    name: '停机位10',
+    type: '停机位',
+    xFrac: 0.9674,
+    yFrac: 0.3481,
+    description: '近机位停靠区 10。',
+  },
+]
+
+/**
+ * 比例坐标 → 笛卡尔坐标
+ * @param {number} xFrac
+ * @param {number} yFrac
+ */
+export function fracToCart(xFrac, yFrac) {
+  return {
+    x: MAP_START_X + xFrac * MAP_WIDTH_M,
+    y: MAP_START_Y + yFrac * MAP_HEIGHT_M,
+  }
+}
+
+/**
+ * 比例坐标 → 地图经纬度
+ * @param {number} xFrac
+ * @param {number} yFrac
+ * @returns {[number, number]}
+ */
+export function fracToGPS(xFrac, yFrac) {
+  const cart = fracToCart(xFrac, yFrac)
+  const gps = window.MapUtils.cartesianToGPS({
+    x: cart.x,
+    y: cart.y,
+    scale: MAP_RESOLUTION,
+    zoomFactor: MAP_ZOOM_FACTOR,
+  })
+  return [gps.longitude, gps.latitude]
+}
