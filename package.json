@@ -1,8 +1,8 @@
 {
   "name": "@x-humanoid-cloud/bic-map",
   "private": false,
-  "version": "1.0.0",
-  "description": "封装GL地图库，用于北京人形机器人创新中心公司内部项目",
+  "version": "0.0.1",
+  "description": "GL地图库，室内外一体化的地图渲染与交互解决方案",
   "license": "MIT",
   "type": "module",
   "main": "./dist/bic-map.umd.js",
