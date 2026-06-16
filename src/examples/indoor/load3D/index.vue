@@ -1,12 +1,3 @@
-<!--
- * @Author: houser.hao@humanoid.com
- * @Date: Do not edit
- * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 3D URDF 模型加载示例：URDFPlugin 透明画布叠加在 SLAM 底图上，相机随地图视角同步
- * @FilePath: Do not edit
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
--->
 <template>
   <div class="app-root">
     <!-- loadSlamMap 需要一个离屏 canvas 来读取像素 -->
@@ -52,13 +43,6 @@
           </div>
         </Transition>
 
-        <!-- 说明角标 -->
-        <div class="plugin-badge">
-          <span class="plugin-badge__dot"></span>
-          本示例 URDF 文件引入，结合
-          <code>@x-humanoid-cloud/URDFPlugin</code>
-          插件实现
-        </div>
 
         <!-- 加载遮罩 -->
         <Transition name="fade">
@@ -78,8 +62,8 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { MapPin, Maximize, Move, X } from 'lucide-vue-next'
-import { URDFPlugin } from '@x-humanoid-cloud/URDFPlugin'
 
+import URDFPlugin from '../../../bicMap/core/urdf'
 import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
 

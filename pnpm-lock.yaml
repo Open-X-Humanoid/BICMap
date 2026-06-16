@@ -17,6 +17,9 @@ importers:
       three:
         specifier: 0.149.0
         version: 0.149.0
+      urdf-loader:
+        specifier: ^0.12.5
+        version: 0.12.7(three@0.149.0)
       vue:
         specifier: ^3.5.13
         version: 3.5.13
@@ -4922,6 +4925,10 @@ snapshots:
       '@jridgewell/remapping': 2.3.5
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
+
+  urdf-loader@0.12.7(three@0.149.0):
+    dependencies:
+      three: 0.149.0
 
   urdf-loader@0.12.7(three@0.180.0):
     dependencies:
