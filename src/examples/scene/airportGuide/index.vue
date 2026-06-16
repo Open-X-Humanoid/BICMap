@@ -637,8 +637,8 @@ function cleanup() {
   &__legend {
     position: absolute;
     z-index: 15;
+    min-width: 300px;
     left: 12px;
-    right: 12px;
     bottom: 12px;
     display: flex;
     flex-wrap: wrap;
