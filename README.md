@@ -43,17 +43,17 @@ pnpm build:all
 
 **使用 pnpm（推荐）：**
 ```bash
-pnpm add @x-humanoid-cloud/bic-map-plugin
+pnpm add @x-humanoid-cloud/bic-map
 ```
 
 **或使用 npm：**
 ```bash
-npm install @x-humanoid-cloud/bic-map-plugin
+npm install @x-humanoid-cloud/bic-map
 ```
 
 **或使用 yarn：**
 ```bash
-yarn add @x-humanoid-cloud/bic-map-plugin
+yarn add @x-humanoid-cloud/bic-map
 ```
 
 适用于：
@@ -119,7 +119,7 @@ if (window.bicMap) {
 `init()` 支持配置资源根路径（不传则使用上表的默认路径）：
 
 ```javascript
-import bicMap from '@x-humanoid-cloud/bic-map-plugin'
+import bicMap from '@x-humanoid-cloud/bic-map'
 
 await bicMap.init({
   assetsUrl: 'https://your-cdn.com/bicMap/assets',     // 图标资源根路径
@@ -148,7 +148,7 @@ bicMap.addDirectionalMarker(map, [116.39, 39.90], {
 
 ## 构建和发布指南
 
-本文档主要介绍如何构建和发布 bic-map-plugin 到公司内部的 Nexus 仓库。
+本文档主要介绍如何构建和发布 bic-map 到公司内部的 Nexus 仓库。
 
 ### 环境准备
 

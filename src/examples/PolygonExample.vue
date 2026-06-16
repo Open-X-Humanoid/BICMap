@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-06-20 21:15:00
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 多边形面显示示例
- * @FilePath: /bic-map-plugin/src/examples/PolygonExample.vue
+ * @FilePath: /bic-map/src/examples/PolygonExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

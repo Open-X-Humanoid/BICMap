@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-04-29 18:08:56
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 矩形面显示示例
- * @FilePath: /bic-map-plugin/src/examples/RectangleExample.vue
+ * @FilePath: /bic-map/src/examples/RectangleExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

@@ -2,7 +2,7 @@
  * @Author: Ella ella.yin@x-humanoid.com
  * @Description: 图片编辑器画布壳：初始化 fabric.Canvas + 注册全部插件，仅渲染 #workspace 与 canvas，
  *               全部操作 API 通过 defineExpose 暴露给父组件，UI 由父组件自行编排。
- * @FilePath: /bic-map-plugin/src/examples/expand/MapEditor/ImageEditor/index.vue
+ * @FilePath: /bic-map/src/examples/expand/MapEditor/ImageEditor/index.vue
 -->
 <template>
   <div class="image-editor">

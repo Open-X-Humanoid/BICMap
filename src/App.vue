@@ -4,7 +4,7 @@
  * @LastEditTime: 2026-02-10 00:00:00
  * @LastEditors: houser.hao@humanoid.com
  * @Description: App component for development testing
- * @FilePath: /bic-map-plugin/src/App.vue
+ * @FilePath: /bic-map/src/App.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

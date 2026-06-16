@@ -2,7 +2,7 @@
  * @Author: houser.hao@humanoid.com
  * @Date: 2025-05-10 14:25:30
  * @Description: 矩形面显示实现
- * @FilePath: /bic-map-plugin/src/bicMap/core/rectangle/index.js
+ * @FilePath: /bic-map/src/bicMap/core/rectangle/index.js
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  */
 

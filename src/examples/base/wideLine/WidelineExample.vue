@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-10-14 18:35:34
  * @LastEditors: houser.hao@humanoid.com
  * @Description: Wide line (track/road) example component
- * @FilePath: /bic-map-plugin/src/examples/WidelineExample.vue
+ * @FilePath: /bic-map/src/examples/WidelineExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

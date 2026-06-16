@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-05-07 19:10:54
  * @LastEditors: houser.hao@humanoid.com
  * @Description: Polyline example component
- * @FilePath: /bic-map-plugin/src/examples/PolylineExample.vue
+ * @FilePath: /bic-map/src/examples/PolylineExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

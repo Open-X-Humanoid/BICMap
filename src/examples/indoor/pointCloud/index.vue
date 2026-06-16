@@ -8,7 +8,7 @@
  *   360° 发射激光射线（DDA 步进），命中暗色像素（实体墙 / 家具轮廓）
  *   即生成足迹点，点云与底图逐像素对齐。2D = 平面轮廓；3D = 沿障碍
  *   真实高度拉伸的立面（深色→实墙 2.5 m，浅色→家具 0.88 m）。
- * @FilePath: /bic-map-plugin/src/examples/indoor/pointCloud/index.vue
+ * @FilePath: /bic-map/src/examples/indoor/pointCloud/index.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

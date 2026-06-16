@@ -4,7 +4,7 @@
  * @LastEditTime: 2026-05-28 16:39:16
  * @LastEditors: Ella ella.yin@x-humanoid.com
  * @Description: 可通行区域示例：SLAM 底图上按管理端 config 轨道线流程绘制中心线、配置宽度并渲染宽线与缓冲带多边形
- * @FilePath: /bic-map-plugin/src/examples/base/passableArea/index.vue
+ * @FilePath: /bic-map/src/examples/base/passableArea/index.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

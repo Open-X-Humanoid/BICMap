@@ -1,6 +1,6 @@
 ---
 name: vue3-vite-frontend-standards
-description: "为 bic-map-plugin（Vue3 + Vite + JS）新增页面/组件时强制执行团队前端开发规范，涵盖 <script setup>、import 四段式顺序、SFC 块内顺序、scss scoped 样式、文件头注释与命名规范。Use when the user mentions `新建页面`, `新增页面`, `新组件`, `new page`, `add view`, `前端规范`, `开发规范`, `Vue3 代码风格`, `import 顺序`, `生命周期顺序`."
+description: "为 bic-map（Vue3 + Vite + JS）新增页面/组件时强制执行团队前端开发规范，涵盖 <script setup>、import 四段式顺序、SFC 块内顺序、scss scoped 样式、文件头注释与命名规范。Use when the user mentions `新建页面`, `新增页面`, `新组件`, `new page`, `add view`, `前端规范`, `开发规范`, `Vue3 代码风格`, `import 顺序`, `生命周期顺序`."
 ---
 
 # vue3-vite-frontend-standards

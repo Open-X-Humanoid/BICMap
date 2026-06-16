@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-05-14 15:25:37
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 点云渲染示例
- * @FilePath: /bic-map-plugin/src/examples/PointCloudExample.vue
+ * @FilePath: /bic-map/src/examples/PointCloudExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

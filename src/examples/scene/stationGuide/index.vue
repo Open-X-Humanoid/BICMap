@@ -3,7 +3,7 @@
  * @Date: 2026-06-03 12:33:21
  * @LastEditors: kai.lee@x-humanoid.com
  * @LastEditTime: 2026-06-08 10:14:34
- * @FilePath: /bic-map-plugin/src/examples/scene/stationGuide/index.vue
+ * @FilePath: /bic-map/src/examples/scene/stationGuide/index.vue
  * @Description: 火车站导览 2D 室内背景地图示例
 -->
 <template>

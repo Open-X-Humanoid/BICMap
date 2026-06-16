@@ -1,6 +1,6 @@
 <!--
  * @Description: SLAM 地图 + 宽轨道线示例（融合 widthLineDraw 壳与 WidelineExample 功能）
- * @FilePath: /bic-map-plugin/src/examples/base/wideLine/index.vue
+ * @FilePath: /bic-map/src/examples/base/wideLine/index.vue
 -->
 <template>
   <div class="app-root">

@@ -4,7 +4,7 @@
  * @LastEditTime: 2026-04-28 19:20:00
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 圆形绘制示例（BicMap-GL），UI 风格对齐矩形/多边形绘制
- * @FilePath: /bic-map-plugin/src/examples/base/circleDraw/index.vue
+ * @FilePath: /bic-map/src/examples/base/circleDraw/index.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

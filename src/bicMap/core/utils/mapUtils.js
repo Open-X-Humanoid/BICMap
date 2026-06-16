@@ -3,7 +3,7 @@
  *   从原 bicMap.min.js 内联的 MapUtils 迁移而来，行为与原全局 window.MapUtils 完全一致。
  *   - 默认原点为北京 (39.9042, 116.4074)
  *   - 默认比例尺 0.01 米/单位，可通过参数覆盖
- * @FilePath: /bic-map-plugin/src/bicMap/core/utils/mapUtils.js
+ * @FilePath: /bic-map/src/bicMap/core/utils/mapUtils.js
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  */
 

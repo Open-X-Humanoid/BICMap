@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-06-21 10:04:34
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 批量POI点位示例
- * @FilePath: /bic-map-plugin/src/examples/BatchPOIExample.vue
+ * @FilePath: /bic-map/src/examples/BatchPOIExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

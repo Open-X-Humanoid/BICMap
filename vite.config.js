@@ -91,14 +91,14 @@ export default defineConfig(({ command, mode }) => {
         lib: {
           entry: resolve(__dirname, 'src/index.js'),
           name: 'BicMapPlugin',
-          fileName: (format) => `bic-map-plugin.${format === 'es' ? 'mjs' : 'umd.js'}`
+          fileName: (format) => `bic-map.${format === 'es' ? 'mjs' : 'umd.js'}`
         },
         rollupOptions: {
           external: LIB_EXTERNAL,
           output: {
             globals: LIB_GLOBALS,
             assetFileNames: (assetInfo) => {
-              if (assetInfo.name === 'style.css') return 'bic-map-plugin.css';
+              if (assetInfo.name === 'style.css') return 'bic-map.css';
               return assetInfo.name;
             }
           }

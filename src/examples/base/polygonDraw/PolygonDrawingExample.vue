@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-06-20 20:30:00
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 使用BicMap-GL的多边形绘制示例
- * @FilePath: /bic-map-plugin/src/examples/PolygonDrawingExample.vue
+ * @FilePath: /bic-map/src/examples/PolygonDrawingExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

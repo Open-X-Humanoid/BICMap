@@ -4,7 +4,7 @@
  * @LastEditTime: 2026-06-02 10:17:47
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 地图瓦片加载示例：利用 BicMap GL 底层栅格瓦片 API，支持外部 URL 输入渲染
- * @FilePath: /bic-map-plugin/src/examples/outdoor/mapTiles/index.vue
+ * @FilePath: /bic-map/src/examples/outdoor/mapTiles/index.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

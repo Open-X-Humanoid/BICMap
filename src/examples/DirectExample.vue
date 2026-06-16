@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-04-29 17:17:07
  * @LastEditors: houser.hao@humanoid.com
  * @Description: BicMap-GL直接使用示例（无Vue组件）
- * @FilePath: /bic-map-plugin/src/examples/DirectExample.vue
+ * @FilePath: /bic-map/src/examples/DirectExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

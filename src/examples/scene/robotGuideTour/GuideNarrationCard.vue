@@ -1,6 +1,6 @@
 <!--
  * @Description: 导览讲解浮层 — 机器人到达 POI 时展示介绍文案
- * @FilePath: /bic-map-plugin/src/examples/scene/robotGuideTour/GuideNarrationCard.vue
+ * @FilePath: /bic-map/src/examples/scene/robotGuideTour/GuideNarrationCard.vue
 -->
 <template>
   <transition name="hud-fade">

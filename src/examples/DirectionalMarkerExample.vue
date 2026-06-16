@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-04-29 17:21:11
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 方向标记示例
- * @FilePath: /bic-map-plugin/src/examples/DirectionalMarkerExample.vue
+ * @FilePath: /bic-map/src/examples/DirectionalMarkerExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

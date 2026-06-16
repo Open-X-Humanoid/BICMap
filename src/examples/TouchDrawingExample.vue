@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-06-18 16:30:00
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 移动端触摸绘制矩形示例
- * @FilePath: /bic-map-plugin/src/examples/TouchDrawingExample.vue
+ * @FilePath: /bic-map/src/examples/TouchDrawingExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

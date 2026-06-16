@@ -4,7 +4,7 @@
  * @LastEditTime: 2025-05-23 09:57:54
  * @LastEditors: houser.hao@humanoid.com
  * @Description: 机器人位置标记示例
- * @FilePath: /bic-map-plugin/src/examples/RobotMarkerExample.vue
+ * @FilePath: /bic-map/src/examples/RobotMarkerExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

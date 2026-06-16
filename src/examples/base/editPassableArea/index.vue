@@ -1,6 +1,6 @@
 <!--
  * @Description: 可通行区域编辑示例
- * @FilePath: /bic-map-plugin/src/examples/base/editPassableArea/index.vue
+ * @FilePath: /bic-map/src/examples/base/editPassableArea/index.vue
 -->
 <template>
   <div class="app-root">

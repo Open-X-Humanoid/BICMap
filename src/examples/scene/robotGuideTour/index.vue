@@ -1,6 +1,6 @@
 <!--
  * @Description: 博物馆服务机器人导览讲解 Demo — 基于固定 POI 点位的智能讲解与循环巡航
- * @FilePath: /bic-map-plugin/src/examples/scene/robotGuideTour/index.vue
+ * @FilePath: /bic-map/src/examples/scene/robotGuideTour/index.vue
 -->
 <template>
   <div class="app-root">

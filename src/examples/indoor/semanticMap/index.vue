@@ -1,6 +1,6 @@
 <!--
  * @Description: 几何要素语义渲染 — 多边形分割展示机器人相关区域（办公室/走廊/充电/禁行等）
- * @FilePath: /bic-map-plugin/src/examples/indoor/semanticMap/index.vue
+ * @FilePath: /bic-map/src/examples/indoor/semanticMap/index.vue
 -->
 <template>
   <div class="app-root">

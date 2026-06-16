@@ -1,6 +1,6 @@
 <!--
  * @Description: 机器人实时位置监控 + 手动生成固定巡逻路径（A* 路径规划）
- * @FilePath: /bic-map-plugin/src/examples/indoor/location/index.vue
+ * @FilePath: /bic-map/src/examples/indoor/location/index.vue
 -->
 <template>
   <div class="app-root">

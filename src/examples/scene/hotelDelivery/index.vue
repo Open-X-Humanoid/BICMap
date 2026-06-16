@@ -7,7 +7,7 @@
  *   覆盖能力：createFloorManager / addStatusRobotMarkers / createRobotFOV /
  *          createIoTBubbles / createSemanticZones
  *   配送模拟引擎已拆分至 useDeliverySimulation.js
- * @FilePath: /bic-map-plugin/src/examples/scene/hotelDelivery/index.vue
+ * @FilePath: /bic-map/src/examples/scene/hotelDelivery/index.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>

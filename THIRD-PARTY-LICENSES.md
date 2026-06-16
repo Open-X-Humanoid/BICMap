@@ -1,6 +1,6 @@
 # 第三方依赖许可证 / Third-Party Licenses
 
-本项目（bic-map-plugin）打包并再分发了以下开源第三方库。CDN 构建产物
+本项目（bic-map）打包并再分发了以下开源第三方库。CDN 构建产物
 （`dist/cdn/bicMap.ext.min.js`）将它们内联到单文件中，npm 构建产物则以依赖形式引用。
 以下为各库的版权与许可证原文，特此保留以满足其许可证要求。
 

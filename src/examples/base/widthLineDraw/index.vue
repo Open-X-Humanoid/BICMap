@@ -4,7 +4,7 @@
  * @LastEditTime: 2026-05-07 15:35:04
  * @LastEditors: Ella ella.yin@x-humanoid.com
  * @Description: SLAM地图显示 + 线段绘制示例
- * @FilePath: /bic-map-plugin/src/examples/indoor/SlamExample.vue
+ * @FilePath: /bic-map/src/examples/indoor/SlamExample.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  * lucide-vue-next预览地址: https://lucide.dev/icons/
 -->

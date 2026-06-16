@@ -1,6 +1,6 @@
 <!--
  * @Description: SLAM 栅格地图 + A* 路径规划示例（点击起终点，避障折线）
- * @FilePath: /bic-map-plugin/src/examples/base/pathPlanning/index.vue
+ * @FilePath: /bic-map/src/examples/base/pathPlanning/index.vue
 -->
 <template>
   <div class="app-root">

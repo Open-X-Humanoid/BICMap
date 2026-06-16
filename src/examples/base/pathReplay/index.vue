@@ -1,6 +1,6 @@
 <!--
  * @Description: SLAM 地图 + 路径回放（方向标记沿路径移动，参考腾讯 markerMoveAlong）
- * @FilePath: /bic-map-plugin/src/examples/base/pathReplay/index.vue
+ * @FilePath: /bic-map/src/examples/base/pathReplay/index.vue
 -->
 <template>
   <div class="app-root">

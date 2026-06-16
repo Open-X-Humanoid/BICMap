@@ -2,7 +2,7 @@
  * @Author: Ella ella.yin@x-humanoid.com
  * @Date: 2026-06-05
  * @Description: 客运站人机交互对话面板
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/components/RobotInteractionPanel.vue
+ * @FilePath: /bic-map/src/examples/scene/passengerStation/components/RobotInteractionPanel.vue
  * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
