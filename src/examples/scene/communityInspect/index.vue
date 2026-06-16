@@ -44,7 +44,7 @@
                     </dd>
                   </div>
                   <div><dt>进度</dt><dd class="dd--mono">{{ progressPercent }}%</dd></div>
-                  <div><dt>路线点</dt><dd class="dd--mono">{{ PATROL_PATH.length }} 个</dd></div>
+                  <div><dt>当前段</dt><dd class="dd--mono">第 {{ currentSegment }} / 2 段</dd></div>
                   <div><dt>已用时</dt><dd class="dd--mono">{{ elapsedLabel }}</dd></div>
                 </dl>
 
@@ -56,7 +56,10 @@
                     <span class="legend-dot legend-dot--traveled"></span>已巡检轨迹
                   </div>
                   <div class="legend">
-                    <span class="legend-dot legend-dot--endpoint"></span>违停告警点
+                    <span class="legend-dot legend-dot--endpoint"></span>①违停告警点
+                  </div>
+                  <div class="legend">
+                    <span class="legend-dot legend-dot--heat"></span>②高温告警点
                   </div>
                 </div>
               </template>
@@ -100,6 +103,48 @@
                 <span>抓拍图像已上传至云端</span>
               </div>
             </div>
+            <button class="alert-continue-btn" @click="onContinue">
+              确认告警，继续巡检 →
+            </button>
+          </div>
+        </Transition>
+
+        <!-- 高温告警浮层 -->
+        <Transition name="alert-slide">
+          <div v-if="heatAlert" class="violation-alert violation-alert--heat" role="alert">
+            <div class="alert-header">
+              <span class="alert-icon">🌡</span>
+              <span class="alert-title">高温异常告警</span>
+              <button class="alert-close" @click="heatAlert = false" aria-label="关闭">✕</button>
+            </div>
+            <div class="alert-body">
+              <div class="alert-row">
+                <span class="alert-label">告警类型</span>
+                <span class="alert-val alert-val--heat">高温异常</span>
+              </div>
+              <div class="alert-row">
+                <span class="alert-label">检测温度</span>
+                <span class="alert-val alert-val--temp">{{ heatTemp }}</span>
+              </div>
+              <div class="alert-row">
+                <span class="alert-label">发现时间</span>
+                <span class="alert-val">{{ heatAlertTime }}</span>
+              </div>
+              <div class="alert-row">
+                <span class="alert-label">告警位置</span>
+                <span class="alert-val">社区北侧花园</span>
+              </div>
+              <div class="alert-row">
+                <span class="alert-label">巡检机器人</span>
+                <span class="alert-val">INS-001</span>
+              </div>
+            </div>
+            <div class="alert-capture">
+              <div class="capture-placeholder capture-placeholder--heat">
+                <span class="capture-icon">🔥</span>
+                <span>热成像已上传至云端</span>
+              </div>
+            </div>
           </div>
         </Transition>
 
@@ -132,6 +177,14 @@
             @click="onResume"
           >
             继续
+          </button>
+          <button
+            v-if="playState === 'finished' && currentSegment === 1"
+            type="button"
+            class="btn btn-continue"
+            @click="onContinue"
+          >
+            ▶ 继续巡检 第2段
           </button>
           <button
             type="button"
@@ -238,6 +291,55 @@ const PATROL_PATH_RAW = [
 
 const PATROL_PATH = deduplicatePath(PATROL_PATH_RAW)
 const ENDPOINT = PATROL_PATH[PATROL_PATH.length - 1]
+
+// ===== 第2段巡检路线（42个点）——违停确认后继续执行 =====
+const PATROL_PATH_2_RAW = [
+  [116.40743093759846, 39.90420034685505],
+  [116.40743229781339, 39.90420034685505],
+  [116.40743459971742, 39.90420042712017],
+  [116.40743627382722, 39.90420042712017],
+  [116.407438994257,   39.90420050738527],
+  [116.40744202858394, 39.90420050738527],
+  [116.4074456907029,  39.90420034685505],
+  [116.40744788797156, 39.90420042712017],
+  [116.4074507130345,  39.90420042712017],
+  [116.40745353809751, 39.90420050738527],
+  [116.40745615389636, 39.904200587650394],
+  [116.40745856042906, 39.904200587650394],
+  [116.4074623271789,  39.90420042712017],
+  [116.40746640782584, 39.90420042712017],
+  [116.40747320890034, 39.90420034685505],
+  [116.40747739417816, 39.90420042712017],
+  [116.40748021924117, 39.90420147056568],
+  [116.40748178872002, 39.904203316662176],
+  [116.40748252114298, 39.904207731240064],
+  [116.40748199798401, 39.90421254714221],
+  [116.40748220724805, 39.904216078803586],
+  [116.40748199798401, 39.904221536825816],
+  [116.40748199798401, 39.904225068487534],
+  [116.40748199798401, 39.904227636968216],
+  [116.40748210261495, 39.90423148968901],
+  [116.4074818933509,  39.9042339779044],
+  [116.40748210261495, 39.90423694771005],
+  [116.40748157945603, 39.90424112148969],
+  [116.40748021924117, 39.904243288645375],
+  [116.40747592933019, 39.9042443320902],
+  [116.40746797730475, 39.90424497421063],
+  [116.40746044380506, 39.90424473341548],
+  [116.4074517593545,  39.904244572885375],
+  [116.4074455860698,  39.90424489394559],
+  [116.40744098226389, 39.90424465315044],
+  [116.40743533214027, 39.90424393076498],
+  [116.40743418118944, 39.9042408806954],
+  [116.40743365803053, 39.904235904264226],
+  [116.40743407655634, 39.90423140942397],
+  [116.4074338672923,  39.9042277974975],
+  [116.40743355339742, 39.90422619219771],
+  [116.40743355339742, 39.90422619219771],
+]
+const PATROL_PATH_2 = deduplicatePath(PATROL_PATH_2_RAW)
+const ENDPOINT_2 = PATROL_PATH_2[PATROL_PATH_2.length - 1]
+const MOCK_HEAT_TEMP = '47.3°C'
 
 // ===== 路线 ID（与 PathReplay 对齐） =====
 const ROUTE_POLYLINE_ID = 'community-inspect-route'
@@ -461,18 +563,19 @@ const violationAlert = ref(false)
 const alertTime = ref('')
 const detectedPlate = ref('识别中…')
 const panelCollapsed = ref(false)
+const currentSegment = ref(1)         // 当前巡检段（1 或 2）
+const heatAlert = ref(false)          // 第2段终点高温告警
+const heatAlertTime = ref('')
+const heatTemp = ref('检测中…')        // 温度读数（模拟逐步显示）
 
 // ===== computed =====
 const progressPercent = computed(() => Math.round(progress.value * 1000) / 10)
 const durationMs = computed(() => Math.max(1000, durationSeconds.value * 1000))
 const statusLabel = computed(() => {
-  const MAP = {
-    idle: '待命',
-    playing: '巡检中',
-    paused: '已暂停',
-    finished: '告警！违停检测',
-  }
-  return MAP[playState.value] ?? playState.value
+  if (playState.value === 'playing')  return currentSegment.value === 1 ? '第①段巡检中' : '第②段巡检中'
+  if (playState.value === 'finished') return currentSegment.value === 1 ? '告警！违停检测' : '告警！高温检测'
+  if (playState.value === 'paused')   return '已暂停'
+  return '待命'
 })
 
 const elapsedLabel = computed(() => {
@@ -489,9 +592,13 @@ let rafId = null
 let playStartPerf = 0
 let pausedElapsedMs = 0
 let lastBearingDeg = 0
-let endpointCircleAdded = false
+let endpointCircleAdded = false    // 第1段终点圆
+let endpoint2CircleAdded = false   // 第2段终点圆
 let plateTimers = []
+let heatTimers = []
 let bubbleCtrl = null
+// 当前激活的巡检路径（segment 1 = PATROL_PATH，segment 2 = PATROL_PATH_2）
+let activePathRef = PATROL_PATH
 
 /**
  * 注入气泡动画关键帧（幂等，每页只执行一次）
@@ -591,15 +698,140 @@ function removeViolationBubble() {
   detectedPlate.value = '识别中…'
 }
 
+// ===== 高温告警气泡 =====
+
+function buildHeatBubbleHTML() {
+  return `
+    <div style="
+      position: relative;
+      width: 172px;
+      background: rgba(255,255,255,0.97);
+      border-radius: 12px;
+      border: 1.5px solid rgba(234,88,12,0.55);
+      box-shadow: 0 6px 24px rgba(234,88,12,0.22),0 2px 8px rgba(0,0,0,0.1);
+      font-family: PingFang SC,Microsoft YaHei,system-ui,sans-serif;
+      animation: bicvb-pop 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
+    ">
+      <div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:10px 10px 0 0;padding:6px 10px;display:flex;align-items:center;gap:5px;">
+        <span style="font-size:13px;">🌡</span>
+        <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;">高温告警</span>
+        <span style="margin-left:auto;background:rgba(255,255,255,.22);color:#fff;font-size:9px;font-weight:600;padding:1px 5px;border-radius:4px;">INS-001</span>
+      </div>
+      <div style="padding:8px 10px 4px;">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:4px;letter-spacing:.04em;">温度检测</div>
+        <div style="background:#431407;border-radius:5px;padding:4px 8px;display:flex;align-items:center;justify-content:center;gap:4px;border:1.5px solid #7c2d12;">
+          <span style="font-size:11px;">🔥</span>
+          <span class="bic-vb-temp" style="color:#fb923c;font-size:14px;font-weight:800;letter-spacing:.08em;font-family:ui-monospace,'SF Mono',monospace;animation:bicvb-blink .4s linear infinite;">检测中…</span>
+        </div>
+      </div>
+      <div style="padding:0 10px 8px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:9px;color:#94a3b8;">社区北侧花园</span>
+        <span class="bic-vb-heat-status" style="font-size:9px;color:#f59e0b;font-weight:600;">扫描中</span>
+      </div>
+      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(234,88,12,.55);"></div>
+      <div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid rgba(255,255,255,.97);"></div>
+    </div>
+  `
+}
+
+function showHeatBubble() {
+  if (!bubbleCtrl) return
+  ensureBubbleStyles()
+  bubbleCtrl.show(ENDPOINT_2, buildHeatBubbleHTML())
+
+  const wrapper = bubbleCtrl.getElement()
+  const tempEl = wrapper.querySelector('.bic-vb-temp')
+  const statusEl = wrapper.querySelector('.bic-vb-heat-status')
+
+  heatTimers.forEach(t => clearTimeout(t))
+  heatTimers = []
+
+  const chars = MOCK_HEAT_TEMP.split('')
+  let revealed = ''
+  chars.forEach((ch, i) => {
+    const t = setTimeout(() => {
+      revealed += ch
+      if (tempEl) tempEl.textContent = revealed + (i < chars.length - 1 ? '_' : '')
+      if (i === chars.length - 1) {
+        if (tempEl) tempEl.style.animation = 'bicvb-reveal .4s ease both'
+        if (statusEl) { statusEl.textContent = '超标！'; statusEl.style.color = '#ef4444' }
+        heatTemp.value = MOCK_HEAT_TEMP
+      }
+    }, 500 + i * 180)
+    heatTimers.push(t)
+  })
+}
+
+function removeHeatBubble() {
+  heatTimers.forEach(t => clearTimeout(t))
+  heatTimers = []
+  bubbleCtrl?.hide()
+  heatTemp.value = '检测中…'
+}
+
+function triggerHeatAlert() {
+  const epCtrl = endpointCircleCtrl.value
+  if (epCtrl && !endpoint2CircleAdded) {
+    epCtrl.addCircle({
+      center: ENDPOINT_2,
+      radiusM: 0.6,
+      fillColor: '#f97316',
+      fillOpacity: 0.35,
+      outlineColor: '#f97316',
+      outlineWidth: 3,
+    })
+    endpoint2CircleAdded = true
+  }
+
+  const now = new Date()
+  heatAlertTime.value = now.toLocaleTimeString('zh-CN', { hour12: false })
+  heatAlert.value = true
+
+  showHeatBubble()
+}
+
+/**
+ * 确认违停告警，继续执行第2段巡检路线
+ */
+function onContinue() {
+  if (playState.value !== 'finished' || currentSegment.value !== 1) return
+
+  violationAlert.value = false
+  removeViolationBubble()
+
+  // 清除第1段终点圆
+  if (endpointCircleAdded) {
+    endpointCircleCtrl.value?.clear()
+    endpointCircleAdded = false
+  }
+
+  // 切换到第2段
+  currentSegment.value = 2
+  activePathRef = PATROL_PATH_2
+  refreshPathMetrics()
+
+  // 更新折线图层显示第2段路线
+  const traversed0 = buildTraversedPath(PATROL_PATH_2, 0, PATROL_PATH_2[0])
+  polylinesCtrl.value?.update(buildReplayPolylinesPayload(PATROL_PATH_2, traversed0))
+
+  pausedElapsedMs = 0
+  progress.value = 0
+  lastBearingDeg = segmentGeographicBearing(PATROL_PATH_2, 0) ?? 0
+  applyFrame(0)
+  playState.value = 'playing'
+  playStartPerf = performance.now()
+  rafId = requestAnimationFrame(tick)
+}
+
 // ===== 动画逻辑 =====
 function refreshPathMetrics() {
   const m = map.value
-  if (!m || PATROL_PATH.length < 2) {
+  if (!m || activePathRef.length < 2) {
     segmentLengths = []
     totalPixelLength = 0
     return
   }
-  const metrics = buildPixelSegmentMetrics(m, PATROL_PATH)
+  const metrics = buildPixelSegmentMetrics(m, activePathRef)
   segmentLengths = metrics.segmentLengths
   totalPixelLength = metrics.totalPixelLength
 }
@@ -607,21 +839,21 @@ function refreshPathMetrics() {
 function applyFrame(distAlong) {
   const m = map.value
   const r3d = robot3DLayer.value
-  if (!m || !r3d || PATROL_PATH.length < 2) return
+  if (!m || !r3d || activePathRef.length < 2) return
 
   const { lngLat, segIndex } = interpolateAlongPath(
-    PATROL_PATH, segmentLengths, totalPixelLength, distAlong
+    activePathRef, segmentLengths, totalPixelLength, distAlong
   )
 
-  const b = segmentGeographicBearing(PATROL_PATH, segIndex)
+  const b = segmentGeographicBearing(activePathRef, segIndex)
   if (b != null) lastBearingDeg = b
 
   r3d.updateRobot(ROBOT_ID, { lngLat, heading: lastBearingDeg })
 
   const polyCtrl = polylinesCtrl.value
   if (polyCtrl?.update) {
-    const traversed = buildTraversedPath(PATROL_PATH, segIndex, lngLat)
-    polyCtrl.update(buildReplayPolylinesPayload(PATROL_PATH, traversed))
+    const traversed = buildTraversedPath(activePathRef, segIndex, lngLat)
+    polyCtrl.update(buildReplayPolylinesPayload(activePathRef, traversed))
   }
 }
 
@@ -640,7 +872,7 @@ function tick() {
   applyFrame(p * totalPixelLength)
 
   if (p >= 1) {
-    if (loop.value) {
+    if (loop.value && currentSegment.value === 1) {
       playStartPerf = performance.now()
       pausedElapsedMs = 0
       progress.value = 0
@@ -650,7 +882,11 @@ function tick() {
       applyFrame(totalPixelLength)
       progress.value = 1
       stopRaf()
-      triggerViolationAlert()
+      if (currentSegment.value === 1) {
+        triggerViolationAlert()
+      } else {
+        triggerHeatAlert()
+      }
     }
     return
   }
@@ -681,18 +917,30 @@ function triggerViolationAlert() {
 // ===== 控制函数 =====
 function onStart() {
   if (!slamMapReady.value || !robot3DLayer.value) return
-  refreshPathMetrics()
+
+  // 重置到第1段
+  currentSegment.value = 1
+  activePathRef = PATROL_PATH
+
   stopRaf()
   pausedElapsedMs = 0
   progress.value = 0
   violationAlert.value = false
+  heatAlert.value = false
   removeViolationBubble()
+  removeHeatBubble()
 
-  if (endpointCircleAdded) {
+  if (endpointCircleAdded || endpoint2CircleAdded) {
     endpointCircleCtrl.value?.clear()
     endpointCircleAdded = false
+    endpoint2CircleAdded = false
   }
 
+  // 恢复第1段折线
+  const traversed0 = buildTraversedPath(PATROL_PATH, 0, PATROL_PATH[0])
+  polylinesCtrl.value?.update(buildReplayPolylinesPayload(PATROL_PATH, traversed0))
+
+  refreshPathMetrics()
   lastBearingDeg = segmentGeographicBearing(PATROL_PATH, 0) ?? 0
   applyFrame(0)
   playState.value = 'playing'
@@ -720,12 +968,23 @@ function onReset() {
   pausedElapsedMs = 0
   progress.value = 0
   violationAlert.value = false
+  heatAlert.value = false
   removeViolationBubble()
+  removeHeatBubble()
 
-  if (endpointCircleAdded) {
+  if (endpointCircleAdded || endpoint2CircleAdded) {
     endpointCircleCtrl.value?.clear()
     endpointCircleAdded = false
+    endpoint2CircleAdded = false
   }
+
+  // 重置到第1段
+  currentSegment.value = 1
+  activePathRef = PATROL_PATH
+
+  // 恢复第1段折线
+  const traversed0 = buildTraversedPath(PATROL_PATH, 0, PATROL_PATH[0])
+  polylinesCtrl.value?.update(buildReplayPolylinesPayload(PATROL_PATH, traversed0))
 
   refreshPathMetrics()
   lastBearingDeg = segmentGeographicBearing(PATROL_PATH, 0) ?? 0
@@ -778,6 +1037,7 @@ onMounted(() => { initMap() })
 onBeforeUnmount(() => {
   stopRaf()
   removeViolationBubble()
+  removeHeatBubble()
   bubbleCtrl?.remove()
   bubbleCtrl = null
   robot3DLayer.value?.destroy?.()
@@ -1119,6 +1379,17 @@ async function loadSlamMap() {
     letter-spacing: 0.1em;
     font-size: 11px;
   }
+
+  &.alert-val--heat {
+    color: #ea580c;
+    font-family: inherit;
+  }
+
+  &.alert-val--temp {
+    color: #f97316;
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 12px;
+  }
 }
 
 .alert-capture {
@@ -1135,9 +1406,71 @@ async function loadSlamMap() {
   gap: 8px;
   font-size: 11px;
   color: #94a3b8;
+
 }
 
 .capture-icon { font-size: 18px; }
+
+/* 违停告警面板底部"继续巡检"按钮 */
+.alert-continue-btn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(to right, #0167ff, #40bbe9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+
+  &:hover { opacity: 0.88; transform: translateY(-1px); }
+  &:active { transform: scale(0.97); }
+}
+
+/* 高温告警面板（橙色主题，右上角与违停面板同位置） */
+.violation-alert--heat {
+  border-color: rgba(234, 88, 12, 0.4);
+  box-shadow:
+    0 8px 32px rgba(234, 88, 12, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  .alert-header {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(234, 88, 12, 0.06));
+    border-bottom-color: rgba(234, 88, 12, 0.18);
+  }
+
+  .alert-title { color: #ea580c; }
+  .alert-close:hover { color: #ea580c; background: rgba(249, 115, 22, 0.08); }
+
+  .alert-capture {
+    background: rgba(249, 115, 22, 0.06);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+}
+
+/* 图例 —— 高温告警点（橙色） */
+.legend-dot--heat {
+  background: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+}
+
+/* 工具栏 —— 继续巡检（高亮） */
+.btn-continue {
+  border: none;
+  color: #fff;
+  background: linear-gradient(to right, #f97316, #fbbf24);
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+  animation: btn-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35); }
+  50%       { box-shadow: 0 4px 22px rgba(249, 115, 22, 0.65); }
+}
 
 /* ── Transition 动画 ── */
 .alert-slide-enter-active {
