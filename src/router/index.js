@@ -114,6 +114,12 @@ const routes = [
     meta: { title: '扫地机器人清扫场景' }
   },
   {
+    path: '/scene/communityInspect',
+    name: 'CommunityInspect',
+    component: () => import('../examples/scene/communityInspect/index.vue'),
+    meta: { title: '社区24h无人值守巡检' }
+  },
+  {
     path: '/base/PolylineDrawing',
     name: 'PolylineDrawing',
     component: () => import('../examples/base/polylineDraw/index.vue'),

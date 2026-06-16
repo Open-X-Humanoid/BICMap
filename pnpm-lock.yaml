@@ -27,9 +27,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.2.2
         version: 5.2.3(vite@6.3.5(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.42.0)(yaml@2.8.2))(vue@3.5.13)
-      '@x-humanoid-cloud/URDFPlugin':
-        specifier: ^1.0.7
-        version: 1.0.7
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -959,9 +956,6 @@ packages:
 
   '@vue/shared@3.5.30':
     resolution: {integrity: sha512-YXgQ7JjaO18NeK2K9VTbDHaFy62WrObMa6XERNfNOkAhD1F1oDSf3ZJ7K6GqabZ0BvSDHajp8qfS5Sa2I9n8uQ==}
-
-  '@x-humanoid-cloud/URDFPlugin@1.0.7':
-    resolution: {integrity: sha512-pbHktPYDt99Z+LUK7EvCM03SzItkdJaza4wHuO3JtRZA6ZR+ljRpSfmkJ1IiqopVE+UCsnCHzQ9kw8jjJrv/Jg==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -1942,9 +1936,6 @@ packages:
 
   three@0.149.0:
     resolution: {integrity: sha512-tohpUxPDht0qExRLDTM8sjRLc5d9STURNrdnK3w9A+V4pxaTBfKWWT/IqtiLfg23Vfc3Z+ImNfvRw1/0CtxrkQ==}
-
-  three@0.180.0:
-    resolution: {integrity: sha512-o+qycAMZrh+TsE01GqWUxUIKR1AL0S8pq7zDkYOQw8GqfX8b8VoCKYUoHbhiX5j+7hr8XsuHDVU6+gkQJQKg9w==}
 
   tinyglobby@0.2.13:
     resolution: {integrity: sha512-mEwzpUgrLySlveBwEVDMKk5B57bhLPYovRfPAXD5gA/98Opn0rCDj3GtLwFvCvH5RK9uPCExUROW5NjDwvqkxw==}
@@ -3752,15 +3743,6 @@ snapshots:
 
   '@vue/shared@3.5.30': {}
 
-  '@x-humanoid-cloud/URDFPlugin@1.0.7':
-    dependencies:
-      terser: 5.42.0
-      three: 0.180.0
-      urdf-loader: 0.12.7(three@0.180.0)
-      vue: 3.5.13
-    transitivePeerDependencies:
-      - typescript
-
   abab@2.0.6:
     optional: true
 
@@ -4857,8 +4839,6 @@ snapshots:
 
   three@0.149.0: {}
 
-  three@0.180.0: {}
-
   tinyglobby@0.2.13:
     dependencies:
       fdir: 6.4.4(picomatch@4.0.2)
@@ -4929,10 +4909,6 @@ snapshots:
   urdf-loader@0.12.7(three@0.149.0):
     dependencies:
       three: 0.149.0
-
-  urdf-loader@0.12.7(three@0.180.0):
-    dependencies:
-      three: 0.180.0
 
   url-parse@1.5.10:
     dependencies:
