@@ -1,12 +1,3 @@
-<!--
- * @Author: houser.hao@humanoid.com
- * @Date: Do not edit
- * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 3D 模型导航控制示例：URDFPlugin 透明叠加 SLAM 地图，A* 路径规划，行走时腿/臂关节动画
- * @FilePath: Do not edit
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
--->
 <template>
   <div class="app-root">
     <canvas id="canvasCtrl" style="display:none"></canvas>
@@ -44,13 +35,6 @@
         <!-- 顶层：URDFPlugin 透明画布，跟随机器人 GPS 坐标 -->
         <div id="urdfCtrlLayer" class="layer-urdf"></div>
 
-        <!-- 说明角标 -->
-        <div class="plugin-badge">
-          <span class="plugin-badge__dot"></span>
-          本示例 URDF 文件引入，结合
-          <code>@x-humanoid-cloud/URDFPlugin</code>
-          插件实现
-        </div>
 
         <!-- 加载遮罩 -->
         <Transition name="fade">
@@ -70,7 +54,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { CheckCircle, Eye, EyeOff, MapPin, Navigation, X } from 'lucide-vue-next'
-import { URDFPlugin } from '@x-humanoid-cloud/URDFPlugin'
+import URDFPlugin from '../../../bicMap/core/urdf'
 
 import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
@@ -258,12 +242,12 @@ function initURDF() {
 
       initBox.setLookAtRobot(false)
       syncURDFCamera()
-      updateRobotScreenPos()
-
-      map.on('move', onMapMove)
 
       loading.value     = false
       modelLoaded.value = true
+      updateRobotScreenPos()
+
+      map.on('move', onMapMove)
     })
     .catch(err => {
       console.error('[load3dControl] URDF 加载失败:', err)

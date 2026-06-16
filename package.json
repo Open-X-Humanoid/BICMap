@@ -28,11 +28,11 @@
     "@turf/turf": "7.3.5",
     "maplibre-gl": "3.6.2",
     "three": "0.149.0",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "urdf-loader": "^0.12.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.2",
-    "@x-humanoid-cloud/URDFPlugin": "^1.0.7",
     "cross-env": "^7.0.3",
     "events": "^3.3.0",
     "fabric": "^6.7.0",
