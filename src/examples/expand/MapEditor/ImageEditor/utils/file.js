@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-22 10:58:50
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-25 14:23:00
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/utils/file.js
- * @Description: 处理文件相关操作
- */
-
 /**
  * 从URL中提取图片格式
  * @param {string} url - 图片URL

@@ -1,12 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-04 14:08:47
- * @LastEditTime: 2026-06-04 16:06:17
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/examples/utils/experiment/geoUtils.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
 /**
  * 创建地理坐标工具集。
  * @param {Object} config

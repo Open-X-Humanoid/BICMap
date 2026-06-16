@@ -1,12 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-02 18:16:50
- * @LastEditTime: 2026-06-08 19:56:35
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/examples/scene/mallRobotMonitor/useViewControls.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
 import { ref } from 'vue'
 import { FLOOR_CONFIGS } from './constants.js'
 

@@ -1,8 +1,3 @@
-/*
- * @Author: Ella-style
- * @Description: 撤销 / 重做历史记录插件（参考 bicEditor 的 HistoryPlugin 思路）
- * @Feature: 仅对绘制/删除等“前景对象”做历史记录，背景图始终保留在画布上，不参与撤销/重做。
- */
 import * as fabric from "fabric";
 
 class HistoryPlugin {

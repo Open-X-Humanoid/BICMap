@@ -1,13 +1,3 @@
-/*
- * @Author: kai.lee kai.lee@x-humanoid.com
- * @Date: 2026-05-08 14:20:00
- * @LastEditTime: 2026-05-08 14:20:00
- * @LastEditors: kai.lee kai.lee@x-humanoid.com
- * @Description: 轻量通用发布订阅工具，与地图框架无关，可在任意 core 模块中复用
- * @FilePath: /bic-map-plugin/src/bicMap/core/utils/eventEmitter.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /**
  * 创建一个轻量发布订阅实例
  *

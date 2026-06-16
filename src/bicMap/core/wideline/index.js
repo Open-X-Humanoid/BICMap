@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-10-10 15:30:00
- * @LastEditTime: 2026-05-06 18:18:33
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @Description: Wide line (track/road) rendering functionality
- * @FilePath: /bic-map-plugin/src/bicMap/core/wideline/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /**
  * 计算两点间的垂直向量（单位向量）
  * @param {Array} point1 - 起点 [lng, lat]

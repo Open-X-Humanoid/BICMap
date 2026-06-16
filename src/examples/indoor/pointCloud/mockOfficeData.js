@@ -1,28 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-06-09 10:30:00
- * @LastEditTime: 2026-06-09 13:37:00
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 智能移动机器人激光雷达点云 Mock 生成器（SLAM 画布像素射线追踪版）。
- *
- *   核心思路：不再使用合成物体，直接以 SLAM 底图 canvas 的像素占据栅格为障碍面，
- *   沿机器人规划路径取扫描站位，每站 360° 发射激光射线（DDA 逐像素步进），
- *   命中暗色像素（墙体 / 家具轮廓）即记录足迹点，与底图逐像素对齐。
- *
- *   占据栅格编码（Uint8Array）：
- *     0 — 可通行 / 透明（室外）
- *     1 — 浅色障碍（家具、隔断轮廓，高度 ≈ 0.9 m）
- *     2 — 深色障碍（实体墙、承重柱，高度 ≈ 2.5 m）
- *
- *   2D 点：足迹 [x, y, 0, s]
- *   3D 点：每个足迹沿障碍高度多层采样 [x, y, z, s]，z ∈ [0, height]
- *   所有点均按"首次被扫到的路径进度 s ∈ [0,1]"升序排列，
- *   渲染方只需二分截取 s ≤ progress 的子集即可实现动态跟随。
- *
- * @FilePath: /bic-map-plugin/src/examples/indoor/pointCloud/mockOfficeData.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /** 占据栅格 WeakMap 缓存：canvas 实例 → {occ, imgW, imgH} */
 const _occCache = new WeakMap()
 

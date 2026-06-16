@@ -1,12 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-22 16:55:30
- * @LastEditTime: 2026-05-28 10:52:01
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 插件入口
- * @FilePath: /bic-map-plugin/src/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import bicMap from './bicMap'
 
 // 导出地图库

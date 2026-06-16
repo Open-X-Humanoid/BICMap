@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-16 17:29:01
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2026-05-07 17:56:04
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/config/tools.js
- * @Description: 一些工具参数的配置
- */
-
 // 工具配置映射
 const toolConfigs = {
   // select: {

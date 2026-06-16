@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 — Mock 航班数据与查询
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/flightSchedule.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 export const MOCK_FLIGHTS = [
   {
     id: 'FL-SHA',

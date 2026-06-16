@@ -1,27 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 16:40:30
- * @LastEditTime: 2025-06-18 11:39:18
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 脚本和样式加载工具
- * @FilePath: /bic-map-plugin/src/bicMap/core/utils/loaders.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- * 
- * 使用说明：
- * 1. 对于移动端开发，本文件提供了安全的资源加载函数
- * 2. isLocalFile() - 检测是否为本地文件路径
- * 3. safeFetch() - 安全的fetch封装，自动拒绝本地文件
- * 4. safeImageLoader() - 安全的图片加载，自动处理本地/网络资源
- * 5. proxyImageLoader() - 专用的图片代理加载器
- * 
- * 移动端本地文件路径包括：
- * - file:// 协议
- * - /android_asset/ Android应用资源
- * - /var/ iOS应用沙盒
- * - cdvfile:// Cordova文件系统
- * - Cordova环境下的非http路径
- */
-
 /**
  * 检测是否为移动端本地文件路径
  * @param {string} url - 文件URL

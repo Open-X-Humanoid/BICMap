@@ -1,10 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05
- * @Description: 客运站 POI 语义 icon 映射
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/poiIcons.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import iconBusDropoff from '../../assets/icons/icon-bus-dropoff.svg'
 import iconDispatch from '../../assets/icons/icon-dispatch.svg'
 import iconEntry from '../../assets/icons/icon-entry.svg'

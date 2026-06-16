@@ -1,8 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Description: 主插件，提供插件管理、事件绑定、API代理等核心功能
- * @FilePath: /bic-map-plugin/src/examples/expand/MapEditor/ImageEditor/core/Editor.js
- */
 import EventEmitter from "events";
 
 import { isRightClick } from "../utils/index";

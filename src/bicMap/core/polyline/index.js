@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-29 18:12:30
- * @LastEditTime: 2025-06-21 07:46:00
- * @LastEditors: houser.hao@humanoid.com
- * @Description: Polyline drawing functionality
- * @FilePath: /bic-map-plugin/src/bicMap/core/polyline/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { safeImageLoader } from '../utils/loaders.js';
 
 /**

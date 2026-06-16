@@ -1,10 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-01-XX XX:XX:XX
- * @Description: CDN 版本入口文件 - 将 bicMap 暴露到全局作用域
- * @FilePath: /bic-map-plugin/src/cdn.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import bicMap from './bicMap'
 
 // 将 bicMap 暴露到全局作用域

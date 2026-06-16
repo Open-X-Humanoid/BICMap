@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-19 14:45:00
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-22 10:59:20
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/utils/index.js
- * @Description: 图像编辑器工具函数
- */
-
 /**
  * 检测是否为右键点击
  * @param {Object} opt - Fabric.js 事件对象

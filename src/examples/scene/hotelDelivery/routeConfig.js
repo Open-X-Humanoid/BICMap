@@ -1,11 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-05-26
- * @Description: 酒店配送场景 — 路线配置（类型定义、路线自动生成、预设路线集合）
- * @FilePath: /bic-map-plugin/src/examples/indoor/hotelDelivery/routeConfig.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 // ===== 类型定义 =====
 
 /**

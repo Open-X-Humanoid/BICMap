@@ -1,10 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05
- * @Description: 客运站 Mock 班次与状态计算
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/departureSchedule.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import { TRIP_STATUS } from './constants.js'
 import { syncBayOccupancyFromTrips } from './passengerStationLayout.js'
 

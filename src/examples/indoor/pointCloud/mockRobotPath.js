@@ -1,14 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-06-09 10:00:00
- * @LastEditTime: 2026-06-09 12:45:58
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 智能移动机器人沿边行进的真实规划路径（SLAM 经纬度坐标，两段拼接）。
- *   与扫地机器人清扫场景使用同一条沿边路径，作为激光雷达点云的"移动轨迹"。
- * @FilePath: /bic-map-plugin/src/examples/indoor/pointCloud/mockRobotPath.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 const RAW_PATH_SEGMENT_1 = [
   [116.40735453390567, 39.90420210608286],
   [116.40735453390567, 39.90420112394585],

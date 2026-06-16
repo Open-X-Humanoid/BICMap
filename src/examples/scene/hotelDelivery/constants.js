@@ -1,11 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-05-26
- * @Description: 酒店配送场景 — 地图参数、运动常量、楼层配置
- * @FilePath: /bic-map-plugin/src/examples/scene/hotelDelivery/constants.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 // ===== SLAM 地图参数（对应酒店楼层平面图，约 80 m × 50 m）=====
 export const MAP_START_X      = -40.0
 export const MAP_START_Y      = -25.0

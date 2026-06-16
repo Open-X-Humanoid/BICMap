@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-05-21
- * @LastEditTime: 2026-05-28 10:48:21
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 语义区域样式预设 - 为酒店/仓库等场景提供禁行/限速/服务范围等标准化区域样式
- * @FilePath: /bic-map-plugin/src/examples/utils/experiment/map/semanticZones.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /**
  * 语义区域类型枚举
  * @enum {string}

@@ -1,9 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Description: 图片保存插件
- * @FilePath: /bic-map-plugin/src/examples/expand/MapEditor/ImageEditor/core/plugins/ExportPlugin.js
- */
-
 import * as fabric from "fabric";
 
 import { blobToFile } from "../../utils/index";

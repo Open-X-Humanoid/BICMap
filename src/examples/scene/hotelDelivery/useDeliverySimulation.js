@@ -1,13 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-05-25
- * @LastEditTime: 2026-06-08 10:10:35
- * @Description: 酒店配送机器人 — 配送模拟引擎（Vue 3 Composable）
- *   导出：useDeliverySimulation(options) composable：封装完整配送状态机
- * @FilePath: /bic-map-plugin/src/examples/scene/hotelDelivery/useDeliverySimulation.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { ref, onBeforeUnmount } from 'vue'
 import { ROBOT_STATUS } from '@/examples/utils/robot'
 import { IOT_EVENT_TYPE } from '@/examples/utils/overlay'

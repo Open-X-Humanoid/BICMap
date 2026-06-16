@@ -1,12 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-04 16:14:23
- * @LastEditTime: 2026-06-08 12:51:14
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/examples/utils/robot/index.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
 /**
  * Robot Activity Orchestration Engine
  * 通用机器人活动编排引擎

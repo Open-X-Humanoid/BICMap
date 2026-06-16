@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 Demo — SLAM 地图、导览状态与折线绘制常量
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/constants.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /** 机场 SLAM 栅格地图参数（与 slam_airport_transparent.png 2752×1536 一致） */
 export const AIRPORT_MAP_CONFIG = {
   startX: -58.999993705749512,

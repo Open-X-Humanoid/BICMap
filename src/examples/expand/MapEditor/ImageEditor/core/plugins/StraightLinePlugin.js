@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-18 11:10:00
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-21 16:40:21
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/plugins/StraightLinePlugin.js
- * @Description: 铅笔直线绘制插件
- */
 import { v4 as uuid } from "uuid";
 import * as fabric from "fabric";
 import { isLeftClick } from "../../utils/index";

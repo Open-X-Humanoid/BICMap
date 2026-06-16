@@ -1,12 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-04 15:21:33
- * @LastEditTime: 2026-06-04 15:45:35
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/examples/scene/mallRobotMonitor/utils/pointUtil.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
 /**
  * 射线法判断点是否在多边形内（ray casting algorithm）。
  * @param {number} px - 点的 x 坐标（分数坐标）

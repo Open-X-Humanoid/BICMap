@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 17:00:30
- * @LastEditTime: 2025-06-20 20:18:12
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 地图绘制工具相关功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/drawing/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import * as turfLib from '@turf/turf';
 
 import { LAYER_IDS, addLayerWithOrder } from '../layers/layerConfig';

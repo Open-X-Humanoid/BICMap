@@ -1,13 +1,3 @@
-/*
- * @Author: kai.lee kai.lee@x-humanoid.com
- * @Date: 2026-05-08 14:29:00
- * @LastEditTime: 2026-06-09 11:16:00
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 通用 MapLibre 图层事件路由模块：将图层事件分发到精准 id / 属性匹配 / 通配三张路由表
- * @FilePath: /bic-map-plugin/src/examples/utils/map/layerEvents.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { createEventEmitter } from '@/bicMap/core/utils/eventEmitter.js'
 
 const _EVENTS = ['click', 'mouseenter', 'mouseleave', 'mousemove']

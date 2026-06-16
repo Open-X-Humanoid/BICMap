@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-05-21
- * @LastEditTime: 2026-05-21 16:22:00
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 多楼层地图管理器 - 支持酒店等多层建筑场景的 SLAM 地图按层加载/卸载
- * @FilePath: /bic-map-plugin/src/examples/utils/experiment/map/floorManager.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { safeImageLoader } from '@/bicMap/core/utils/loaders.js';
 
 /**

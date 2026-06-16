@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-22 20:18:37
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-23 16:39:05
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/plugins/ControlsPlugin.js
- * @Description: canvas控制选中样式设置插件
- */
-
 class ControlsPlugin {
   static pluginName = "ControlsPlugin";
 

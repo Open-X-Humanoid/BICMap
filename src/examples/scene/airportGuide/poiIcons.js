@@ -1,10 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 POI 语义 icon 映射
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/poiIcons.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import iconCart from '../../assets/icons/icon-cart.svg'
 import iconEntry from '../../assets/icons/icon-entry.svg'
 import iconGate from '../../assets/icons/icon-gate.svg'

@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-06-15 10:00:00
- * @LastEditTime: 2026-06-15 16:11:09
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @Description: 室外高精地图加载示例 - 车道面、标线、路沿与交通标志 mock 数据，坐标与 buildings 示例道路网格对齐
- * @FilePath: /bic-map-plugin/src/examples/outdoor/hdMap/mockHdMapData.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import {
   LANE_HALF_WIDTH,
   MAP_BEARING,

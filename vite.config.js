@@ -1,12 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-22 16:43:33
- * @LastEditTime: 2026-06-15 18:10:00
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 插件vite配置
- * @FilePath: /bic-map-plugin/vite.config.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'

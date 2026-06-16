@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-28 14:20:30
- * @LastEditTime: 2026-05-25 16:06:14
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 机器人标记相关功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/markers/robo.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import maplibregl from 'maplibre-gl';
 
 import { safeImageLoader } from '../utils/loaders.js';

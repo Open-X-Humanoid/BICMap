@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05
- * @Description: 客运站导览 Demo 常量
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/constants.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 export const JOURNEY_STAGE = {
   IDLE: 'idle',
   TICKET: 'ticket',

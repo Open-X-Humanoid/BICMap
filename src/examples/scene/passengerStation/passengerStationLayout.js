@@ -1,10 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05
- * @Description: 客运站布局：区域多边形、POI、发车位网格与登车接近点
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/passengerStationLayout.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import { TRIP_STATUS } from './constants.js'
 import { SLAM_MAP_CONFIG } from '../robotGuideTour/constants.js'
 

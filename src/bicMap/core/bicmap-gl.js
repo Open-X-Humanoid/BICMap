@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-22 17:15:30
- * @LastEditTime: 2026-05-28 10:48:47
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: BicMap GL JS 封装，集成 maplibre-gl、turf 与 three（通过 npm 依赖打包）
- * @FilePath: /bic-map-plugin/src/bicMap/core/bicmap-gl.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 // 导入第三方地图引擎依赖（替代原 bicMap.min.js 运行时动态加载）
 import maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';

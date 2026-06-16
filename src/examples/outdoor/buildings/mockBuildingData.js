@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-05-07 16:51:00
- * @LastEditTime: 2026-05-28 14:08:08
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 室外建筑物渲染示例 - 道路优先空间布局；道路网格先定义，建筑/绿地/停车场坐标均限定在道路围合的地块内，消除空间重叠
- * @FilePath: /bic-map-plugin/src/examples/outdoor/buildings/mockBuildingData.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 export const MAP_CENTER = [116.4076, 39.9045]
 export const MAP_ZOOM = 16
 export const MAP_PITCH = 55

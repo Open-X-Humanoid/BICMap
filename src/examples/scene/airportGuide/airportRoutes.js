@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 — 预设路线与 POI 查询
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/airportRoutes.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { AIRPORT_POIS } from './airportLayout.js'
 import { ARRIVAL_SCRIPTS, GUIDE_ROUTE_STYLE } from './constants.js'
 

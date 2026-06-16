@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-17 16:13:40
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-21 14:14:09
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/plugins/DragPlugin.js
- * @Description: 画布拖拽插件
- */
-
 import { isMiddleClick } from "../../utils/index";
 
 class DragPlugin {

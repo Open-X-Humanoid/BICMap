@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-17 19:54:11
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-08-13 17:56:23
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/plugins/FreeDrawPlugin.js
- * @Description: 铅笔自由绘制插件
- */
 import { v4 as uuid } from "uuid";
 import * as fabric from "fabric";
 

@@ -1,23 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-04-22 15:30:00
- * @LastEditTime: 2026-04-22 21:10:00
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 基于 Three.js + MapLibre custom layer 的真 3D 点云实现。
- *   - 底层仍是 maplibre-gl，通过 type:'custom' 的 CustomRenderMethod 接入
- *   - Three.js(r149 UMD) 已随 bicMap.min.js 内联为全局 window.THREE
- *   - 对齐方案（参考 maplibre 官方 three.js 示例）：
- *       · 顶点缓冲存「相对参考原点 originMC 的米数」（x 东, y 北, z 上），
- *         Y 为北向（正方向）
- *       · pointsObj.matrix 始终为单位矩阵；不在对象上做 T·S
- *       · 每帧 render() 将 mainMatrix · L 组合后赋给 camera.projectionMatrix，
- *         其中 L = T(originMC) · S(s, -s, s)——Y 反号把"北向"翻到 mercator
- *         的南向；这是 maplibre 官方推荐的唯一做法，否则带 pitch / bearing
- *         时点云会相对底图偏移或被裁掉
- * @FilePath: /bic-map-plugin/src/bicMap/core/pointClouds/pointCloud3D.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import maplibregl from 'maplibre-gl';
 import * as THREE from 'three';
 

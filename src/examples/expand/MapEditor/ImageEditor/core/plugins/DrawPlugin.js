@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-16 15:30:31
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-23 16:14:17
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/plugins/DrawLinePlugin.js
- * @Description: 绘制线元素插件
- */
 class DrawLinePlugin {
   static pluginName = "DrawLinePlugin";
   static apis = [

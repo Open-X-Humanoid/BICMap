@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 — 地图坐标换算工具
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/geoUtils.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import {
   MAP_START_X,
   MAP_START_Y,

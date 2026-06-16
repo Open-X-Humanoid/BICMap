@@ -1,14 +1,4 @@
 /*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-02 11:30:23
- * @LastEditTime: 2026-06-09 11:26:00
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 3D 机器人模型预设（通用默认预设，场景专属配置请在各自 constants.js 中定义）
- * @FilePath: /bic-map-plugin/src/examples/utils/robot/visual/robot3DPresets.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
-
-/*
  * 「换模型」只需：
  *   1. 把新 .glb 放到 public/bicMap/assets/models/
  *   2. 修改 url 和 animations 里的动画名称（来自 GLB 文件内的 AnimationClip.name）

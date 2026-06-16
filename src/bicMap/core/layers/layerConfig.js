@@ -1,9 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-29
- * @Description: 地图图层配置
- */
-
 // 图层ID常量
 export const LAYER_IDS = {
     CANVAS_MAP: 'canvas-map-layer',

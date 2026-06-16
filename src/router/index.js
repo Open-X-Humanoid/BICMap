@@ -1,14 +1,5 @@
 /*
  * @Author: houser.hao@humanoid.com
- * @Date: 2026-03-14 09:57:11
- * @LastEditTime: 2026-06-08 20:04:51
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/router/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-/*
- * @Author: houser.hao@humanoid.com
  * @Description: 示例页路由配置
  */
 import { createRouter, createWebHistory } from 'vue-router'

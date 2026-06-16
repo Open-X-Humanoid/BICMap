@@ -1,12 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2025-07-21 11:02:00
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2025-07-23 15:55:39
- * @FilePath: /bic-robobiz-admin/src/components/ImageEditor/core/ContextMenu.js
- * @Description: 右键菜单、快捷键菜单
- */
-
 import "./contextMenu.scss";
 class ContextMenu {
   constructor(container, items) {

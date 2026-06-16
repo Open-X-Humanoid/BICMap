@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 17:10:30
- * @LastEditTime: 2025-08-07 14:44:51
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 地图基础功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/map/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /**
  * 创建新地图实例
  * @param {Object} maplibregl - maplibregl实例

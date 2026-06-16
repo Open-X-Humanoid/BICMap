@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-05-21
- * @LastEditTime: 2026-06-08 12:34:33
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 机器人 FOV 视野锥核心 API - 径向渐变多环带扇形
- * @FilePath: /bic-map-plugin/src/examples/utils/robot/visual/fov.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { createGeoUtils } from '@/examples/utils/navigation';
 
 /**

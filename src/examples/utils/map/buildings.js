@@ -1,13 +1,3 @@
-/*
- * @Author: kai.lee kai.lee@x-humanoid.com
- * @Date: 2026-05-07 16:51:00
- * @LastEditTime: 2026-06-09 11:21:00
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 室外建筑物 3D 渲染模块：基于 MapLibre fill-extrusion 图层，将 GeoJSON 建筑面片拉伸为三维楼块
- * @FilePath: /bic-map-plugin/src/examples/utils/map/buildings.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { createLayerEvents } from '@/examples/utils/map/layerEvents.js'
 
 const SOURCE_PREFIX = "bic-buildings-source-";

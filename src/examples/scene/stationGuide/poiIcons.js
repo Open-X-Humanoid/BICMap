@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05 14:50:20
- * @LastEditors: Ella ella.yin@x-humanoid.com
- * @LastEditTime: 2026-06-05 15:08:32
- * @FilePath: /bic-map-plugin/src/examples/scene/stationGuide/poiIcons.js
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import iconBusDropoff from '../../assets/icons/icon-bus-dropoff.svg'
 import iconFrontPlaza from '../../assets/icons/icon-front-plaza.svg'
 import iconRefund from '../../assets/icons/icon-refund.svg'

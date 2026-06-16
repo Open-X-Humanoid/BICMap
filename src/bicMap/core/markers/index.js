@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 16:45:30
- * @LastEditTime: 2025-06-23 17:18:24
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 地图标记相关功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/markers/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import maplibregl from 'maplibre-gl';
 
 import { safeImageLoader } from '../utils/loaders.js';

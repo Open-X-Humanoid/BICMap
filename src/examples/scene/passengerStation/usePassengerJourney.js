@@ -1,10 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-05
- * @Description: 客运站四阶段旅程状态机与机器人 escort
- * @FilePath: /bic-map-plugin/src/examples/scene/passengerStation/usePassengerJourney.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
 import { computed, ref } from 'vue'
 
 import { ROBOT_STATUS } from '@/examples/utils/robot'

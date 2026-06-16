@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 16:55:30
- * @LastEditTime: 2025-06-18 11:35:54
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 地图图层相关功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/layers/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { LAYER_IDS, addLayerWithOrder } from './layerConfig';
 import { safeImageLoader } from '../utils/loaders';
 import mapUtils from '../utils/mapUtils';

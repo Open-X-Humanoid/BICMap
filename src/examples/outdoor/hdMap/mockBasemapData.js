@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2026-06-15 14:30:00
- * @LastEditTime: 2026-06-15 14:30:00
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 高精地图示例底图 mock 数据；灰色道路面宽度与车道面 LANE_HALF_WIDTH 对齐，按车道数生成地理宽度
- * @FilePath: /bic-map-plugin/src/examples/outdoor/hdMap/mockBasemapData.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 export const MAP_CENTER = [116.4076, 39.9045]
 export const MAP_ZOOM = 16
 export const MAP_PITCH = 55

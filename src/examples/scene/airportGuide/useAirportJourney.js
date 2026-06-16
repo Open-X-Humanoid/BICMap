@@ -1,11 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Date: 2026-06-09
- * @Description: 飞机场导览 — 航班驱动旅程状态机
- * @FilePath: /bic-map-plugin/src/examples/scene/airportGuide/useAirportJourney.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { computed, ref } from 'vue'
 
 import { ROBOT_STATUS } from '@/examples/utils/robot'

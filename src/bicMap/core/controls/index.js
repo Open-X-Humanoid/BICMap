@@ -1,13 +1,3 @@
-/*
- * @Author: houser.hao@humanoid.com
- * @Date: 2025-04-27 16:50:30
- * @LastEditTime: 2025-04-29 18:02:56
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 地图控件相关功能
- * @FilePath: /bic-map-plugin/src/bicMap/core/controls/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 /**
  * 添加自定义缩放控件，带有缩放级别显示
  * @param {Object} maplibregl - maplibregl实例

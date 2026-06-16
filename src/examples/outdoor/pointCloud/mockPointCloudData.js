@@ -1,13 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-05-09 14:30:00
- * @LastEditTime: 2026-05-09 14:54:40
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 室外点云 Mock 数据 —— 从建筑物 Footprint 转换为点云 [[lng, lat, altitude], ...]
- * @FilePath: /bic-map-plugin/src/examples/outdoor/pointCloud/mockPointCloudData.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
-
 import { MOCK_BUILDINGS, MOCK_ROADS } from '../buildings/mockBuildingData'
 
 export const MAP_CENTER = [116.4076, 39.9045]

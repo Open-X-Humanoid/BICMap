@@ -1,12 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-06-05 17:21:26
- * @LastEditTime: 2026-06-05 18:39:58
- * @LastEditors: kai.lee@x-humanoid.com
- * @Description: 
- * @FilePath: /bic-map-plugin/src/examples/utils/experiment/robot/core/robotProfile.js
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
- */
 /**
  * 机器人画像类型枚举
  */

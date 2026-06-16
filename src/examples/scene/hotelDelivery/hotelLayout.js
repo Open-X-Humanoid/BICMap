@@ -1,21 +1,3 @@
-/*
- * @Author: kai.lee@x-humanoid.com
- * @Date: 2026-05-22
- * @Description: 酒店楼层平面图 mock 数据 —— 墙体 fill-extrusion GeoJSON 与语义区域
- *   房间坐标均以分数表示（0~1 对应 fracToGPS），派生自平面图目视比例。
- *   坐标约定：x 向右递增（东），y 向上递增（北）
- *     - 北侧客房（图上半部分）：y: 0.57~0.90
- *     - 中央走廊：y: 0.44~0.56（延伸至 x: 0.10~0.96，覆盖全宽）
- *     - 南侧客房（图下半部分）：y: 0.08~0.43
- *     - 右翼套房区：x: 0.55~0.96, y: 0.55~0.96
- *   墙体生成策略：
- *     每个房间通过 roomWalls(skip) 选择性生成四面墙，相邻房间共享边界时
- *     由"右侧/上侧"房间保留该面墙，"左侧/下侧"房间跳过（skip），
- *     保证每条边界只生成一面墙，消除双重墙体。
- * @FilePath: /bic-map-plugin/src/examples/scene/hotelDelivery/hotelLayout.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
- */
-
 import { ZONE_TYPE } from '@/examples/utils/map'
 
 // ─── 配色方案（极浅粉彩系，通透清爽）──────────────────────────────────

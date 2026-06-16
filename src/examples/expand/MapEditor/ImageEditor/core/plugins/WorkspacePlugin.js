@@ -1,9 +1,3 @@
-/*
- * @Author: Ella ella.yin@x-humanoid.com
- * @Description: 控制canvas工作区大小尺寸调整插件
- * @FilePath: /bic-map-plugin/src/examples/expand/MapEditor/ImageEditor/core/plugins/WorkspacePlugin.js
- */
-
 import * as fabric from "fabric";
 
 import { getImageFormatFromUrl } from "../../utils/index";
