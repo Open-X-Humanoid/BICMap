@@ -626,11 +626,11 @@ class BicMap {
    *
    * @param {Object} map - 地图实例
    * @param {Object} [options]
-   * @param {'bottom'|'top'|'left'|'right'|'center'|
-   *         'top-left'|'top-right'|'bottom-left'|'bottom-right'} [options.anchor='bottom']
-   *   Marker 锚点位置
-   * @param {[number, number]} [options.offset=[0, 0]]
-   *   像素偏移 [x, y]
+   * @param {[number, number]} [options.screenOffset=[0, 0]]
+   *   屏幕空间偏移 [dx, dy]（像素，正 x 向右，正 y 向下）。
+   *   气泡底部中心 = map.project(lngLat) + (dx, dy)。
+   *   推荐值：[0, -80] 表示气泡底部始终在机器人投影点上方 80px，
+   *   该偏移在任意 zoom / pitch / bearing 下均恒定，不随 zoom 漂移。
    * @param {string} [options.className='']
    *   附加在气泡容器上的自定义 CSS class
    * @returns {{
@@ -640,7 +640,7 @@ class BicMap {
    *   setHTML(html: string): void,
    *   setElement(el: HTMLElement): void,
    *   getElement(): HTMLElement,
-   *   setOffset(offset: [number, number]): void,
+   *   setScreenOffset(offset: [number, number]): void,
    *   remove(): void
    * }}
    */

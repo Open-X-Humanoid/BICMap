@@ -1,25 +1,32 @@
 /**
  * createLabelBubble
  * ─────────────────────────────────────────────────────────────────────────────
- * 基于 maplibregl.Marker 的自定义 HTML 气泡标注。
- * 调用方可传入任意 HTML 字符串或 DOM 元素，气泡会自动跟随地图坐标
- * （平移 / 缩放 / 旋转均实时同步），无需外部做坐标转换。
+ * 基于 map.project() + render 事件的自定义 HTML 气泡标注。
  *
- * 设计原则
- *  - 本模块不注入任何全局 CSS，样式完全由调用方通过 HTML/element 控制。
- *  - 返回的控制器是幂等且可安全调用多次的（hide 后可再 show）。
- *  - remove() 之后实例作废，不应再被调用。
+ * 定位原理
+ *  ┌────────────────────────────────────────────┐
+ *  │  每一帧：                                   │
+ *  │  pt = map.project(lngLat)                  │
+ *  │  bubble 底部中心 → (pt.x + dx, pt.y + dy)  │
+ *  └────────────────────────────────────────────┘
  *
- * @param {import('maplibre-gl')} maplibregl  - maplibregl 命名空间
- * @param {import('maplibre-gl').Map} map     - 已初始化的地图实例
+ *  使用 CSS calc(Xpx - 50%) / calc(Ypx - 100%) 实现"底部居中"锚定，
+ *  无需测量元素尺寸，且在任意 zoom / pitch / bearing 下均能精确跟随。
+ *
+ * 与 maplibregl.Marker 的关键区别
+ *  - Marker 的 offset 是固定像素，放大时 3D 模型变高但偏移不变 → 气泡会
+ *    嵌入模型内部；本模块的 screenOffset 在屏幕空间始终恒定。
+ *  - 不依赖 window.maplibregl，直接使用传入的 map 实例。
+ *
+ * @param {import('maplibre-gl')} _maplibregl  - 保留参数（接口一致性），实际未使用
+ * @param {import('maplibre-gl').Map} map      - 已初始化的地图实例
  * @param {Object} [options]
- * @param {'bottom'|'top'|'left'|'right'|'center'|
- *         'top-left'|'top-right'|'bottom-left'|'bottom-right'} [options.anchor='bottom']
- *   Marker 锚点位置，决定 HTML 元素的哪一侧对齐到地理坐标点
- * @param {[number, number]} [options.offset=[0, 0]]
- *   像素偏移 [x, y]（正 x 向右，正 y 向下）
+ * @param {[number, number]} [options.screenOffset=[0, 0]]
+ *   [dx, dy] 像素偏移。正 x 向右，正 y 向下。
+ *   bubble 底部中心 = 投影点 + (dx, dy)。
+ *   典型用法：[0, -80] 表示气泡底部在投影点上方 80px。
  * @param {string} [options.className='']
- *   附加在 wrapper 上的自定义 CSS class
+ *   附加在容器元素上的自定义 CSS class
  * @returns {{
  *   show(lngLat: [number, number], htmlOrElement?: string | HTMLElement): void,
  *   hide(): void,
@@ -27,86 +34,96 @@
  *   setHTML(html: string): void,
  *   setElement(el: HTMLElement): void,
  *   getElement(): HTMLElement,
- *   setOffset(offset: [number, number]): void,
+ *   setScreenOffset(offset: [number, number]): void,
  *   remove(): void
  * }}
  */
-export function createLabelBubble(maplibregl, map, options = {}) {
+export function createLabelBubble(_maplibregl, map, options = {}) {
   const {
-    anchor = 'bottom',
-    offset = [0, 0],
+    screenOffset = [0, 0],
     className = '',
   } = options;
 
-  // wrapper 是真正传给 Marker 的 DOM 节点，调用方的内容挂在其内部
-  const wrapper = document.createElement('div');
-  wrapper.style.pointerEvents = 'none';
-  if (className) wrapper.className = className;
+  // 可变的当前偏移（setScreenOffset 时修改）
+  let dx = screenOffset[0];
+  let dy = screenOffset[1];
 
-  let marker = null;
+  // wrapper 直接挂到 map 容器里，与 MapLibre Marker 层级一致
+  const mapContainer = map.getContainer();
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;display:none;';
+  if (className) wrapper.className = className;
+  mapContainer.appendChild(wrapper);
+
   let currentLngLat = null;
-  let currentAnchor = anchor;
-  let currentOffset = offset;
+  let visible = false;
   let destroyed = false;
 
-  function assertNotDestroyed() {
+  /**
+   * 每帧同步屏幕坐标
+   * 用 calc(Xpx - 50%) 和 calc(Ypx - 100%) 实现"底部居中"锚定，
+   * 避免依赖运行时的 offsetWidth / offsetHeight。
+   */
+  function syncPosition() {
+    if (!visible || !currentLngLat || destroyed) return;
+    const pt = map.project(currentLngLat);
+    const x = Math.round(pt.x + dx);
+    const y = Math.round(pt.y + dy);
+    // translate(calc(Xpx - 50%), calc(Ypx - 100%))
+    //   → 元素底部中心 对齐到屏幕点 (x, y)
+    wrapper.style.transform = `translate(calc(${x}px - 50%), calc(${y}px - 100%))`;
+  }
+
+  // 注册到 map render 事件，每帧自动更新
+  map.on('render', syncPosition);
+
+  function assertAlive() {
     if (destroyed) throw new Error('[labelBubble] 实例已销毁，请重新创建。');
   }
 
-  /**
-   * 懒创建 Marker（第一次 show 时才实例化）
-   */
-  function getOrCreateMarker() {
-    if (!marker) {
-      marker = new maplibregl.Marker({
-        element: wrapper,
-        anchor: currentAnchor,
-        offset: currentOffset,
-      });
+  function setContent(htmlOrElement) {
+    if (htmlOrElement === undefined) return;
+    if (typeof htmlOrElement === 'string') {
+      wrapper.innerHTML = htmlOrElement;
+    } else if (htmlOrElement instanceof HTMLElement) {
+      wrapper.innerHTML = '';
+      wrapper.appendChild(htmlOrElement);
     }
-    return marker;
   }
 
   return {
     /**
-     * 在指定坐标处显示气泡，可选地更新内容。
-     * 重复调用 show() 会移动气泡并可选地刷新内容。
-     *
+     * 在指定地理坐标处显示气泡，可选地更新内容。
+     * 重复调用会移动气泡并可选地刷新内容。
      * @param {[number, number]} lngLat
      * @param {string | HTMLElement} [htmlOrElement]
      */
     show(lngLat, htmlOrElement) {
-      assertNotDestroyed();
+      assertAlive();
       currentLngLat = lngLat;
-
-      if (htmlOrElement !== undefined) {
-        if (typeof htmlOrElement === 'string') {
-          wrapper.innerHTML = htmlOrElement;
-        } else if (htmlOrElement instanceof HTMLElement) {
-          wrapper.innerHTML = '';
-          wrapper.appendChild(htmlOrElement);
-        }
-      }
-
-      getOrCreateMarker().setLngLat(lngLat).addTo(map);
+      setContent(htmlOrElement);
+      visible = true;
+      wrapper.style.display = '';
+      syncPosition();
     },
 
     /**
-     * 隐藏气泡（从地图移除 DOM，但保留内容状态，可再次 show）
+     * 隐藏气泡（保留内容状态，可再次 show）
      */
     hide() {
       if (destroyed) return;
-      marker?.remove();
+      visible = false;
+      wrapper.style.display = 'none';
     },
 
     /**
-     * 更新气泡的地理坐标（气泡必须已显示）
+     * 更新跟踪的地理坐标
      * @param {[number, number]} lngLat
      */
     setLngLat(lngLat) {
-      assertNotDestroyed();
+      assertAlive();
       currentLngLat = lngLat;
-      marker?.setLngLat(lngLat);
+      syncPosition();
     },
 
     /**
@@ -114,7 +131,7 @@ export function createLabelBubble(maplibregl, map, options = {}) {
      * @param {string} html
      */
     setHTML(html) {
-      assertNotDestroyed();
+      assertAlive();
       wrapper.innerHTML = html;
     },
 
@@ -123,13 +140,13 @@ export function createLabelBubble(maplibregl, map, options = {}) {
      * @param {HTMLElement} el
      */
     setElement(el) {
-      assertNotDestroyed();
+      assertAlive();
       wrapper.innerHTML = '';
       wrapper.appendChild(el);
     },
 
     /**
-     * 获取 wrapper 元素，供调用方直接操作 DOM（如动画、事件绑定）
+     * 获取 wrapper 元素，供直接操作 DOM（动画、事件等）
      * @returns {HTMLElement}
      */
     getElement() {
@@ -137,36 +154,24 @@ export function createLabelBubble(maplibregl, map, options = {}) {
     },
 
     /**
-     * 更新像素偏移。
-     * Marker 不支持运行时 setOffset，此方法会重建 Marker 并保持位置。
-     * @param {[number, number]} newOffset
+     * 运行时更新屏幕空间偏移
+     * @param {[number, number]} offset [dx, dy]
      */
-    setOffset(newOffset) {
-      assertNotDestroyed();
-      currentOffset = newOffset;
-      if (marker) {
-        const wasOnMap = currentLngLat !== null;
-        marker.remove();
-        marker = new maplibregl.Marker({
-          element: wrapper,
-          anchor: currentAnchor,
-          offset: newOffset,
-        });
-        if (wasOnMap) {
-          marker.setLngLat(currentLngLat).addTo(map);
-        }
-      }
+    setScreenOffset(offset) {
+      assertAlive();
+      dx = offset[0];
+      dy = offset[1];
+      syncPosition();
     },
 
     /**
-     * 永久销毁气泡，释放资源。调用后实例不可再用。
+     * 永久销毁，释放所有资源
      */
     remove() {
       if (destroyed) return;
       destroyed = true;
-      marker?.remove();
-      marker = null;
-      wrapper.innerHTML = '';
+      map.off('render', syncPosition);
+      wrapper.remove();
       currentLngLat = null;
     },
   };

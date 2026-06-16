@@ -767,7 +767,7 @@ function initLayers() {
     heading: lastBearingDeg,
   })
 
-  bubbleCtrl = bicMap.createLabelBubble(m, { anchor: 'bottom', offset: [0, -80] })
+  bubbleCtrl = bicMap.createLabelBubble(m, { screenOffset: [0, -90] })
 
   m.once('moveend', () => { refreshPathMetrics() })
 }
