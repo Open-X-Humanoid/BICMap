@@ -1,12 +1,3 @@
-<!--
- * @Author: houser.hao@humanoid.com
- * @Date: Do not edit
- * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
- * @Description: 公共区域清洁场景（服务区）：地图框选清洁区域 → 弓字形覆盖轨迹规划（基于 SLAM 占据栅格 + 净空距离场避让建筑物边缘，转移段 A* 绕障） → 机器人沿轨迹清洁并实时渲染已清洁区域
- * @FilePath: Do not edit
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
--->
 <template>
   <div class="app-root">
     <canvas id="publicCleanCanvas" class="canvas-hidden"></canvas>
