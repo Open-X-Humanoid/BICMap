@@ -210,6 +210,12 @@ const routes = [
     meta: { title: '飞机场导览' }
   },
   {
+    path: '/scene/publicClean',
+    name: 'PublicClean',
+    component: () => import('../examples/scene/publicClean/index.vue'),
+    meta: { title: '公共区域清洁' }
+  },
+  {
     path: '/outdoor/mapTiles',
     name: 'OutdoorMapTiles',
     component: () => import('../examples/outdoor/mapTiles/index.vue'),
