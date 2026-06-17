@@ -279,10 +279,6 @@ pnpm preview
 3. **409 Conflict**:
    - 版本号已存在，需要更新版本号
 
-## 技术支持
-
-如有问题，请联系: houser.hao@humanoid.com 
-
 ## 构建选项
 
 ### 标准构建（移除console输出）

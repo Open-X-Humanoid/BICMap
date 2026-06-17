@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-02-25 13:57:06
  * @LastEditTime: 2026-02-25 16:39:26
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 
  * @FilePath: /slam-map-vue/src/components/HudCorner.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="hud-corner" :class="positionClass">

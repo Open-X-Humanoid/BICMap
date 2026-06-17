@@ -1,9 +1,7 @@
 /**
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-06-20 21:00:00
  * @Description: 多边形面显示实现
  * @FilePath: /bic-map/src/bicMap/core/polygon/index.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  */
 
 import { LAYER_IDS, addLayerWithOrder } from '../layers/layerConfig';

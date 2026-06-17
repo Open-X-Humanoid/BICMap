@@ -1,6 +1,5 @@
 /**
  * @description: Point cloud rendering module
- * @author: houser.hao@humanoid.com
  */
 
 import { LAYER_IDS, addLayerWithOrder } from '../layers/layerConfig.js';

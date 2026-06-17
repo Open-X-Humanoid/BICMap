@@ -2,7 +2,6 @@
  * @Description: 酒店配送机器人 — 相机跟随 Composable
  *   从 useDeliverySimulation 中拆分，专注处理 2D/3D 视角跟随逻辑
  * @FilePath: /bic-map/src/examples/scene/hotelDelivery/useFollowCam.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  */
 
 /**

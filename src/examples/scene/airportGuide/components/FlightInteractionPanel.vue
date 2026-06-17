@@ -1,9 +1,7 @@
 <!--
- * @Author: Ella ella.yin@x-humanoid.com
  * @Date: 2026-06-09
  * @Description: 飞机场导览 — 人机交互对话面板
  * @FilePath: /bic-map/src/examples/scene/airportGuide/components/FlightInteractionPanel.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="flight-interact">

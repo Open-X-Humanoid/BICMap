@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-04-23 16:35:30
  * @LastEditTime: 2026-06-03 15:52:20
- * @LastEditors: houser.hao@humanoid.com
  * @Description: SLAM地图显示 + 线段绘制示例
  * @FilePath: /bic-map/src/examples/base/polylineDraw/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  * lucide-vue-next预览地址: https://lucide.dev/icons/
 -->
 <template>

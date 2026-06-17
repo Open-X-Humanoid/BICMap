@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-05-07 16:51:00
  * @LastEditTime: 2026-06-02 16:54:57
- * @LastEditors: kai.lee@x-humanoid.com
  * @Description: 室外建筑物渲染示例：在纯 GeoJSON 矢量底图上叠加 MapLibre fill-extrusion 3D 建筑物图层，支持高度/透明度/颜色模式调节，无需网络连接
  * @FilePath: /bic-map/src/examples/outdoor/buildings/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

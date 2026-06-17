@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-04-24 17:30:30
  * @LastEditTime: 2025-06-18 16:19:23
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 使用BicMap-GL的矩形绘制示例
  * @FilePath: /bic-map/src/examples/RectangleDrawingExample.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="example-container">

@@ -1,15 +1,12 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-04-22 15:45:00
  * @LastEditTime: 2026-06-09 14:32:22
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 智能移动机器人激光雷达点云示例（SLAM 像素射线追踪版）。
  *   从 SLAM 底图 canvas 像素中提取占据栅格，机器人沿规划路径行进时
  *   360° 发射激光射线（DDA 步进），命中暗色像素（实体墙 / 家具轮廓）
  *   即生成足迹点，点云与底图逐像素对齐。2D = 平面轮廓；3D = 沿障碍
  *   真实高度拉伸的立面（深色→实墙 2.5 m，浅色→家具 0.88 m）。
  * @FilePath: /bic-map/src/examples/indoor/pointCloud/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

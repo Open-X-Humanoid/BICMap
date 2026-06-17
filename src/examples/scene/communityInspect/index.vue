@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-06-16 15:00:00
  * @LastEditTime: 2026-06-16 15:00:00
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 社区24h无人值守巡检场景 —— 机器人巡检路线动画 + 终点违停告警
  * @FilePath: /bic-map/src/examples/scene/communityInspect/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

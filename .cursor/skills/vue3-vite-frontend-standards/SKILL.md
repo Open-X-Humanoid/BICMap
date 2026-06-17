@@ -40,13 +40,10 @@ description: "为 bic-map（Vue3 + Vite + JS）新增页面/组件时强制执�
 
 ```
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: Do not edit
  * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
  * @Description: <一句话描述本文件职责>
  * @FilePath: Do not edit
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="robot-debug">

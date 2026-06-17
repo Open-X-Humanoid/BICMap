@@ -1,11 +1,8 @@
 <!--
- * @Author: kai.lee@x-humanoid.com
  * @Date: 2026-05-09 14:08:16
  * @LastEditTime: 2026-06-08 15:06:26
- * @LastEditors: kai.lee@x-humanoid.com
  * @Description: 室外点云渲染示例骨架：初始化地图实例，HUD 参数面板与页脚按钮占位，暂无数据加载与点云渲染逻辑
  * @FilePath: /bic-map/src/examples/outdoor/pointCloud/index.vue
- * Copyright (c) 2024 kai.lee@x-humanoid.com, All Rights Reserved.
 -->
 
 <template>

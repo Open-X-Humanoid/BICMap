@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-06-03 16:00:00
  * @LastEditTime: 2026-06-03 16:25:00
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 扫地机器人清扫场景 —— 未清扫路径 PathReplay 动画 + 已清扫区域 passableArea 展示
  * @FilePath: /bic-map/src/examples/scene/indoorCleaning/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

@@ -1,5 +1,4 @@
 /*
- * @Author: houser.hao@humanoid.com
  * @Description: 示例页路由配置
  */
 import { createRouter, createWebHistory } from 'vue-router'

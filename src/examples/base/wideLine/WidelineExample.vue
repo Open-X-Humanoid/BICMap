@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-10-10 15:30:00
  * @LastEditTime: 2025-10-14 18:35:34
- * @LastEditors: houser.hao@humanoid.com
  * @Description: Wide line (track/road) example component
  * @FilePath: /bic-map/src/examples/WidelineExample.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="example-container">

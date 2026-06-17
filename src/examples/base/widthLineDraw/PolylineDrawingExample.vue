@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-10-13 10:00:00
  * @LastEditTime: 2026-04-15 15:32:16
- * @LastEditors: Ella ella.yin@x-humanoid.com
  * @Description: 使用BicMap-GL的线段绘制示例
  * @FilePath: /bic-map/src/examples/PolylineDrawingExample.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="example-container">

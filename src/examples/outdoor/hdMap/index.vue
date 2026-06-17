@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-06-15 10:00:00
  * @LastEditTime: 2026-06-15 15:40:38
- * @LastEditors: Ella ella.yin@x-humanoid.com
  * @Description: 室外高精地图加载示例：在 GeoJSON 矢量底图上叠加车道面、标线、停止线与交通标志图层，支持图层显隐切换
  * @FilePath: /bic-map/src/examples/outdoor/hdMap/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

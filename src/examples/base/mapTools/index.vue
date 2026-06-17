@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: Do not edit
  * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 地图工具示例：展示地图缩放、旋转、拖拽锁定、视角切换、自适应等常用交互操作
  * @FilePath: /bic-map/src/examples/base/mapTools/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

@@ -4,7 +4,6 @@
  *   - 默认原点为北京 (39.9042, 116.4074)
  *   - 默认比例尺 0.01 米/单位，可通过参数覆盖
  * @FilePath: /bic-map/src/bicMap/core/utils/mapUtils.js
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
  */
 
 const EARTH_R = 6378137.0;

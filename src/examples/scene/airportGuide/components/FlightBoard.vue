@@ -1,9 +1,7 @@
 <!--
- * @Author: Ella ella.yin@x-humanoid.com
  * @Date: 2026-06-09
  * @Description: 飞机场导览 — 航班查询与选择面板
  * @FilePath: /bic-map/src/examples/scene/airportGuide/components/FlightBoard.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="flight-board">

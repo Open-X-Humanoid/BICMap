@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: Do not edit
  * @LastEditTime: Do not edit
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 单点导航示例：点击地图放置目标点，机器人移动至该位置
  * @FilePath: Do not edit
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

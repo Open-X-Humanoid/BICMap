@@ -1,14 +1,11 @@
 <!--
- * @Author: kai.lee@x-humanoid.com
  * @Date: 2026-05-21
  * @LastEditTime: 2026-06-09 10:15:58
- * @LastEditors: kai.lee@x-humanoid.com
  * @Description: 机器人8大工作场景 — 酒店场景 — 配送机器人精准无人化配送 Demo
  *   覆盖能力：createFloorManager / addStatusRobotMarkers / createRobotFOV /
  *          createIoTBubbles / createSemanticZones
  *   配送模拟引擎已拆分至 useDeliverySimulation.js
  * @FilePath: /bic-map/src/examples/scene/hotelDelivery/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

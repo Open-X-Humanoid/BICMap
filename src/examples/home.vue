@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-04-22 10:30:00
  * @LastEditTime: 2026-06-05 14:46:29
- * @LastEditors: houser.hao@humanoid.com
  * @Description: 示例门户首页：以卡片网格形式展示所有示例，点击跳转
  * @FilePath: /bic-map/src/examples/home.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

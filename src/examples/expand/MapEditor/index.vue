@@ -1,5 +1,4 @@
 <!--
- * @Author: Ella ella.yin@x-humanoid.com
  * @Description: 地图编辑示例：默认加载 SLAM 透明图，并把 ImageEditor 的全部操作按钮（工具切换、画笔属性、缩放、保存/重置）统一搬到页面 Footer。
  * @FilePath: /bic-map/src/examples/expand/MapEditor/index.vue
 -->

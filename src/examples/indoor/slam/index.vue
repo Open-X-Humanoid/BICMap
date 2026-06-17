@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2025-04-23 16:35:30
  * @LastEditTime: 2026-04-22 10:12:07
- * @LastEditors: houser.hao@humanoid.com
  * @Description: SLAM地图显示示例
  * @FilePath: /bic-map/src/examples/indoor/slam/index.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">

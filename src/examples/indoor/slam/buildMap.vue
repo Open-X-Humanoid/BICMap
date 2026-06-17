@@ -1,11 +1,8 @@
 <!--
- * @Author: houser.hao@humanoid.com
  * @Date: 2026-05-29 15:30:00
  * @LastEditTime: 2026-05-29 18:33:14
- * @LastEditors: houser.hao@humanoid.com
  * @Description: SLAM 建图动态演示 - 使用真实逐帧扫图 BMP 数据驱动 bicMap 地图引擎实时更新
  * @FilePath: /bic-map/src/examples/indoor/slam/buildMap.vue
- * Copyright (c) 2024 houser.hao@humanoid.com, All Rights Reserved.
 -->
 <template>
   <div class="app-root">
