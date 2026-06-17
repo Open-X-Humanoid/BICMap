@@ -11,7 +11,7 @@
   <div class="app-root">
     <canvas id="publicCleanCanvas" class="canvas-hidden"></canvas>
 
-    <AppHeader title="公共区域清洁 框选区域 · 覆盖清洁" />
+    <AppHeader title="公共区域清洁" />
 
     <!-- 框选提示条 -->
     <Transition name="hint-fade">
@@ -79,7 +79,7 @@ import AppHeader from '../../components/AppHeader.vue'
 import AppFooter from '../../components/AppFooter.vue'
 
 import bicMap from '../../../bicMap/core/bicmap-gl'
-import baseMapImage from '../../assets/home-thum/scene_servicearea.png'
+import baseMapImage from '../../assets/slam_servicearea_transparent.png'
 import robotIcon from '../../assets/bicmap_robot.png'
 
 // ===== SLAM 底图参数（与 slam_transparent.png 对齐） =====
