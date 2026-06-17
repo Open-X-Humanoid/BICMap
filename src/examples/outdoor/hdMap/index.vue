@@ -1,6 +1,6 @@
 <!--
  * @Date: 2026-06-15 10:00:00
- * @LastEditTime: 2026-06-15 15:40:38
+ * @LastEditTime: 2026-06-17 18:56:58
  * @Description: 室外高精地图加载示例：在 GeoJSON 矢量底图上叠加车道面、标线、停止线与交通标志图层，支持图层显隐切换
  * @FilePath: /bic-map/src/examples/outdoor/hdMap/index.vue
 -->
@@ -83,8 +83,6 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   Eye,
   EyeOff,
-  Layers,
-  RotateCcw,
   Upload
 } from 'lucide-vue-next'
 
@@ -92,6 +90,9 @@ import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
 
 import iconBike from '../../assets/icons/icon-bike.svg'
+import iconStraight from '../../assets/icons/icon-stright.svg'
+import iconTurnLeft from '../../assets/icons/icon-turn-left.svg'
+import iconTraffic from '../../assets/icons/icon-traffic.svg'
 
 import bicMap from '../../../bicMap/core/bicmap-gl'
 import {
@@ -99,7 +100,6 @@ import {
   MAP_CENTER,
   MAP_PITCH,
   MAP_ZOOM,
-  MOCK_CROSSWALKS,
   MOCK_GROUND,
   MOCK_PARKING,
   MOCK_PARKS,
@@ -112,28 +112,22 @@ import {
   BIKE_ICON_SPACING,
   HD_LAYER_IDS,
   HD_SOURCE_IDS,
-  LANE_ARROW_ICON_ID,
-  LANE_ARROW_ICON_SIZE,
-  LANE_ARROW_SPACING,
+  LANE_TURN_ICON_SIZE,
+  LANE_TURN_LEFT_ICON_ID,
+  LANE_TURN_STRAIGHT_ICON_ID,
   MOCK_HD_BICYCLE_LANE_LINES,
   MOCK_HD_CROSSWALKS,
-  MOCK_HD_DASHED_LANE_LINES,
   HD_CROSSWALK_FOCUS_BOUNDS,
+  HD_CROSSWALK_LOCATION_COUNT,
   MOCK_HD_LANES,
+  MOCK_HD_LANE_TURN_MARKERS,
   MOCK_HD_MARKINGS,
   MOCK_HD_SIGNS,
   MOCK_HD_STOP_LINES,
   MOCK_HD_TRAFFIC_LIGHTS,
-  MOCK_HD_TRAFFIC_LIGHT_POLES,
+  TRAFFIC_LIGHT_ICON_ID,
+  TRAFFIC_LIGHT_ICON_SIZE,
 } from './mockHdMapData'
-
-const FOCUS_BOUNDS = [
-  [116.4030, 39.9028],
-  [116.4120, 39.9078]
-]
-
-/** 车道方向箭头图片 */
-const LANE_ARROW_IMAGE = '/bicMap/assets/img/arrow.png'
 
 const map = ref(null)
 const hdMapLoaded = ref(false)
@@ -143,10 +137,9 @@ const layersVisible = ref({
   [HD_LAYER_IDS.BICYCLE_ICONS]: true,
   [HD_LAYER_IDS.MARKINGS_SOLID]: true,
   [HD_LAYER_IDS.MARKINGS_DASHED]: true,
-  [HD_LAYER_IDS.LANE_ARROWS]: true,
   [HD_LAYER_IDS.MARKINGS_DOUBLE]: true,
+  [HD_LAYER_IDS.LANE_TURN_MARKERS]: true,
   [HD_LAYER_IDS.STOP_LINES]: true,
-  [HD_LAYER_IDS.CROSSWALKS]: true,
   [HD_LAYER_IDS.CROSSWALK_STRIPES]: true,
   [HD_LAYER_IDS.TRAFFIC_LIGHTS]: true,
   [HD_LAYER_IDS.SIGNS]: true
@@ -160,9 +153,7 @@ const bicycleLaneCount = computed(() =>
 )
 const markingCount = computed(() => MOCK_HD_MARKINGS.features.length)
 const signCount = computed(() => MOCK_HD_SIGNS.features.length)
-const crosswalkCount = computed(() =>
-  MOCK_HD_CROSSWALKS.features.filter((f) => f.properties.feature_type === 'zone').length
-)
+const crosswalkCount = computed(() => HD_CROSSWALK_LOCATION_COUNT)
 const trafficLightCount = computed(() => MOCK_HD_TRAFFIC_LIGHTS.features.length)
 
 const layerToggles = computed(() => [
@@ -170,9 +161,10 @@ const layerToggles = computed(() => [
   { id: HD_LAYER_IDS.BICYCLE_LANES, label: '自行车道', visible: layersVisible.value[HD_LAYER_IDS.BICYCLE_LANES] },
   { id: HD_LAYER_IDS.MARKINGS_DOUBLE, label: '双黄线', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_DOUBLE] },
   { id: HD_LAYER_IDS.MARKINGS_DASHED, label: '车道线', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_DASHED] },
+  { id: HD_LAYER_IDS.LANE_TURN_MARKERS, label: '车道导向', visible: layersVisible.value[HD_LAYER_IDS.LANE_TURN_MARKERS] },
   { id: HD_LAYER_IDS.MARKINGS_SOLID, label: '硬边界', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_SOLID] },
   { id: HD_LAYER_IDS.STOP_LINES, label: '停止线', visible: layersVisible.value[HD_LAYER_IDS.STOP_LINES] },
-  { id: HD_LAYER_IDS.CROSSWALKS, label: '人行横道', visible: layersVisible.value[HD_LAYER_IDS.CROSSWALKS] },
+  { id: HD_LAYER_IDS.CROSSWALK_STRIPES, label: '人行横道', visible: layersVisible.value[HD_LAYER_IDS.CROSSWALK_STRIPES] },
   { id: HD_LAYER_IDS.TRAFFIC_LIGHTS, label: '红绿灯', visible: layersVisible.value[HD_LAYER_IDS.TRAFFIC_LIGHTS] },
   // { id: HD_LAYER_IDS.SIGNS, label: '交通标志', visible: layersVisible.value[HD_LAYER_IDS.SIGNS] }
 ])
@@ -193,18 +185,13 @@ const footerButtons = computed(() => [
     onClick: toggleAllLayers,
     disabled: !hdMapLoaded.value
   },
-  {
-    label: '聚焦路口',
-    icon: Layers,
-    onClick: focusIntersection,
-    disabled: !hdMapLoaded.value
-  },
 ])
 
 onMounted(() => initMap())
 onBeforeUnmount(() => {
   removeHdMapLayers()
   if (map.value) {
+    map.value.off('click', handleMapClick)
     map.value.remove()
     map.value = null
   }
@@ -227,6 +214,7 @@ async function initMap() {
       antialias: true
     })
     bicMap.addZoomControl(map.value, 'bottom-right')
+    map.value.on('click', handleMapClick)
     map.value.on('load', () => {
       addMockBasemap()
       loadHdMap()
@@ -234,6 +222,15 @@ async function initMap() {
   } catch (error) {
     console.error('初始化地图失败:', error)
   }
+}
+
+/**
+ * 地图点击：输出点击位置经纬度
+ * @param {Object} e
+ */
+function handleMapClick(e) {
+  const { lng, lat } = e.lngLat
+  console.log(`点击位置经纬度: [${lng.toFixed(6)}, ${lat.toFixed(6)}]`)
 }
 
 /**
@@ -264,10 +261,29 @@ function addMockBasemap() {
 
   src('basemap-roads', MOCK_ROADS)
   lyr({ id: 'basemap-roads-centerline', source: 'basemap-roads', type: 'line', filter: ['==', ['get', 'marking'], 'centerline'], paint: { 'line-color': '#f0c040', 'line-width': 1.5, 'line-dasharray': [1.5, 3], 'line-opacity': 0.9 } })
+  lyr({
+    id: 'basemap-roads-labels',
+    source: 'basemap-roads',
+    type: 'symbol',
+    filter: ['has', 'road_type'],
+    layout: {
+      'symbol-placement': 'line',
+      'text-field': ['get', 'name'],
+      'text-size': 14,
+      'text-optional': true,
+      'symbol-spacing': 400,
+      'text-allow-overlap': false,
+      'text-ignore-placement': false
+    },
+    paint: {
+      'text-color': '#4a4a4a',
+      'text-halo-color': '#ffffff',
+      'text-halo-width': 2,
+      'text-halo-blur': 1,
+      'text-opacity': 1
+    }
+  })
 
-  src('basemap-crosswalks', MOCK_CROSSWALKS)
-  lyr({ id: 'basemap-crosswalks-fill', source: 'basemap-crosswalks', type: 'fill', paint: { 'fill-color': '#f5f5f5', 'fill-opacity': 0.9 } })
-  lyr({ id: 'basemap-crosswalks-outline', source: 'basemap-crosswalks', type: 'line', paint: { 'line-color': '#dddddd', 'line-width': 0.5, 'line-opacity': 0.8 } })
 }
 
 /**
@@ -278,7 +294,7 @@ async function loadHdMap() {
   removeHdMapLayers()
   await addHdMapLayers()
   hdMapLoaded.value = true
-  fitView()
+  focusIntersection()
 }
 
 /**
@@ -311,40 +327,24 @@ function ensureBikeIcon(m) {
 }
 
 /**
- * 加载车道方向箭头图标
+ * 加载路口红绿灯图标至地图 sprite
  * @param {Object} m
  * @returns {Promise<void>}
  */
-function ensureLaneArrowIcon(m) {
-  if (m.hasImage(LANE_ARROW_ICON_ID)) return Promise.resolve()
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => {
-      if (!m.hasImage(LANE_ARROW_ICON_ID)) {
-        m.addImage(LANE_ARROW_ICON_ID, img, { pixelRatio: 2 })
-      }
-      resolve()
-    }
-    img.onerror = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = 24
-      canvas.height = 24
-      const ctx = canvas.getContext('2d')
-      ctx.fillStyle = '#ffffff'
-      ctx.beginPath()
-      ctx.moveTo(4, 12)
-      ctx.lineTo(18, 12)
-      ctx.lineTo(14, 8)
-      ctx.moveTo(18, 12)
-      ctx.lineTo(14, 16)
-      ctx.fill()
-      if (!m.hasImage(LANE_ARROW_ICON_ID)) {
-        m.addImage(LANE_ARROW_ICON_ID, canvas, { pixelRatio: 4 })
-      }
-      resolve()
-    }
-    img.src = LANE_ARROW_IMAGE
-  })
+function ensureTrafficLightIcon(m) {
+  return ensureMapIcon(m, TRAFFIC_LIGHT_ICON_ID, iconTraffic)
+}
+
+/**
+ * 加载车道导向图标至地图 sprite
+ * @param {Object} m
+ * @returns {Promise<void>}
+ */
+async function ensureLaneTurnIcons(m) {
+  await Promise.all([
+    ensureMapIcon(m, LANE_TURN_STRAIGHT_ICON_ID, iconStraight),
+    ensureMapIcon(m, LANE_TURN_LEFT_ICON_ID, iconTurnLeft)
+  ])
 }
 
 /**
@@ -361,7 +361,7 @@ async function addHdMapLayers() {
     filter: ['==', ['get', 'lane_type'], 'driving'],
     paint: {
       'fill-color': '#bbdefb',
-      'fill-opacity': 0.55
+      'fill-opacity': 0.1
     }
   })
   m.addLayer({
@@ -371,7 +371,7 @@ async function addHdMapLayers() {
     filter: ['==', ['get', 'lane_type'], 'bicycle'],
     paint: {
       'fill-color': '#ffe082',
-      'fill-opacity': 0.55
+      'fill-opacity': 0.1
     }
   })
 
@@ -385,7 +385,7 @@ async function addHdMapLayers() {
       'symbol-placement': 'line',
       'symbol-spacing': BIKE_ICON_SPACING,
       'icon-image': BIKE_ICON_ID,
-      'icon-size': 1.5,
+      'icon-size': 1.85,
       'icon-allow-overlap': true,
       'icon-ignore-placement': true
     }
@@ -399,7 +399,7 @@ async function addHdMapLayers() {
     source: HD_SOURCE_IDS.MARKINGS,
     filter: ['==', ['get', 'marking_type'], 'double_yellow'],
     paint: {
-      'line-color': '#f9a825',
+      'line-color': '#dcd08e',
       'line-width': 2.5,
       'line-opacity': 0.95
     }
@@ -418,31 +418,38 @@ async function addHdMapLayers() {
     }
   })
 
-  await ensureLaneArrowIcon(m)
-  m.addSource(HD_SOURCE_IDS.LANE_LINES, { type: 'geojson', data: MOCK_HD_DASHED_LANE_LINES })
-  m.addLayer({
-    id: HD_LAYER_IDS.LANE_ARROWS,
-    type: 'symbol',
-    source: HD_SOURCE_IDS.LANE_LINES,
-    layout: {
-      'symbol-placement': 'line',
-      'symbol-spacing': LANE_ARROW_SPACING,
-      'icon-image': LANE_ARROW_ICON_ID,
-      'icon-size': LANE_ARROW_ICON_SIZE,
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true
-    }
-  })
-
   m.addLayer({
     id: HD_LAYER_IDS.MARKINGS_SOLID,
     type: 'line',
     source: HD_SOURCE_IDS.MARKINGS,
     filter: ['==', ['get', 'marking_type'], 'solid_white'],
     paint: {
-      'line-color': '#F53A15',
-      'line-width': 2,
-      'line-opacity': 0.95
+      'line-color': '#9adfc7',
+      'line-width': 4,
+      'line-opacity': 1
+    }
+  })
+
+  await ensureLaneTurnIcons(m)
+  m.addSource(HD_SOURCE_IDS.LANE_TURN_MARKERS, { type: 'geojson', data: MOCK_HD_LANE_TURN_MARKERS })
+  m.addLayer({
+    id: HD_LAYER_IDS.LANE_TURN_MARKERS,
+    type: 'symbol',
+    source: HD_SOURCE_IDS.LANE_TURN_MARKERS,
+    layout: {
+      'icon-image': [
+        'match',
+        ['get', 'turn_type'],
+        'straight', LANE_TURN_STRAIGHT_ICON_ID,
+        'straight_left', LANE_TURN_LEFT_ICON_ID,
+        LANE_TURN_STRAIGHT_ICON_ID
+      ],
+      'icon-size': LANE_TURN_ICON_SIZE,
+      'icon-rotate': ['get', 'bearing'],
+      'icon-rotation-alignment': 'map',
+      'icon-anchor': 'center',
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true
     }
   })
 
@@ -460,16 +467,6 @@ async function addHdMapLayers() {
 
   m.addSource(HD_SOURCE_IDS.CROSSWALKS, { type: 'geojson', data: MOCK_HD_CROSSWALKS })
   m.addLayer({
-    id: HD_LAYER_IDS.CROSSWALKS,
-    type: 'fill',
-    source: HD_SOURCE_IDS.CROSSWALKS,
-    filter: ['==', ['get', 'feature_type'], 'zone'],
-    paint: {
-      'fill-color': '#e0e0e0',
-      'fill-opacity': 0.35
-    }
-  })
-  m.addLayer({
     id: HD_LAYER_IDS.CROSSWALK_STRIPES,
     type: 'fill',
     source: HD_SOURCE_IDS.CROSSWALKS,
@@ -480,16 +477,18 @@ async function addHdMapLayers() {
     }
   })
 
-  m.addSource(HD_SOURCE_IDS.TRAFFIC_LIGHTS, { type: 'geojson', data: MOCK_HD_TRAFFIC_LIGHT_POLES })
+  await ensureTrafficLightIcon(m)
+  m.addSource(HD_SOURCE_IDS.TRAFFIC_LIGHTS, { type: 'geojson', data: MOCK_HD_TRAFFIC_LIGHTS })
   m.addLayer({
     id: HD_LAYER_IDS.TRAFFIC_LIGHTS,
-    type: 'fill-extrusion',
+    type: 'symbol',
     source: HD_SOURCE_IDS.TRAFFIC_LIGHTS,
-    paint: {
-      'fill-extrusion-color': ['get', 'color'],
-      'fill-extrusion-height': ['get', 'height'],
-      'fill-extrusion-base': ['get', 'base_height'],
-      'fill-extrusion-opacity': 0.93
+    layout: {
+      'icon-image': TRAFFIC_LIGHT_ICON_ID,
+      'icon-size': TRAFFIC_LIGHT_ICON_SIZE,
+      'icon-anchor': 'center',
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true
     }
   })
 
@@ -541,10 +540,9 @@ function removeHdMapLayers() {
     HD_LAYER_IDS.SIGNS,
     HD_LAYER_IDS.TRAFFIC_LIGHTS,
     HD_LAYER_IDS.CROSSWALK_STRIPES,
-    HD_LAYER_IDS.CROSSWALKS,
     HD_LAYER_IDS.STOP_LINES,
+    HD_LAYER_IDS.LANE_TURN_MARKERS,
     HD_LAYER_IDS.MARKINGS_SOLID,
-    HD_LAYER_IDS.LANE_ARROWS,
     HD_LAYER_IDS.MARKINGS_DASHED,
     HD_LAYER_IDS.MARKINGS_DOUBLE,
     HD_LAYER_IDS.BICYCLE_ICONS,
@@ -558,7 +556,9 @@ function removeHdMapLayers() {
     if (m.getSource(id)) m.removeSource(id)
   })
   if (m.hasImage(BIKE_ICON_ID)) m.removeImage(BIKE_ICON_ID)
-  if (m.hasImage(LANE_ARROW_ICON_ID)) m.removeImage(LANE_ARROW_ICON_ID)
+  if (m.hasImage(TRAFFIC_LIGHT_ICON_ID)) m.removeImage(TRAFFIC_LIGHT_ICON_ID)
+  if (m.hasImage(LANE_TURN_STRAIGHT_ICON_ID)) m.removeImage(LANE_TURN_STRAIGHT_ICON_ID)
+  if (m.hasImage(LANE_TURN_LEFT_ICON_ID)) m.removeImage(LANE_TURN_LEFT_ICON_ID)
   hdMapLoaded.value = false
 }
 
@@ -575,16 +575,6 @@ function toggleLayer(layerId, visible) {
   if (layerId === HD_LAYER_IDS.BICYCLE_LANES && map.value.getLayer(HD_LAYER_IDS.BICYCLE_ICONS)) {
     map.value.setLayoutProperty(HD_LAYER_IDS.BICYCLE_ICONS, 'visibility', visible ? 'visible' : 'none')
     layersVisible.value[HD_LAYER_IDS.BICYCLE_ICONS] = visible
-  }
-
-  if (layerId === HD_LAYER_IDS.MARKINGS_DASHED && map.value.getLayer(HD_LAYER_IDS.LANE_ARROWS)) {
-    map.value.setLayoutProperty(HD_LAYER_IDS.LANE_ARROWS, 'visibility', visible ? 'visible' : 'none')
-    layersVisible.value[HD_LAYER_IDS.LANE_ARROWS] = visible
-  }
-
-  if (layerId === HD_LAYER_IDS.CROSSWALKS && map.value.getLayer(HD_LAYER_IDS.CROSSWALK_STRIPES)) {
-    map.value.setLayoutProperty(HD_LAYER_IDS.CROSSWALK_STRIPES, 'visibility', visible ? 'visible' : 'none')
-    layersVisible.value[HD_LAYER_IDS.CROSSWALK_STRIPES] = visible
   }
 
   const labelId = `${HD_LAYER_IDS.SIGNS}-label`
@@ -610,36 +600,16 @@ function focusIntersection() {
     padding: { top: 50, bottom: 80, left: 50, right: 300 },
     pitch: MAP_PITCH,
     bearing: MAP_BEARING,
-    duration: 1000,
+    duration: 0,
     maxZoom: 19
   })
 }
 
 /**
- * 适配高精地图整体覆盖区域
- */
-function fitView() {
-  if (!map.value) return
-  map.value.fitBounds(FOCUS_BOUNDS, {
-    padding: 80,
-    pitch: MAP_PITCH,
-    bearing: MAP_BEARING,
-    duration: 1000
-  })
-}
-
-/**
- * 重置场景：重新加载高精地图并飞回初始视角
+ * 重置场景：重新加载高精地图并飞回路口视角
  */
 function resetScene() {
   loadHdMap()
-  map.value?.flyTo({
-    center: MAP_CENTER,
-    zoom: MAP_ZOOM,
-    pitch: MAP_PITCH,
-    bearing: MAP_BEARING,
-    duration: 800
-  })
 }
 </script>
 

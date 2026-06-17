@@ -8,6 +8,8 @@ export const LANE_HALF_WIDTH = 0.000018
 
 /** 主干道 / 次级道路车道数 */
 export const PRIMARY_LANE_COUNT = 4
+/** 创业路×东环路高精路口车道数（4 机动车道 + 两侧自行车道） */
+export const HD_INTERSECTION_LANE_COUNT = PRIMARY_LANE_COUNT + 2
 export const SECONDARY_LANE_COUNT = 2
 
 /**
@@ -92,13 +94,13 @@ export const MOCK_ROAD_SURFACES = {
   type: 'FeatureCollection',
   features: [
     // 东西向主干道（4 车道）
-    ewRoadSurface(116.4028, 116.4123, 39.9030, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '创业路' }),
+    ewRoadSurface(116.4028, 116.4123, 39.9030, HD_INTERSECTION_LANE_COUNT, { road_type: 'primary', name: '创业路' }),
     ewRoadSurface(116.4028, 116.4123, 39.9043, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '科技大道' }),
     ewRoadSurface(116.4028, 116.4123, 39.9057, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '学院路' }),
     // 南北向主干道（4 车道）
     nsRoadSurface(39.9010, 39.9080, 116.4048, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '中央大道' }),
     nsRoadSurface(39.9010, 39.9080, 116.4075, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '中轴路' }),
-    nsRoadSurface(39.9010, 39.9080, 116.4103, PRIMARY_LANE_COUNT, { road_type: 'primary', name: '东环路' }),
+    nsRoadSurface(39.9010, 39.9080, 116.4103, HD_INTERSECTION_LANE_COUNT, { road_type: 'primary', name: '东环路' }),
     // 东西向次级道路（2 车道）
     ewRoadSurface(116.4028, 116.4123, 39.9036, SECONDARY_LANE_COUNT, { road_type: 'secondary', name: '南一支路' }),
     ewRoadSurface(116.4028, 116.4123, 39.9050, SECONDARY_LANE_COUNT, { road_type: 'secondary', name: '北一支路' }),
@@ -192,30 +194,3 @@ export const MOCK_PARKING = {
   ]
 }
 
-export const MOCK_CROSSWALKS = {
-  type: 'FeatureCollection',
-  features: [
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9030, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9030, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9030, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9030, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9030, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9030, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9043, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9043, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9043, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9043, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9043, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9043, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9057, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4048, 39.9057, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9057, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4075, 39.9057, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9057, 0.00007, 0.00002) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4103, 39.9057, 0.000015, 0.000045) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4062, 39.9043, 0.00005, 0.000015) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4062, 39.9043, 0.000015, 0.000035) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4089, 39.9043, 0.00005, 0.000015) }, properties: { name: '斑马线' } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4089, 39.9043, 0.000015, 0.000035) }, properties: { name: '斑马线' } }
-  ]
-}
