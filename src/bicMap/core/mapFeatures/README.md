@@ -21,5 +21,5 @@
 ## 使用示例
 
 ```javascript
-import { createFloorManager, ZONE_TYPE, createSemanticZones } from '@/examples/utils/map'
+import { createFloorManager, ZONE_TYPE, createSemanticZones } from '@/bicMap/core/mapFeatures'
 ```

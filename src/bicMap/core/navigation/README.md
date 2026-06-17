@@ -51,5 +51,5 @@ import {
   buildPathfindingRoute,
   Pathfinder,
   pointInPolygon
-} from '@/examples/utils/navigation'
+} from '@/bicMap/core/navigation'
 ```

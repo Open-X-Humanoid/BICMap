@@ -74,7 +74,7 @@ import JourneyTimeline from './components/JourneyTimeline.vue'
 import RobotInteractionPanel from './components/RobotInteractionPanel.vue'
 
 import bicMap from '@/bicMap/core/bicmap-gl'
-import { ROBOT_STATUS, addStatusRobotMarkers } from '@/examples/utils/robot'
+import { ROBOT_STATUS, addStatusRobotMarkers } from '@/bicMap/core/robot'
 
 import {
   AREA_FILL_LAYER_ID,

@@ -22,7 +22,7 @@ IoT 事件气泡管理器，用于在地图上显示设备状态弹出通知（�
 ## 使用示例
 
 ```javascript
-import { createIoTBubbles, IOT_EVENT_TYPE } from '@/examples/utils/overlay'
+import { createIoTBubbles, IOT_EVENT_TYPE } from '@/bicMap/core/overlay'
 
 const bubbles = createIoTBubbles(map, { defaultDuration: 4000 })
 bubbles.emit({

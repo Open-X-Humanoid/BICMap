@@ -107,7 +107,7 @@ import airportSlamImage from '../../assets/slam_airport_transparent.png'
 
 import bicMap from '@/bicMap/core/bicmap-gl'
 import { LAYER_IDS } from '@/bicMap/core/layers/layerConfig.js'
-import { ROBOT_STATUS, addStatusRobotMarkers } from '@/examples/utils/robot'
+import { ROBOT_STATUS, addStatusRobotMarkers } from '@/bicMap/core/robot'
 import { getPoiById } from './airportRoutes.js'
 import { AIRPORT_POIS, fracToGPS } from './airportLayout.js'
 import {

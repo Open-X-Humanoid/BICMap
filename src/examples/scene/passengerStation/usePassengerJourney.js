@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import { ROBOT_STATUS } from '@/examples/utils/robot'
+import { ROBOT_STATUS } from '@/bicMap/core/robot'
 
 import {
   GUIDE_ROBOT_ID,

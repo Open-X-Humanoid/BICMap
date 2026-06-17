@@ -1,4 +1,4 @@
-import { ZONE_TYPE } from '@/examples/utils/map'
+import { ZONE_TYPE } from '@/bicMap/core/mapFeatures'
 
 // ─── 配色方案（极浅粉彩系，通透清爽）──────────────────────────────────
 // 色彩策略：极浅灰为基底 + 微暖粉彩色调区分功能区；墙体浅灰轻盈

@@ -59,8 +59,8 @@ import StatusHud from './components/StatusHud.vue'
 import HeadingHud from './components/HeadingHud.vue'
 
 import bicMap from '@/bicMap/core/bicmap-gl'
-import { ROBOT_STATUS, addStatusRobotMarkers } from '@/examples/utils/robot'
-import { createIoTBubbles, IOT_EVENT_TYPE } from '@/examples/utils/overlay'
+import { ROBOT_STATUS, addStatusRobotMarkers } from '@/bicMap/core/robot'
+import { createIoTBubbles, IOT_EVENT_TYPE } from '@/bicMap/core/overlay'
 import { buildMallGeoJSON, buildMallFloorsGeoJSON, buildMallZones, buildMallShopLabelsGeoJSON, isInActiveArea, buildB1FloorsGeoJSON, buildB1ZoneLabelsGeoJSON, buildB1Zones } from './mallLayout.js'
 import { MALL_SHOP_ICONS } from './mallIcons.js'
 import {
@@ -68,10 +68,10 @@ import {
   MAP_START_X, MAP_START_Y, MAP_X_GRID_COUNT, MAP_Y_GRID_COUNT, MAP_RESOLUTION,
   MAP_WIDTH_M, MAP_HEIGHT_M, LAYOUT_SCALE,
 } from './constants.js'
-import { createGeoUtils, iconRot, cartDist } from '@/examples/utils/navigation'
-import { createBuildings } from '@/examples/utils/map'
-import { createSemanticZones } from '@/examples/utils/map'
-import { createFloorManager } from '@/examples/utils/map'
+import { createGeoUtils, iconRot, cartDist } from '@/bicMap/core/navigation'
+import { createBuildings } from '@/bicMap/core/mapFeatures'
+import { createSemanticZones } from '@/bicMap/core/mapFeatures'
+import { createFloorManager } from '@/bicMap/core/mapFeatures'
 import { usePoiManager } from './usePoiManager.js'
 import { useRobotManager } from './useRobotManager.js'
 import { useRouteLayer } from './useRouteLayer.js'

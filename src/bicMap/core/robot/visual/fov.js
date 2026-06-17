@@ -1,4 +1,4 @@
-import { createGeoUtils } from '@/examples/utils/navigation';
+import { createGeoUtils } from '@/bicMap/core/navigation';
 
 /**
  * 在地图上创建机器人 FOV（视野扇形）层

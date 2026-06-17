@@ -1,4 +1,4 @@
-import bicMap from './bicMap'
+import bicMap from './index.js'
 
 // 将 bicMap 暴露到全局作用域
 if (typeof window !== 'undefined') {

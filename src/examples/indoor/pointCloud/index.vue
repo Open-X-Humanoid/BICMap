@@ -157,7 +157,7 @@ import AppHeader from '../../components/AppHeader.vue'
 
 import slamImage from '../../assets/slam_transparent.png'
 import bicMap from '../../../bicMap/core/bicmap-gl'
-import { createRobot3DLayer } from '../../utils/robot/visual/robot3DLayer'
+import { createRobot3DLayer } from '@/bicMap/core/robot/visual/robot3DLayer'
 import smartRobotGlbUrl from './assets/smart_mobile_robot_under_10mb.glb?url'
 import { simulateLidarFromCanvas, clearOccCache } from './mockOfficeData'
 import { ROBOT_PATH } from './mockRobotPath'

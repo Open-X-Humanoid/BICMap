@@ -1,4 +1,4 @@
-import { createLayerEvents } from '@/examples/utils/map/layerEvents.js'
+import { createLayerEvents } from '@/bicMap/core/mapFeatures/layerEvents.js'
 
 const SOURCE_PREFIX = "bic-buildings-source-";
 const LAYER_PREFIX = "bic-buildings-layer-";

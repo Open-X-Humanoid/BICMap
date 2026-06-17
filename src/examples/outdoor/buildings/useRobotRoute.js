@@ -20,8 +20,8 @@
  */
 import { ref, onBeforeUnmount } from 'vue'
 import bicMap from '../../../bicMap/core/bicmap-gl'
-import { createRobot3DLayer } from '@/examples/utils/robot/visual/robot3DLayer'
-import { ROBOT_EXPRESSIVE_CONFIG } from '@/examples/utils/robot/visual/robot3DPresets'
+import { createRobot3DLayer } from '@/bicMap/core/robot/visual/robot3DLayer'
+import { ROBOT_EXPRESSIVE_CONFIG } from '@/bicMap/core/robot/visual/robot3DPresets'
 
 // ---- 工具函数 ----
 const lerp = (a, b, t) => a + (b - a) * t

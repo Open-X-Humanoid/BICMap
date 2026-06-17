@@ -1,5 +1,5 @@
 import { ref, reactive, shallowReactive, computed, onBeforeUnmount } from 'vue'
-import { ROBOT_STATUS, createRobotFOV } from '@/examples/utils/robot'
+import { ROBOT_STATUS, createRobotFOV } from '@/bicMap/core/robot'
 import {
   ROBOT_CONFIGS,
   PATROL_ROUTES,
@@ -16,9 +16,9 @@ import {
   ROTATE_DPS,
   GUIDE_PHASE,
 } from './constants.js'
-import { createGeoUtils, iconRot, findAnnouncementPoint, initPathfinder, buildPathfindingRoute, routeIdsToCoords } from '@/examples/utils/navigation'
+import { createGeoUtils, iconRot, findAnnouncementPoint, initPathfinder, buildPathfindingRoute, routeIdsToCoords } from '@/bicMap/core/navigation'
 import { SHOPS } from './mallLayout.js'
-import { RobotEngine, createRobotProfile } from '@/examples/utils/robot'
+import { RobotEngine, createRobotProfile } from '@/bicMap/core/robot'
 
 const { fracToCart, cartToGPS } = createGeoUtils({
   startX: MAP_START_X,

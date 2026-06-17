@@ -1,4 +1,4 @@
-import { ZONE_TYPE } from '@/examples/utils/map'
+import { ZONE_TYPE } from '@/bicMap/core/mapFeatures'
 
 // 百度地图POI类型配色方案（浅色版）
 const C = {

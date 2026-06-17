@@ -74,24 +74,24 @@ import { Play, Pause, Maximize, RotateCcw, Layers, Crosshair } from 'lucide-vue-
 import AppHeader from '../../components/AppHeader.vue'
 import AppFooter from '../../components/AppFooter.vue'
 import bicMap from '@/bicMap/core/bicmap-gl'
-import { ROBOT_STATUS, addStatusRobotMarkers, createRobotFOV } from '@/examples/utils/robot'
+import { ROBOT_STATUS, addStatusRobotMarkers, createRobotFOV } from '@/bicMap/core/robot'
 import { buildHotelGeoJSON, buildHotelFloorsGeoJSON, buildHotelZones, buildHotelRoomLabelsGeoJSON } from './hotelLayout.js'
 import {
   FLOOR_CONFIGS,
   MAP_START_X, MAP_START_Y, MAP_WIDTH, MAP_HEIGHT, MAP_X_GRID_COUNT, MAP_Y_GRID_COUNT, MAP_RESOLUTION,
   IDLE_HEADING, IDLE_FRAC, VIEW_3D_PITCH,
 } from './constants.js'
-import { createGeoUtils, iconRot } from '@/examples/utils/navigation'
+import { createGeoUtils, iconRot } from '@/bicMap/core/navigation'
 const { fracToCart, fracToGPS } = createGeoUtils({ startX: MAP_START_X, startY: MAP_START_Y, width: MAP_WIDTH, height: MAP_HEIGHT, scale: MAP_RESOLUTION })
 import { ROOM_ROUTES } from './routeConfig.js'
 import { useDeliverySimulation } from './useDeliverySimulation.js'
 import { useFollowCam } from './useFollowCam.js'
-import { createBuildings } from '@/examples/utils/map'
-import { createRobot3DLayer } from '@/examples/utils/robot/visual/robot3DLayer.js'
+import { createBuildings } from '@/bicMap/core/mapFeatures'
+import { createRobot3DLayer } from '@/bicMap/core/robot/visual/robot3DLayer.js'
 import { DELIVERY_ROBOT_CONFIG } from './constants.js'
-import { createSemanticZones } from '@/examples/utils/map'
-import { createFloorManager } from '@/examples/utils/map'
-import { createIoTBubbles } from '@/examples/utils/overlay'
+import { createSemanticZones } from '@/bicMap/core/mapFeatures'
+import { createFloorManager } from '@/bicMap/core/mapFeatures'
+import { createIoTBubbles } from '@/bicMap/core/overlay'
 
 
 // ===== 运行时对象（不走响应系统，避免高频触发）=====

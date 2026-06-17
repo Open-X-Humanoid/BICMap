@@ -1,6 +1,6 @@
 import { ref, onBeforeUnmount } from 'vue'
-import { ROBOT_STATUS } from '@/examples/utils/robot'
-import { IOT_EVENT_TYPE } from '@/examples/utils/overlay'
+import { ROBOT_STATUS } from '@/bicMap/core/robot'
+import { IOT_EVENT_TYPE } from '@/bicMap/core/overlay'
 import {
   UPDATE_MS,
   ARRIVAL_DIST,
@@ -13,7 +13,7 @@ import {
   MAP_WIDTH,
   MAP_HEIGHT
 } from './constants.js'
-import { createGeoUtils, cartDist, cartHeading, lerpAngle, iconRot } from '@/examples/utils/navigation'
+import { createGeoUtils, cartDist, cartHeading, lerpAngle, iconRot } from '@/bicMap/core/navigation'
 const { fracToCart, cartToGPS, fracToGPS } = createGeoUtils({
   startX: MAP_START_X,
   startY: MAP_START_Y,
@@ -22,7 +22,7 @@ const { fracToCart, cartToGPS, fracToGPS } = createGeoUtils({
   scale: MAP_RESOLUTION
 })
 import { buildReturnRoute, ROOM_ROUTES } from './routeConfig.js'
-import { RobotEngine, WaitCondition, createRobotProfile, ROBOT_PROFILE_TYPES } from '@/examples/utils/robot'
+import { RobotEngine, WaitCondition, createRobotProfile, ROBOT_PROFILE_TYPES } from '@/bicMap/core/robot'
 
 // ===== 配送模拟 Composable =====
 

@@ -93,7 +93,7 @@ import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
 
 import bicMap from '@/bicMap/core/bicmap-gl'
-import { addStatusRobotMarkers, ROBOT_STATUS } from '@/examples/utils/robot'
+import { addStatusRobotMarkers, ROBOT_STATUS } from '@/bicMap/core/robot'
 import { STATION_POI_ICONS } from './poiIcons.js'
 import {
   MAP_CENTER,

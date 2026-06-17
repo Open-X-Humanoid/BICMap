@@ -51,8 +51,8 @@ import FollowBadge from '../../indoor/robotFollow/FollowBadge.vue'
 
 import bicMap from '../../../bicMap/core/bicmap-gl'
 import { useRobotRoute } from './useRobotRoute'
-import { ROBOT_EXPRESSIVE_CONFIG } from '@/examples/utils/robot/visual/robot3DPresets'
-import { createBuildings } from '@/examples/utils/map'
+import { ROBOT_EXPRESSIVE_CONFIG } from '@/bicMap/core/robot/visual/robot3DPresets'
+import { createBuildings } from '@/bicMap/core/mapFeatures'
 import {
   MAP_BEARING,
   MAP_CENTER,

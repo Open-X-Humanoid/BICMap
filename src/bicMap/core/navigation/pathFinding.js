@@ -7,7 +7,7 @@
  * Obstacles are defined as polygon arrays in fractional coordinates.
  */
 
-import { pointInPolygon } from '@/examples/utils/navigation/pointUtil.js'
+import { pointInPolygon } from '@/bicMap/core/navigation/pointUtil.js'
 
 const NEIGHBORS = [
   [-1, -1], [0, -1], [1, -1],
