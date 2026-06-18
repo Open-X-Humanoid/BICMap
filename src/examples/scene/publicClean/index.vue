@@ -98,7 +98,7 @@ const TINT_FILL = 0.55
 
 // ===== 覆盖清洁参数 =====
 const CELL_METERS = GRID_STRIDE * MAP_RESOLUTION   // 单逻辑格边长（米）= 0.3
-const SWATH_M = 0.3               // 清洁带宽度（米），贴近真实清洁机器人刷盘宽度
+const SWATH_M = 0.3               // 清洁带宽度（米），贴近真实清洁机器人刷盘宽度（用于规划行距与统计）
 // 行间距 = 1 格 = 0.3 m，与清洁带等宽，相邻清洁带恰好拼接、无遗漏
 const ROW_STRIDE = 1
 // 清洁覆盖与建筑物边缘的最小安全净空（格）：约半个清洁带宽 + 安全余量 ≈ 0.9 m，
@@ -114,8 +114,10 @@ const ANIM_FRAME_MS = 40          // ms
 const ICON_HEAD_OFFSET = 90       // 机器人图标默认朝向（正右 = 东 = 90°）
 
 // ===== 图层样式 =====
-const ROUTE_STYLE = { id: 'clean-route', color: '#00C2FF', width: 1.8, opacity: 0.9, dashType: 'dashed', showArrow: false }
-const CLEANED_STYLE = { color: '#00e1a0', opacity: 0.32 }
+const ROUTE_STYLE = { id: 'clean-route', color: '#00C2FF', width: 2, opacity: 1, dashType: 'dashed', showArrow: false }
+// 已清洁轨迹：较宽但很「淡」的半透明绿色实线（像素宽度，缩放时始终一致），垫在路径线下方作为「已清扫」底色。
+// 透明度调低是关键：保证上方青色虚线轨迹始终清晰可见、不被绿色盖住；width 控制已清区域大小、opacity 控制深浅
+const CLEANED_STYLE = { id: 'clean-trail', color: '#00e1a0', opacity: 0.28, width: 9, dashType: 'solid', showArrow: false }
 const SELECTION_STYLE = {
   id: 'clean-area',
   fillColor: '#0066ff',
@@ -243,8 +245,10 @@ async function loadSlamMap() {
 
 function initLayers() {
   selectionCtrl = bicMap.createPolygons(map, [], { ...SELECTION_STYLE })
-  cleanedCtrl = bicMap.createWideLines(map, [], { showOutline: false, defaultColor: CLEANED_STYLE.color })
-  routeCtrl = bicMap.createPolylines(map, [], { showArrow: false })
+  // 显式指定唯一 source/layer id：createPolylines 默认用 Date.now() 生成 id，
+  // 两个控制器在同一毫秒创建会撞 id 而共用图层，导致 cleanedCtrl.clear() 把规划轨迹也清掉
+  cleanedCtrl = bicMap.createPolylines(map, [], { showArrow: false, sourceId: 'clean-trail-src', layerId: 'clean-trail-layer' })
+  routeCtrl = bicMap.createPolylines(map, [], { showArrow: false, sourceId: 'clean-route-src', layerId: 'clean-route-layer' })
 }
 
 // ============================================================
@@ -794,13 +798,14 @@ function finishCleaning() {
   successTimer = setTimeout(() => { navSuccess.value = false }, 3000)
 }
 
-/** 用清洁带（wideline）渲染已清洁区域：已过航点 + 当前点 */
+/** 渲染已清洁轨迹：与路径轨迹线等粗的绿色实线（已过航点 + 当前点） */
 function paintCleaned() {
   if (!cleanedCtrl) return
   const traveled = coverage.slice(0, segIdx + 1)
   traveled.push(curPos)
   if (traveled.length < 2) return
-  cleanedCtrl.update([{ path: traveled, width: SWATH_M, color: CLEANED_STYLE.color, opacity: CLEANED_STYLE.opacity }])
+  cleanedCtrl.clear?.()
+  cleanedCtrl.addPolyline?.({ path: traveled, ...CLEANED_STYLE })
 }
 
 function updateProgress() {
