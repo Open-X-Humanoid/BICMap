@@ -229,55 +229,55 @@ export const PARK_BUILDINGS = {
   features: [
     // ══════════ 北区（北环路~北一横路，y: 39.9075~39.9087）══════════════
     // ── A1 西侧地块（西环路~中轴大道）—— 厂房A + 厂房B ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4013, 39.9086, 0.0011, 0.00035) }, properties: { height: 28, base_height: 0, color: '#8ca8c8', name: '厂房A', entrances: [[116.4013, 39.90825], [116.4013, 39.90895]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4037, 39.9086, 0.0011, 0.00035) }, properties: { height: 22, base_height: 0, color: '#8ca8c8', name: '厂房B', entrances: [[116.4037, 39.90825], [116.4037, 39.90895]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4013, 39.9086, 0.0011, 0.00035) }, properties: { height: 28, base_height: 0, color: '#b8c8d8', name: '厂房A', entrances: [[116.4013, 39.90825], [116.4013, 39.90895]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4037, 39.9086, 0.0011, 0.00035) }, properties: { height: 22, base_height: 0, color: '#b8c8d8', name: '厂房B', entrances: [[116.4037, 39.90825], [116.4037, 39.90895]] } },
 
     // ── A2 东侧地块（中轴大道~东环路）—— 厂房C + 厂房D ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4063, 39.9086, 0.0011, 0.00035) }, properties: { height: 22, base_height: 0, color: '#8ca8c8', name: '厂房C', entrances: [[116.4063, 39.90825], [116.4063, 39.90895]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4087, 39.9086, 0.0011, 0.00035) }, properties: { height: 20, base_height: 0, color: '#8ca8c8', name: '厂房D', entrances: [[116.4087, 39.90825], [116.4087, 39.90895]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4063, 39.9086, 0.0011, 0.00035) }, properties: { height: 22, base_height: 0, color: '#b8c8d8', name: '厂房C', entrances: [[116.4063, 39.90825], [116.4063, 39.90895]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4087, 39.9086, 0.0011, 0.00035) }, properties: { height: 20, base_height: 0, color: '#b8c8d8', name: '厂房D', entrances: [[116.4087, 39.90825], [116.4087, 39.90895]] } },
 
     // ══════════ 中北区（北一横路~东西干道，y: 39.9058~39.9069）══════════
     // ── B1 西侧地块（西环路~中轴大道） ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4010, 39.90676, 0.0008, 0.00035) }, properties: { height: 35, base_height: 0, color: '#7c5cf4', name: '创新中心', entrances: [[116.4010, 39.90641]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4010, 39.90676, 0.0008, 0.00035) }, properties: { height: 35, base_height: 0, color: '#b2aad8', name: '创新中心', entrances: [[116.4010, 39.90641]] } },
     // 创新中心下方 10m — 餐厅
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40077, 39.90612, 0.0005, 0.00020) }, properties: { height: 10, base_height: 0, color: '#FF8C00', name: '餐厅', entrances: [[116.40077, 39.90592]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40077, 39.90612, 0.0005, 0.00020) }, properties: { height: 10, base_height: 0, color: '#dfc498', name: '餐厅', entrances: [[116.40077, 39.90592]] } },
     // 配电房已移走
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4038, 39.90589, 0.00030, 0.00030) }, properties: { height: 12, base_height: 0, color: '#4682B4', name: '安防中心', entrances: [[116.4038, 39.90559]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.4038, 39.90589, 0.00030, 0.00030) }, properties: { height: 12, base_height: 0, color: '#90b0cc', name: '安防中心', entrances: [[116.4038, 39.90559]] } },
     // 安防中心西侧约 10m — 机器人待机区
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40305, 39.90589, 0.00035, 0.00030) }, properties: { height: 3, base_height: 0, color: '#E6D9F0', name: '机器人待机区', entrances: [[116.40270, 39.90589], [116.403048, 39.90559]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40305, 39.90589, 0.00035, 0.00030) }, properties: { height: 3, base_height: 0, color: '#e0daf0', name: '机器人待机区', entrances: [[116.40270, 39.90589], [116.403048, 39.90559]] } },
 
     // 靠近厂房的中轴大道西侧 — 装卸车间（已移走）
     // ── B2 东侧地块（中轴大道~东环路）已移除实验中心/数据中心 ──
 
     // ══════════ 创新中心东侧 — 实验中心 / 数据中心 / 测试中心（依次排开）════
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40254, 39.90676, 0.0005, 0.00035) }, properties: { height: 30, base_height: 0, color: '#7c5cf4', name: '实验中心', entrances: [[116.40254, 39.90641]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40449, 39.90676, 0.00035, 0.00025) }, properties: { height: 18, base_height: 0, color: '#0598b4', name: '数据中心', entrances: [[116.40449, 39.90651], [116.40414, 39.9067]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40578, 39.90658, 0.00060, 0.00044) }, properties: { height: 20, base_height: 0, color: '#5b8db8', name: '测试中心', entrances: [[116.40578, 39.90614]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40722, 39.90667, 0.00060, 0.00035) }, properties: { height: 18, base_height: 0, color: '#94a3b8', name: '能源中心', entrances: [[116.40722, 39.90632]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40910, 39.90658, 0.00025, 0.00030) }, properties: { height: 8, base_height: 0, color: '#94a3b8', name: '配电房', entrances: [[116.40910, 39.90628]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40830, 39.90658, 0.00025, 0.00025) }, properties: { height: 8, base_height: 0, color: '#94a3b8', name: '空压机房', entrances: [[116.40830, 39.90633]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40254, 39.90676, 0.0005, 0.00035) }, properties: { height: 30, base_height: 0, color: '#b2aad8', name: '实验中心', entrances: [[116.40254, 39.90641]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40449, 39.90676, 0.00035, 0.00025) }, properties: { height: 18, base_height: 0, color: '#88c0d0', name: '数据中心', entrances: [[116.40449, 39.90651], [116.40414, 39.9067]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40578, 39.90658, 0.00060, 0.00044) }, properties: { height: 20, base_height: 0, color: '#98b4c8', name: '测试中心', entrances: [[116.40578, 39.90614]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40722, 39.90667, 0.00060, 0.00035) }, properties: { height: 18, base_height: 0, color: '#b0bcc8', name: '能源中心', entrances: [[116.40722, 39.90632]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40910, 39.90658, 0.00025, 0.00030) }, properties: { height: 8, base_height: 0, color: '#b0bcc8', name: '配电房', entrances: [[116.40910, 39.90628]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40830, 39.90658, 0.00025, 0.00025) }, properties: { height: 8, base_height: 0, color: '#b0bcc8', name: '空压机房', entrances: [[116.40830, 39.90633]] } },
 
     // ══════════ 中南区（东西干道~南环路，y: 39.9023~39.9052）══════════
     // ── C1 西侧（西环路~西一路）已移除能源中心/空压机房 ──
 
     // ── C2 中西侧 — 总部办公楼（占满左侧区域，距道路 15m，避开绿化） ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40232, 39.90461, 0.00202, 0.00067) }, properties: { height: 80, base_height: 0, color: '#4a90d9', name: '总部办公楼', entrances: [[116.40232, 39.90394], [116.40232, 39.90528]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40232, 39.90461, 0.00202, 0.00067) }, properties: { height: 80, base_height: 0, color: '#8ab4d4', name: '总部办公楼', entrances: [[116.40232, 39.90394], [116.40232, 39.90528]] } },
 
     // ── C3 中东侧 — 研发中心（与总部办公楼对称） ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40768, 39.90461, 0.00202, 0.00067) }, properties: { height: 55, base_height: 0, color: '#4a90d9', name: '研发中心', entrances: [[116.40768, 39.90394], [116.40768, 39.90528]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40768, 39.90461, 0.00202, 0.00067) }, properties: { height: 55, base_height: 0, color: '#8ab4d4', name: '研发中心', entrances: [[116.40768, 39.90394], [116.40768, 39.90528]] } },
 
     // ══════════ 厂房B/C 南侧 — 仓库区（放大两倍，距厂房约 10m）════════════
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40444, 39.90784, 0.00036, 0.00032) }, properties: { height: 10, base_height: 0, color: '#a0aec0', name: '仓库A', entrances: [[116.40444, 39.90752]] } },
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40570, 39.90780, 0.00050, 0.00036) }, properties: { height: 14, base_height: 0, color: '#a0aec0', name: '仓储中心', entrances: [[116.40570, 39.90744]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40444, 39.90784, 0.00036, 0.00032) }, properties: { height: 10, base_height: 0, color: '#b8c4d0', name: '仓库A', entrances: [[116.40444, 39.90752]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40570, 39.90780, 0.00050, 0.00036) }, properties: { height: 14, base_height: 0, color: '#b8c4d0', name: '仓储中心', entrances: [[116.40570, 39.90744]] } },
 
     // ══════════ 南区（东西干道~南环路，y: 39.9023~39.9052）══════════════
     // ── D1 西侧地块（西环路~中轴大道） ──
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40059, 39.90360, 0.00035, 0.00025) }, properties: { height: 15, base_height: 0, color: '#60a5fa', name: '会议中心', entrances: [[116.40059, 39.90335]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40059, 39.90360, 0.00035, 0.00025) }, properties: { height: 15, base_height: 0, color: '#90b8e4', name: '会议中心', entrances: [[116.40059, 39.90335]] } },
 
     // ── D2 东侧地块（中轴大道~东环路）已移除测试中心 ──
 
     // ══════════ 厂房D 南侧 — 仓库区（距厂房D 约 10m，距东环路同厂房D）════════
-    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40960, 39.90796, 0.00020, 0.00020) }, properties: { height: 10, base_height: 0, color: '#a0aec0', name: '仓库', entrances: [[116.40960, 39.90776]] } },
+    { type: 'Feature', geometry: { type: 'Polygon', coordinates: rect(116.40960, 39.90796, 0.00020, 0.00020) }, properties: { height: 10, base_height: 0, color: '#b8c4d0', name: '仓库', entrances: [[116.40960, 39.90776]] } },
   ]
 }
 
