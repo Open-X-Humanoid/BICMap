@@ -3,4 +3,5 @@ packages:
 
 allowBuilds:
   '@parcel/watcher': true
+  canvas: true
   esbuild: true
