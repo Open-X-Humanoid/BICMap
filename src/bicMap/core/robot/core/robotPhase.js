@@ -47,7 +47,7 @@ export const RobotPhase = {
  */
 export const PHASE_TRANSITIONS = {
   [RobotPhase.IDLE]: new Set([RobotPhase.MOVING, RobotPhase.CHARGING, RobotPhase.DOCKING, RobotPhase.ERROR]),
-  [RobotPhase.MOVING]: new Set([RobotPhase.ARRIVED, RobotPhase.ERROR, RobotPhase.RETURNING, RobotPhase.PAUSED, RobotPhase.ROTATING, RobotPhase.WAITING]),
+  [RobotPhase.MOVING]: new Set([RobotPhase.ARRIVED, RobotPhase.ERROR, RobotPhase.RETURNING, RobotPhase.PAUSED, RobotPhase.ROTATING, RobotPhase.WAITING, RobotPhase.IDLE]),
   [RobotPhase.ROTATING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR]),
   [RobotPhase.ARRIVED]: new Set([RobotPhase.IDLE, RobotPhase.MOVING, RobotPhase.DWELLING, RobotPhase.WAITING, RobotPhase.CHARGING, RobotPhase.ERROR, RobotPhase.PAUSED]),
   [RobotPhase.DWELLING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.PAUSED]),

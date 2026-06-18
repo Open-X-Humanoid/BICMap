@@ -7,7 +7,7 @@
  * Obstacles are defined as polygon arrays in fractional coordinates.
  */
 
-import { pointInPolygon } from '@/bicMap/core/navigation/pointUtil.js'
+import { pointInPolygon, lineSegmentIntersectsPolygon } from './pointUtil.js'
 
 const NEIGHBORS = [
   [-1, -1], [0, -1], [1, -1],
@@ -27,40 +27,6 @@ const DEFAULT_OPTIONS = {
   marginBottom: 0.05,
 }
 
-/**
- * Check if a line segment [x1,y1]→[x2,y2] intersects any edge of a polygon.
- * Pure geometric test (ray casting for segment intersection).
- * @param {number} x1
- * @param {number} y1
- * @param {number} x2
- * @param {number} y2
- * @param {[number,number][]} polygon - Array of [x, y] vertices
- * @returns {boolean}
- */
-function lineSegmentIntersectsPolygon(x1, y1, x2, y2, polygon) {
-  const n = polygon.length
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const [cx, cy] = polygon[i]
-    const [dx, dy] = polygon[j]
-    if (segmentsIntersect(x1, y1, x2, y2, cx, cy, dx, dy)) {
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * Check if two line segments intersect.
- */
-function segmentsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
-  const d1x = bx - ax, d1y = by - ay
-  const d2x = dx - cx, d2y = dy - cy
-  const cross = d1x * d2y - d1y * d2x
-  if (Math.abs(cross) < 1e-10) return false
-  const t = ((cx - ax) * d2y - (cy - ay) * d2x) / cross
-  const u = ((cx - ax) * d1y - (cy - ay) * d1x) / cross
-  return t >= 0 && t <= 1 && u >= 0 && u <= 1
-}
 
 export class Pathfinder {
   /**

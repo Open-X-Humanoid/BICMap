@@ -225,6 +225,12 @@ const routes = [
     name: 'OutdoorHdMap',
     component: () => import('../examples/outdoor/hdMap/index.vue'),
     meta: { title: '高精地图加载' }
+  },
+  {
+    path: '/scene/securityPatrol',
+    name: 'SecurityPatrol',
+    component: () => import('../examples/scene/securityPatrol/index.vue'),
+    meta: { title: '园区安防巡逻' }
   }
 ]
 

@@ -11,7 +11,9 @@ export const IOT_EVENT_TYPE = {
   DOOR_OPEN:        'door_open',         // 房间门开
   DOOR_CLOSE:       'door_close',        // 房间门关
   DELIVERY_ARRIVED: 'delivery_arrived',  // 配送到达
-  CUSTOM:           'custom'             // 自定义消息
+  CUSTOM:           'custom',             // 自定义消息
+  WARNING:          'warning',           // 警告
+  ERROR:            'error',             // 错误
 };
 
 const EVENT_STYLE = {
@@ -22,6 +24,8 @@ const EVENT_STYLE = {
   [IOT_EVENT_TYPE.DOOR_OPEN]:        { icon: '🔓', color: '#34C759', label: '门已开启' },
   [IOT_EVENT_TYPE.DOOR_CLOSE]:       { icon: '🔒', color: '#8E8E93', label: '门已关闭' },
   [IOT_EVENT_TYPE.DELIVERY_ARRIVED]: { icon: '📦', color: '#F7A800', label: '配送到达' },
+  [IOT_EVENT_TYPE.WARNING]:          { icon: '⚠️', color: '#F7A800', label: '警告' },
+  [IOT_EVENT_TYPE.ERROR]:            { icon: '❌', color: '#FF3B30', label: '错误' },
   [IOT_EVENT_TYPE.CUSTOM]:           { icon: 'ℹ️', color: '#0066FF', label: '消息' }
 };
 
@@ -105,11 +109,17 @@ export function createIoTBubbles(map, options = {}) {
    * @param {string} type
    * @param {string} message
    * @param {string} deviceName
+   * @param {Object} [styleOverrides] - custom 类型时可选覆盖样式
+   * @param {string} [styleOverrides.icon]
+   * @param {string} [styleOverrides.color]
+   * @param {string} [styleOverrides.label]
    * @returns {HTMLElement}
    */
-  const buildBubbleEl = (type, message, deviceName) => {
-    const styleCfg = EVENT_STYLE[type] ?? EVENT_STYLE[IOT_EVENT_TYPE.CUSTOM];
-    const { icon, color, label } = styleCfg;
+  const buildBubbleEl = (type, message, deviceName, styleOverrides) => {
+    const preset = EVENT_STYLE[type] ?? EVENT_STYLE[IOT_EVENT_TYPE.CUSTOM];
+    const icon   = styleOverrides?.icon   ?? preset.icon;
+    const color  = styleOverrides?.color  ?? preset.color;
+    const label  = styleOverrides?.label  ?? preset.label;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'bic-iot-bubble';
@@ -162,10 +172,13 @@ export function createIoTBubbles(map, options = {}) {
    * @param {string}   event.type       - 事件类型，见 IOT_EVENT_TYPE
    * @param {string}   [event.message]  - 自定义消息文字
    * @param {string}   [event.deviceName] - 设备名称（如房间号）
+   * @param {string}   [event.icon]     - 仅 custom 类型时覆盖图标 emoji
+   * @param {string}   [event.color]    - 仅 custom 类型时覆盖背景色
+   * @param {string}   [event.label]    - 仅 custom 类型时覆盖标签文字
    * @param {number}   [event.duration]  - 显示时长（ms），0 = 常驻，不传使用全局默认值
    */
   const emit = (event) => {
-    const { id, lngLat, type = IOT_EVENT_TYPE.CUSTOM, message, deviceName, duration } = event;
+    const { id, lngLat, type = IOT_EVENT_TYPE.CUSTOM, message, deviceName, icon, color, label, duration } = event;
     if (!id || !lngLat) {
       console.warn('[IoTBubbles] emit: id 和 lngLat 为必填项');
       return;
@@ -182,7 +195,10 @@ export function createIoTBubbles(map, options = {}) {
       _removeBubble(oldestId, false);
     }
 
-    const el = buildBubbleEl(type, message, deviceName);
+    const styleOverrides = type === IOT_EVENT_TYPE.CUSTOM && (icon || color || label)
+      ? { icon, color, label }
+      : undefined
+    const el = buildBubbleEl(type, message, deviceName, styleOverrides);
     map.getContainer().appendChild(el);
 
     // 同步初始位置

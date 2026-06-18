@@ -11,6 +11,9 @@ export { initPathfinder, buildPathfindingRoute, routeIdsToCoords } from './pathB
 // 路径规划核心
 export { Pathfinder } from './pathFinding.js'
 
+// 图结构路径规划（道路网络寻路）
+export { GraphPathfinder } from './graphPathFinding.js'
+
 // POI 工具
 export {
   isPointInForbiddenZone,
@@ -20,4 +23,16 @@ export {
 } from './poiUtil.js'
 
 // 点/多边形工具
-export { pointInPolygon } from './pointUtil.js'
+export { pointInPolygon, segmentsIntersect, lineSegmentIntersectsPolygon } from './pointUtil.js'
+
+// 图路径构建与验证
+export {
+  buildRoute,
+  buildGraphCoveragePath,
+  buildGraphPointToPointPath,
+  removeEdgesThroughBuildings,
+  validatePathSegments,
+  createPathValidator,
+  projectToNearestGraphEdge,
+  validateCollision,
+} from './graphPathBuild.js'

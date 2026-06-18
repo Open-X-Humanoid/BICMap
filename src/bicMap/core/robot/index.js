@@ -46,6 +46,3 @@ export { createRobotFOV } from './visual/fov.js'
 
 // 3D 机器人渲染器（addStatusRobotMarkers 同构接口）
 export { createRobot3DLayer, createRobot3DStatusLayer } from './visual/robot3DLayer.js'
-
-// 3D 机器人模型预设配置
-export { ROBOT_EXPRESSIVE_CONFIG } from './visual/robot3DPresets.js'

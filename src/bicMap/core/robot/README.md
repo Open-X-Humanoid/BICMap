@@ -37,11 +37,11 @@
 | 5 | **事件总线** | `infra/eventBus.js` | 机器人间及外部通信的事件系统 |
 | 6 | **资源管理器** | `infra/resourceManager.js` | 共享资源（电梯/充电桩/路段）的调度 |
 | 7 | **移动任务** | `engine/moveTask.js` | 原子移动任务：运动学/朝向平滑/到达判定/电池消耗 |
-| 8 | **机器人控制器** | `engine/robotController.js` | 单个机器人的状态封装和行为控制 |
-| 9 | **引擎核心** | `engine/robotEngine.js` | 多机器人生命周期管理 + requestAnimationFrame 主循环 |
-| 10 | **显示管理器** | `infra/displayManager.js` | 2D/3D 可插拔渲染器抽象层 |
-| 11 | **入口** | `index.js` | 所有公共 API 的 barrel export |
-| 12 | **适配层** | `compat/adapter.js` | 新旧 PatrolState 格式互转，向后兼容 |
+| 8 | **任务状态** | `engine/taskStatus.js` | 任务生命周期状态枚举（PENDING / RUNNING / COMPLETED / FAILED / CANCELLED） |
+| 9 | **机器人控制器** | `engine/robotController.js` | 单个机器人的状态封装和行为控制 |
+| 10 | **引擎核心** | `engine/robotEngine.js` | 多机器人生命周期管理 + requestAnimationFrame 主循环 |
+| 11 | **显示管理器** | `infra/displayManager.js` | 2D/3D 可插拔渲染器抽象层 |
+| 12 | **入口** | `index.js` | 所有公共 API 的 barrel export |
 
 ## 快速开始
 
@@ -95,6 +95,19 @@ engine.start()
 
 完整转移定义见 `PHASE_TRANSITIONS` 映射表。
 
+### TaskStatus
+
+任务生命周期状态枚举：
+
+| 值 | 说明 |
+|---|---|
+| `PENDING` | 已创建但尚未启动 |
+| `IDLE` | 无活跃任务（初始状态） |
+| `RUNNING` | 任务执行中 |
+| `COMPLETED` | 任务已完成（到达目标） |
+| `FAILED` | 任务失败 |
+| `CANCELLED` | 任务已取消 |
+
 ### WaitCondition
 
 | 工厂方法 | 说明 |
@@ -119,14 +132,3 @@ engine.start()
 
 可通过 `createRobotProfile(type, overrides)` 自定义覆盖。
 
-## 向后兼容
-
-```javascript
-import { adapterToOldPatrolState, adapterFromOldPatrolState } from './compat/adapter.js'
-
-// 新引擎状态 → 旧 PatrolState 格式
-const oldStateMap = adapterToOldPatrolState(engine.getRobots())
-
-// 旧 PatrolState → 新引擎 initial state
-const initialState = adapterFromOldPatrolState(oldPatrolState)
-```

@@ -4,17 +4,19 @@ import { addRobotMarkers } from '@/bicMap/core/markers/robo.js';
 
 /** 机器人状态枚举 */
 export const ROBOT_STATUS = {
-  IDLE:     'idle',
-  RUNNING:  'running',
-  CHARGING: 'charging',
-  ERROR:    'error'
+  IDLE:      'idle',
+  RUNNING:   'running',
+  CHARGING:  'charging',
+  ERROR:     'error',
+  RETURNING: 'returning'
 };
 
 const STATUS_CONFIG = {
-  idle:     { color: '#64748B', label: '待机' },
-  running:  { color: '#0066FF', label: '执行中' },
-  charging: { color: '#F7A800', label: '充电' },
-  error:    { color: '#FF3B30', label: '故障' }
+  idle:      { color: '#64748B', label: '待机' },
+  running:   { color: '#0066FF', label: '执行中' },
+  charging:  { color: '#F7A800', label: '充电' },
+  error:     { color: '#FF3B30', label: '故障' },
+  returning: { color: '#06B6D4', label: '召回中' }
 };
 
 // ── 工具函数 ──────────────────────────────────────────────────────────────────
@@ -113,8 +115,10 @@ function buildStatusLabelEl(robot, opts) {
     `background-color:${themeColor}`,
     'padding:3px 6px',
     'height:20px',
-    'text-align:center',
-    'vertical-align:middle'
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    'gap:5px'
   ].join(';');
 
   const rawName     = robot.name || '未命名机器人';
@@ -124,15 +128,15 @@ function buildStatusLabelEl(robot, opts) {
 
   if (showStatus && robot.status && robot.status !== 'idle') {
     html += (
-      `<span style="display:inline-flex;align-items:center;margin-left:5px;vertical-align:middle;">` +
-      `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:2px;vertical-align:middle;"></span>` +
+      `<span style="display:inline-flex;align-items:center;">` +
+      `<span style="width:6px;height:6px;border-radius:50%;background:#fff;margin-right:2px;"></span>` +
       `<span style="color:#fff;font-size:9px;line-height:1;white-space:nowrap;">${cfg.label}</span>` +
       `</span>`
     );
   }
 
   if (showBattery && robot.battery != null) {
-    html += `<span style="display:inline-block;margin-left:5px;vertical-align:middle;">${buildBatterySVG(robot.battery)}</span>`;
+    html += `<span style="display:flex;align-items:center;">${buildBatterySVG(robot.battery)}</span>`;
   }
 
   c2.innerHTML = html;
@@ -197,8 +201,8 @@ export function addStatusRobotMarkers(map, robots = [], options = {}) {
 
   const updateLabelPos = (el, lngLat) => {
     const pos = map.project(lngLat);
-    el.style.left = `${pos.x}px`;
-    el.style.top  = `${pos.y - 50}px`;
+    el.style.left = `${Math.round(pos.x)}px`;
+    el.style.top  = `${Math.round(pos.y - 50)}px`;
   };
 
   const syncAllPositions = () => {
