@@ -78,7 +78,7 @@ export const SPATIAL_ITEMS = [
     id: 'sm-07',
     name: '公共打印机',
     category: '办公设备',
-    coordinate: { x: -6.0, y: 25.0, z: 0.9 },
+    coordinate: { x: -6.0, y: 22.0, z: 0.9 },
     description: '北墙公共多功能打印一体机，文件配送任务的常用取送点之一。'
   },
   {
