@@ -89,6 +89,12 @@ const routes = [
     meta: { title: '语义地图分割' }
   },
   {
+    path: '/indoor/load3dMarker',
+    name: 'Space',
+    component: () => import('../examples/indoor/load3dMarker/index.vue'),
+    meta: { title: '三维空间数据渲染' }
+  },
+  {
     path: '/scene/robotGuideTour',
     name: 'RobotGuideTour',
     component: () => import('../examples/scene/robotGuideTour/index.vue'),
