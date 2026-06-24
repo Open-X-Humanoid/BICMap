@@ -1,6 +1,6 @@
 <!--
  * @Date: 2026-06-15 10:00:00
- * @LastEditTime: 2026-06-17 18:56:58
+ * @LastEditTime: 2026-06-24 18:05:38
  * @Description: 室外高精地图加载示例：在 GeoJSON 矢量底图上叠加车道面、标线、停止线与交通标志图层，支持图层显隐切换
  * @FilePath: /bic-map/src/examples/outdoor/hdMap/index.vue
 -->
@@ -161,7 +161,7 @@ const layerToggles = computed(() => [
   { id: HD_LAYER_IDS.BICYCLE_LANES, label: '自行车道', visible: layersVisible.value[HD_LAYER_IDS.BICYCLE_LANES] },
   { id: HD_LAYER_IDS.MARKINGS_DOUBLE, label: '双黄线', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_DOUBLE] },
   { id: HD_LAYER_IDS.MARKINGS_DASHED, label: '车道线', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_DASHED] },
-  { id: HD_LAYER_IDS.LANE_TURN_MARKERS, label: '车道导向', visible: layersVisible.value[HD_LAYER_IDS.LANE_TURN_MARKERS] },
+  { id: HD_LAYER_IDS.LANE_TURN_MARKERS, label: '导向箭头', visible: layersVisible.value[HD_LAYER_IDS.LANE_TURN_MARKERS] },
   { id: HD_LAYER_IDS.MARKINGS_SOLID, label: '硬边界', visible: layersVisible.value[HD_LAYER_IDS.MARKINGS_SOLID] },
   { id: HD_LAYER_IDS.STOP_LINES, label: '停止线', visible: layersVisible.value[HD_LAYER_IDS.STOP_LINES] },
   { id: HD_LAYER_IDS.CROSSWALK_STRIPES, label: '人行横道', visible: layersVisible.value[HD_LAYER_IDS.CROSSWALK_STRIPES] },
