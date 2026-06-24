@@ -438,8 +438,8 @@ function cleanupMap() {
 
 .passenger-station__legend {
   position: absolute;
-  left: 0;
-  bottom: 0;
+  left: 12px;
+  bottom: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

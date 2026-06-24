@@ -1,6 +1,6 @@
 <!--
  * @Date: 2026-06-03 12:33:21
- * @LastEditTime: 2026-06-08 10:14:34
+ * @LastEditTime: 2026-06-24 18:03:38
  * @FilePath: /bic-map/src/examples/scene/stationGuide/index.vue
  * @Description: 火车站导览 2D 室内背景地图示例
 -->
@@ -914,8 +914,8 @@ function cleanup() {
 
 .station-guide__legend {
   position: absolute;
-  left: 0px;
-  bottom: 0px;
+  left: 12px;
+  bottom: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
