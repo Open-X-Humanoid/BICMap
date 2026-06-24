@@ -66,6 +66,7 @@ export const ROBOT_CONFIGS = [
     status: 'idle',
     battery: 90,
     task: '待导览',
+    floor: '1F',
   },
   {
     id: 'guide-bot-beta',
@@ -76,17 +77,19 @@ export const ROBOT_CONFIGS = [
     status: 'idle',
     battery: 82,
     task: '待导览',
+    floor: '1F',
   },
-  // {
-  //   id: 'patrol-bot',
-  //   name: '巡检机器人 C',
-  //   markerSize: 26,
-  //   initialFrac: [0.50, 0.34],
-  //   startPoiId: 'poi-service-desk',
-  //   status: 'idle',
-  //   battery: 95,
-  //   task: '待命中',
-  // }
+  {
+    id: 'guide-bot-b1',
+    name: 'B1 导览机器人',
+    markerSize: 28,
+    initialFrac: [0.87, 0.20],
+    startPoiId: 'poi-b1-robot-standby',
+    status: 'idle',
+    battery: 88,
+    task: '待导览',
+    floor: 'B1',
+  },
 ]
 
 // 巡逻路线（使用POI ID）
@@ -112,6 +115,17 @@ export const PATROL_ROUTES = {
   ],
   // 巡检机器人 - 无路线，保持在待机区
   'patrol-bot': [],
+  // B1 导览机器人 - B1 停车场路线
+  'guide-bot-b1': [
+    'poi-b1-parking-g',        // 停车区 G
+    'poi-b1-parking-d',        // 停车区 D
+    'poi-b1-parking-a',        // 停车区 A
+    'poi-b1-exit-ramp',        // 出口坡道
+    'poi-b1-elevator-lobby',   // 电梯厅
+    'poi-b1-ev-charging',      // 新能源充电区
+    'poi-b1-disabled-park',    // 无障碍车位区
+    'poi-b1-fire-lane',        // 消防通道
+  ],
 }
 
 // 默认预置 POI（根据商场实际布局设置）
@@ -166,4 +180,17 @@ export const DEFAULT_POIS = [
   
   // 珠宝区
   { id: 'poi-jewelry-zone', name: '珠宝名表区', description: '珠宝首饰与品牌钟表', narration: '珠宝名表区汇集了品牌钟表馆和黄金珠宝馆，提供各类高端珠宝首饰和名表。', xFrac: 0.805, yFrac: 0.895, floor: '1F' },
+
+  // ── B1 停车场 POI ──────────────────────────────────────────────────────────
+  { id: 'poi-b1-entry-ramp', name: '入口坡道', description: 'B1 停车场入口', narration: '这里是 B1 停车场入口坡道，请减速慢行，注意行人安全。', xFrac: 0.88, yFrac: 0.04, floor: 'B1' },
+  { id: 'poi-b1-exit-ramp', name: '出口坡道', description: 'B1 停车场出口', narration: '这里是 B1 停车场出口坡道，上坡请注意控制车速。', xFrac: 0.12, yFrac: 0.04, floor: 'B1' },
+  { id: 'poi-b1-elevator-lobby', name: '电梯厅', description: 'B1 电梯厅入口', narration: 'B1 电梯厅可直达商场各楼层，乘坐电梯请排队等候，注意安全。', xFrac: 0.12, yFrac: 0.92, floor: 'B1' },
+  { id: 'poi-b1-ev-charging', name: '新能源充电区', description: '电动汽车充电桩区域', narration: '新能源充电区配备多台快充充电桩，支持主流品牌电动汽车充电。', xFrac: 0.55, yFrac: 0.92, floor: 'B1' },
+  { id: 'poi-b1-disabled-park', name: '无障碍车位区', description: '无障碍专用停车位', narration: '无障碍车位区设有加宽车位，方便行动不便人士停车，请勿占用。', xFrac: 0.30, yFrac: 0.92, floor: 'B1' },
+  { id: 'poi-b1-fire-lane', name: '消防通道', description: '消防安全通道', narration: '这里是消防通道区域，请保持通道畅通，禁止停放任何车辆。', xFrac: 0.90, yFrac: 0.92, floor: 'B1' },
+  { id: 'poi-b1-parking-a', name: '停车区 A', description: 'A 区停车位', narration: 'A 区停车位靠近入口，方便快速进出，适合短时停车。', xFrac: 0.13, yFrac: 0.20, floor: 'B1' },
+  { id: 'poi-b1-parking-d', name: '停车区 D', description: 'D 区停车位', narration: 'D 区位于停车场中部，停车位充足，是主要停车区域之一。', xFrac: 0.38, yFrac: 0.20, floor: 'B1' },
+  { id: 'poi-b1-parking-g', name: '停车区 G', description: 'G 区停车位', narration: 'G 区靠近商场电梯入口，方便快速上楼购物。', xFrac: 0.62, yFrac: 0.20, floor: 'B1' },
+  // 机器人待机区（原停车区 J）
+  { id: 'poi-b1-robot-standby', name: '机器人待机区', description: 'B1 导览机器人待机区', narration: '这里是 B1 导览机器人待机区，机器人可在此充电待机、等候导览任务。从此处出发可前往停车场各区域进行导览。', xFrac: 0.87, yFrac: 0.20, floor: 'B1' },
 ]

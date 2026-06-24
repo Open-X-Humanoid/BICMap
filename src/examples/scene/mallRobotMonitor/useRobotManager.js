@@ -17,7 +17,7 @@ import {
   GUIDE_PHASE,
 } from './constants.js'
 import { createGeoUtils, iconRot, findAnnouncementPoint, initPathfinder, buildPathfindingRoute, routeIdsToCoords } from '@/bicMap/core/navigation'
-import { SHOPS } from './mallLayout.js'
+import { SHOPS, PARKING_ZONES } from './mallLayout.js'
 import { RobotEngine, createRobotProfile } from '@/bicMap/core/robot'
 
 const { fracToCart, cartToGPS } = createGeoUtils({
@@ -36,6 +36,15 @@ const FOV_COLORS = ['#00FFFF', '#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38
 const FOV_INDEX_MAP = new Map()
 
 const BUSINESS_SHOPS = SHOPS
+
+// B1 禁行区：只包含停车位区域（行车通道除外，机器人需沿通道行驶）
+const B1_FORBIDDEN_ZONES = PARKING_ZONES.filter(
+  (zone) => !zone.id.startsWith('b1-lane-') && zone.id !== 'b1-park-d1'
+)
+
+function getForbiddenZones(robotFloor) {
+  return robotFloor === 'B1' ? B1_FORBIDDEN_ZONES : BUSINESS_SHOPS
+}
 const STATUS_COLORS = {
   [ROBOT_STATUS.IDLE]: '#1CD5A4',
   [ROBOT_STATUS.RUNNING]: '#0066FF',
@@ -126,7 +135,7 @@ function createPatrolState(config, routeIds, routeCoords, poiIndices, announceme
     smoothHeading: IDLE_HEADING,
     phase,
     dwellTimer: 0,
-    floor: '1F',
+    floor: config.floor || '1F',
     battery: config.battery ?? 100,
     batteryLowWarned: false,
     initFrac: [...initFrac],   // 分散后的出发坐标，导览结束后回归用
@@ -211,13 +220,14 @@ export function useRobotManager(options) {
       if (!firstPoi) continue
       const firstTarget = [firstPoi.xFrac, firstPoi.yFrac]
       let lastAnchorPoint = initFrac || firstTarget
-      const firstAnnouncement = findAnnouncementPoint({ poiXFrac: firstPoi.xFrac, poiYFrac: firstPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones: BUSINESS_SHOPS })
+      const forbiddenZones = getForbiddenZones(config.floor)
+      const firstAnnouncement = findAnnouncementPoint({ poiXFrac: firstPoi.xFrac, poiYFrac: firstPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones })
       announcementList.push({ frac: firstAnnouncement, status: 'pending' })
       lastAnchorPoint = firstAnnouncement
       for (let poiIndex = 0; poiIndex < routeIdList.length - 1; poiIndex++) {
         const nextPoi = poiMap.get(routeIdList[poiIndex + 1])
         if (!nextPoi) continue
-        const nextAnnouncement = findAnnouncementPoint({ poiXFrac: nextPoi.xFrac, poiYFrac: nextPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones: BUSINESS_SHOPS })
+        const nextAnnouncement = findAnnouncementPoint({ poiXFrac: nextPoi.xFrac, poiYFrac: nextPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones })
         announcementList.push({ frac: nextAnnouncement, status: 'pending' })
         lastAnchorPoint = nextAnnouncement
       }
@@ -246,7 +256,7 @@ export function useRobotManager(options) {
         initFrac,
         ...waypointCoords.map((coord, i) => annPoints[i]?.frac || coord),
       ]
-      const { coords, poiIndices } = buildPathfindingRoute(pathPoints, BUSINESS_SHOPS)
+      const { coords, poiIndices } = buildPathfindingRoute(pathPoints, getForbiddenZones(config.floor))
       all[config.id] = { coords, poiIndices }
       const firstPoi = allPois.find((poi) => poi.id === routeIdList[0])
       // 单导航点时，路径至少包含起点和终点两个点
@@ -321,7 +331,9 @@ export function useRobotManager(options) {
 
   // 同步所有机器人标记位置、朝向到地图
   function syncRobotMarkers() {
+    const currentFloor = getCurrentFloor?.() || '1F'
     for (const [robotId, state] of patrolState) {
+      if (state.floor !== currentFloor) continue
       const lngLat = cartToGPS(state.cartPos.x, state.cartPos.y)
       state.lngLat = lngLat
       const rotation = iconRot(state.smoothHeading)
@@ -357,7 +369,10 @@ export function useRobotManager(options) {
 
   // 更新侧边栏机器人列表状态
   function updateSidebarStatus() {
-    robots.value = Array.from(patrolState).map(([robotId, state]) => {
+    const currentFloor = getCurrentFloor?.() || '1F'
+    robots.value = Array.from(patrolState)
+      .filter(([, state]) => state.floor === currentFloor)
+      .map(([robotId, state]) => {
       const config = robotConfigs.value.find((configItem) => configItem.id === robotId) || {},
         battery = state.battery,
         patrolStatus = state.phase === GUIDE_PHASE.IDLE ? ROBOT_STATUS.IDLE : ROBOT_STATUS.RUNNING
@@ -768,11 +783,13 @@ export function useRobotManager(options) {
   }
 
   function restoreFov() {
+    const currentFloor = getCurrentFloor?.() || '1F'
     for (const [robotId, fov] of fovMap) {
       if (fovSet.has(robotId)) {
-        fov.show()
         const state = patrolState.get(robotId)
-        if (state) fov.update(state.cartPos, state.smoothHeading)
+        if (!state || state.floor !== currentFloor) continue
+        fov.show()
+        fov.update(state.cartPos, state.smoothHeading)
       }
     }
   }
@@ -851,11 +868,12 @@ export function useRobotManager(options) {
     }
     initFovInstances()
     const isFirst = fovSet.size === 0
+    const currentFloor = getCurrentFloor?.() || '1F'
     for (const robotId of patrolState.keys()) {
       const state = patrolState.get(robotId),
         fovInstance = fovMap.get(robotId)
       if (!fovInstance) continue
-      if (fovSet.has(robotId) || isFirst) {
+      if ((fovSet.has(robotId) || isFirst) && state.floor === currentFloor) {
         fovInstance.show()
         fovSet.add(robotId)
         if (state) fovInstance.update(state.cartPos, state.smoothHeading)
@@ -961,6 +979,7 @@ export function useRobotManager(options) {
     setRobotRoute,
     routeDisplayData,
     setRobotPosition,
+    updateSidebarStatus,
     get onPoiArrival() {
       return onPoiArrival.value
     },

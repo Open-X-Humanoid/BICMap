@@ -150,6 +150,7 @@ const P = {
   entrance:        '#FEF3E2', // 出入口坡道 - 淡橙色
   elevator:        '#E8EAF6', // 电梯厅     - 淡靛色
   fireLane:        '#FDECEA', // 消防通道   - 淡红色
+  robotStandby:    '#E6D9F0', // 机器人待机区 - 淡紫色
 }
 
 // B1 停车场区域（分数坐标 0-1，基于整体 SLAM 地图空间）
@@ -202,7 +203,7 @@ export const PARKING_ZONES = [
     polygon: rectCorners(0.72, 0.08, 0.78, 0.85) },
 
   // ── 右列停车区（x=0.79–0.95）────────────────────────────────────────────────
-  { id: 'b1-park-d1', name: '停车区 J', color: P.parkingSpace, icon: 'icon-parking',
+  { id: 'b1-park-d1', name: '机器人待机区', color: P.robotStandby, icon: 'icon-robot-standby',
     polygon: rectCorners(0.79, 0.10, 0.95, 0.30) },
   { id: 'b1-park-d2', name: '停车区 K', color: P.parkingSpace, icon: 'icon-parking',
     polygon: rectCorners(0.79, 0.34, 0.95, 0.54) },

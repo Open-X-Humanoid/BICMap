@@ -79,7 +79,7 @@ export const ROBOT_STANDBY_POSITIONS = {
 
 export const ALERT_TYPES = {
   MOTION_DETECTED:    { label: '移动侦测', icon: '👤', color: '#f59e0b', level: 'warning' },
-  PERIMETER_BREACH:   { label: '周界入侵', icon: '🚨', color: '#ef4444', level: 'critical' },
+  PERIMETER_BREACH:   { label: '边界入侵', icon: '🚨', color: '#ef4444', level: 'critical' },
   UNAUTHORIZED_ACCESS:{ label: '未授权进入', icon: '🔒', color: '#dc2626', level: 'critical' },
   VEHICLE_ALERT:      { label: '可疑车辆', icon: '🚗', color: '#f97316', level: 'warning' },
   DOOR_OPEN:          { label: '门禁触发', icon: '🚪', color: '#06b6d4', level: 'info' },
@@ -99,7 +99,7 @@ export const SIMULATED_EVENT_TEMPLATES = {
     '{poi}区域红外传感器触发动检报警',
   ],
   PERIMETER_BREACH: [
-    '{poi}区域周界防护系统告警触发',
+    '{poi}区域边界防护系统告警触发',
     '{poi}围墙监测到非法闯入行为',
     '{poi}围栏电子围栏告警，疑似翻越',
   ],

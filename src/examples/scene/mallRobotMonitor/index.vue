@@ -8,7 +8,6 @@
       <!-- left sidebar: POI panel -->
       <aside class="sidebar sidebar--left">
         <GuidePoiPanel ref="guidePoiPanelRef" :pois="visiblePois" :activePoiId="selectedPoiId"
-          :add-disabled="currentFloor === 'B1'"
           @select="onPoiSelect" @add="onPoiAdd" @update="onPoiUpdate" @delete="onPoiDelete" />
       </aside>
 
@@ -35,7 +34,7 @@
 
       <!-- right sidebar: robot status panel -->
       <aside class="sidebar sidebar--right">
-        <RobotStatusPanel :robots="robots" :isRunning="isRunning" :pois="pois" :routes="robotRoutes"
+        <RobotStatusPanel :robots="robots" :isRunning="isRunning" :pois="visiblePois" :routes="robotRoutes"
           :start-poi-ids="robotStartPoiIds" :follow-robot-id="followRobotId"
           @toggle-fov="toggleFov" @toggle-follow="handleToggleFollow" @config-route="handleConfigRoute"
           @toggle-robot="handleToggleRobot" />
@@ -48,7 +47,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { Play, Pause, Maximize, Layers, Route as RouteIcon, Crosshair, Square, RotateCcw } from 'lucide-vue-next'
+import { Play, Maximize, Layers, Route as RouteIcon, Crosshair, Square, RotateCcw } from 'lucide-vue-next'
 
 import AppHeader from '../../components/AppHeader.vue'
 import AppFooter from '../../components/AppFooter.vue'
@@ -66,7 +65,7 @@ import { MALL_SHOP_ICONS } from './mallIcons.js'
 import {
   FLOOR_CONFIGS, ROBOT_CONFIGS, PATROL_ROUTES,
   MAP_START_X, MAP_START_Y, MAP_X_GRID_COUNT, MAP_Y_GRID_COUNT, MAP_RESOLUTION,
-  MAP_WIDTH_M, MAP_HEIGHT_M, LAYOUT_SCALE,
+  MAP_WIDTH_M, MAP_HEIGHT_M, LAYOUT_SCALE, GUIDE_PHASE, IDLE_HEADING,
 } from './constants.js'
 import { createGeoUtils, iconRot, cartDist } from '@/bicMap/core/navigation'
 import { createBuildings } from '@/bicMap/core/mapFeatures'
@@ -100,8 +99,6 @@ let slamBounds = null // SLAM 地图固定边界 { sw: [lng, lat], ne: [lng, lat
 
 const ROBOT_MARKER_LAYER_ID = 'robot-markers-layer'
 
-const IDLE_HEADING = 0
-
 // ===== composables =====
 const {
   pois, activePoi, setActivePoi, addPoi, updatePoi, removePoi, isPoiInRoute, setRouteReferenceChecker, loadDefaultPois,
@@ -115,7 +112,7 @@ const robotManager = useRobotManager({
   getCurrentFloor: () => currentFloor.value,
 })
 
-const { robots, isRunning, followCam, followRobotId, robotHeading, startAll, stopAll, pauseAll, resumeAll, startSingle, stopSingle, toggleFov, setFollowRobot, getPatrolState, setRobotRoute, setRobotPosition, routeDisplayData } = robotManager
+const { robots, isRunning, followCam, followRobotId, robotHeading, stopAll, startSingle, stopSingle, toggleFov, setFollowRobot, getPatrolState, setRobotRoute, setRobotPosition, routeDisplayData, updateSidebarStatus } = robotManager
 
 const routeLayer = useRouteLayer(() => map, fracToGPS, () => routeDisplayData.value)
 const { showRoute, toggleRoute, updateAnnouncementPoints } = routeLayer
@@ -157,6 +154,27 @@ const hudText = computed(() => {
   if (!isRunning.value) return ''
   const movingCount = robots.value.filter(r => r.status === 'running').length
   return `监控运行中 · ${movingCount} 台机器人导览中`
+})
+
+// ── per-floor running state ──
+const floor1FRunning = computed(() => {
+  if (!isRunning.value) return false
+  for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== '1F') continue
+    const state = getPatrolState(config.id)
+    if (state && state.phase !== GUIDE_PHASE.IDLE) return true
+  }
+  return false
+})
+
+const floorB1Running = computed(() => {
+  if (!isRunning.value) return false
+  for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== 'B1') continue
+    const state = getPatrolState(config.id)
+    if (state && state.phase !== GUIDE_PHASE.IDLE) return true
+  }
+  return false
 })
 
 // ── floor-filtered POIs ──
@@ -204,10 +222,18 @@ watch(currentFloor, () => syncPOIMarkers())
 const footerButtons = computed(() => {
   const buttons = [
     {
-      label: isRunning.value ? '全部暂停' : '全部开始',
-      icon: isRunning.value ? Square : Play,
-      active: isRunning.value,
-      onClick: isRunning.value ? handlePauseAll : handleStartAll,
+      label: floor1FRunning.value ? '1F 暂停' : '1F 导览',
+      icon: floor1FRunning.value ? Square : Play,
+      active: floor1FRunning.value,
+      disabled: currentFloor.value !== '1F',
+      onClick: floor1FRunning.value ? () => handleFloorPause('1F') : () => handleFloorStart('1F'),
+    },
+    {
+      label: floorB1Running.value ? 'B1 暂停' : 'B1 导览',
+      icon: floorB1Running.value ? Square : Play,
+      active: floorB1Running.value,
+      disabled: currentFloor.value !== 'B1',
+      onClick: floorB1Running.value ? () => handleFloorPause('B1') : () => handleFloorStart('B1'),
     },
     {
       label: '重置',
@@ -221,15 +247,6 @@ const footerButtons = computed(() => {
       active: showRoute.value,
       onClick: toggleRoute,
     },
-    // {
-    //   label: '视角不跟随',
-    //   icon: Crosshair,
-    //   onClick: () => {
-    //     setFollowRobot(null)
-    //     zoomToFit()
-    //   },
-    //   disabled: !followRobotId.value,
-    // },
   ]
   
   return buttons
@@ -296,16 +313,46 @@ async function setupScene() {
         }
       }
 
-      const isB1 = id === 'B1'
-      if (isB1 && isRunning.value) pauseAll()
-      nextTick(() => zoomToFit())
+      // 非破坏性楼层切换：保持运行中的机器人不暂停
+      // 保持机器人图层可见
       if (map?.getLayer(ROBOT_MARKER_LAYER_ID)) {
-        map.setLayoutProperty(ROBOT_MARKER_LAYER_ID, 'visibility', isB1 ? 'none' : 'visible')
+        map.setLayoutProperty(ROBOT_MARKER_LAYER_ID, 'visibility', 'visible')
       }
-      robotCtrl?.toggleLabels(!isB1)
+
+      // 切换机器人地图标记：移除所有旧标记，添加当前楼层机器人
+      ROBOT_CONFIGS.forEach(config => {
+        try { robotCtrl?.removeRobot(config.id) } catch (e) { /* ignore */ }
+      })
+      ROBOT_CONFIGS.forEach(config => {
+        if (config.floor !== id) return
+        const state = robotManager.getPatrolState(config.id)
+        if (!state) return
+        robotCtrl?.addRobot({
+          id: config.id,
+          lngLat: state.lngLat,
+          rotation: iconRot(state.smoothHeading),
+          name: config.name,
+          status: state.phase === GUIDE_PHASE.IDLE ? ROBOT_STATUS.IDLE : ROBOT_STATUS.RUNNING,
+          battery: state.battery,
+          task: '待导览',
+        })
+      })
+
+      // 标签在所有楼层都显示
+      robotCtrl?.toggleLabels(true)
+      // FOV：根据楼层显示/隐藏
+      const isB1 = id === 'B1'
       isB1 ? robotManager.hideAllFov() : robotManager.restoreFov()
-      routeLayer.setRouteVisible(!isB1)
-      routeLayer.setAnnouncementsVisible(!isB1)
+      // 路线：当前楼层可见，并更新路线数据
+      routeLayer.setRouteVisible(true)
+      routeLayer.updateRoutes()
+      routeLayer.setAnnouncementsVisible(true)
+      refreshAnnouncementLayer(id)
+
+      // 同步右侧机器人列表
+      updateSidebarStatus()
+
+      nextTick(() => zoomToFit())
     },
   })
   await floorManager.switchTo('1F')
@@ -518,9 +565,10 @@ async function addShopLabels(floorId) {
   }
 }
 
-function collectAllAnnouncementPoints() {
+function collectAllAnnouncementPoints(floor) {
   const allPoints = []
   for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== floor) continue
     const state = getPatrolState(config.id)
     if (state && state.announcementPoints) {
       for (const ap of state.announcementPoints) {
@@ -531,8 +579,9 @@ function collectAllAnnouncementPoints() {
   return allPoints
 }
 
-function refreshAnnouncementLayer() {
-  const allPoints = collectAllAnnouncementPoints()
+function refreshAnnouncementLayer(floor) {
+  const targetFloor = floor ?? currentFloor.value
+  const allPoints = collectAllAnnouncementPoints(targetFloor)
   if (allPoints.length > 0) {
     updateAnnouncementPoints(allPoints)
   }
@@ -700,47 +749,39 @@ function onPoiDelete(id) {
 }
 
 // ===== monitoring control =====
-function handleToggleMonitoring() {
-  isRunning.value ? handleStopAll() : handleStartAll()
-}
-
-function handleStartAll() {
+function handleFloorStart(floor) {
   if (!robotCtrl) return
-  
-  const hasRobots = robots.value.length > 0
-  const isPaused = !isRunning.value && hasRobots
-  
-  if (isPaused) {
-    if (currentFloor.value === 'B1') onFloorSwitch('1F')
-    resumeAll()
-  } else {
-    if (currentFloor.value === 'B1') onFloorSwitch('1F')
-    ROBOT_CONFIGS.forEach(r => { try { robotCtrl.removeRobot(r.id) } catch (e) { /* ignore */ } })
-    startAll(robotRoutes.value, robotStartPoiIds.value)
-    refreshAnnouncementLayer()
-    if (iot) {
-      ROBOT_CONFIGS.forEach(robot => {
-        const routeIds = robotRoutes.value[robot.id] || PATROL_ROUTES[robot.id]
-        if (!routeIds || routeIds.length < 2) return
-        const startPoi = pois.value.find(p => p.id === routeIds[0])
-        if (!startPoi) return
-        iot.emit({
-          id: `${robot.id}-start-${Date.now()}`,
-          lngLat: fracToGPS(startPoi.xFrac, startPoi.yFrac),
-          type: IOT_EVENT_TYPE.CUSTOM,
-          message: '导览机器人开始导览',
-          deviceName: robot.name,
-          duration: 3000,
-        })
-      })
-    }
+
+  for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== floor) continue
+    startSingle(config.id)
+  }
+
+  refreshAnnouncementLayer()
+
+  if (iot) {
+    ROBOT_CONFIGS.forEach(robot => {
+      if (robot.floor !== floor) return
+      const routeIds = robotRoutes.value[robot.id] || PATROL_ROUTES[robot.id]
+      if (!routeIds || routeIds.length < 2) return
+      const startPoi = pois.value.find(p => p.id === routeIds[0])
+      if (!startPoi) return
+    })
   }
 }
 
 function handleStopAll() {
-  stopAll()
+  // Only stop current floor robots
+  for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== currentFloor.value) continue
+    const state = getPatrolState(config.id)
+    if (state && state.phase !== GUIDE_PHASE.IDLE) {
+      stopSingle(config.id)
+    }
+  }
   robotNarrations.value = {}
   ROBOT_CONFIGS.forEach(robot => {
+    if (robot.floor !== currentFloor.value) return
     robotCtrl.addRobot({
       id: robot.id,
       lngLat: fracToGPS(...robot.initialFrac),
@@ -784,33 +825,21 @@ function handleToggleRobot(robotId) {
   if (robot.status === 'running') {
     stopSingle(robotId)
   } else {
-    if (currentFloor.value === 'B1') onFloorSwitch('1F')
     const success = startSingle(robotId)
     if (success) {
       refreshAnnouncementLayer()
-      if (iot) {
-        const config = ROBOT_CONFIGS.find(r => r.id === robotId)
-        const routeIds = robotRoutes.value[robotId] || PATROL_ROUTES[robotId]
-        if (config && routeIds && routeIds.length >= 2) {
-          const startPoi = pois.value.find(p => p.id === routeIds[0])
-          if (startPoi) {
-            iot.emit({
-              id: `${robotId}-start-${Date.now()}`,
-              lngLat: fracToGPS(startPoi.xFrac, startPoi.yFrac),
-              type: IOT_EVENT_TYPE.CUSTOM,
-          message: '导览机器人开始导览',
-          deviceName: config.name,
-              duration: 3000,
-            })
-          }
-        }
-      }
     }
   }
 }
 
-function handlePauseAll() {
-  pauseAll()
+function handleFloorPause(floor) {
+  for (const config of ROBOT_CONFIGS) {
+    if (config.floor !== floor) continue
+    const state = getPatrolState(config.id)
+    if (state && state.phase !== GUIDE_PHASE.IDLE) {
+      stopSingle(config.id)
+    }
+  }
 }
 
 function handleResetAll() {
@@ -819,6 +848,12 @@ function handleResetAll() {
   zoomToFit()
   robotManager.initRobots(ROBOT_CONFIGS, PATROL_ROUTES)
   if (followCam.value) zoomToFit()
+  // 移除非当前楼层的机器人标记
+  ROBOT_CONFIGS.forEach(config => {
+    if (config.floor !== currentFloor.value) {
+      try { robotCtrl?.removeRobot(config.id) } catch (e) { /* ignore */ }
+    }
+  })
 }
 
 // ===== cleanup =====
