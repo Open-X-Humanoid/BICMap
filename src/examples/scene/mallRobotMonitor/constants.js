@@ -102,7 +102,6 @@ export const PATROL_ROUTES = {
     'poi-west-food',         // 西区餐饮区
     'poi-west-zone',         // 西区精品区
     'poi-digital-center',    // 数码体验中心
-    'poi-north-entrance',    // 返回南入口
   ],
   // 导览机器人 B - 东区路线
   'guide-bot-beta': [
@@ -111,7 +110,6 @@ export const PATROL_ROUTES = {
     'poi-cinema',            // 巨幕电影院
     'poi-east-food',         // 东区餐饮区
     'poi-jewelry-zone',      // 珠宝名表区
-    'poi-north-entrance',    // 返回南入口
   ],
   // 巡检机器人 - 无路线，保持在待机区
   'patrol-bot': [],
