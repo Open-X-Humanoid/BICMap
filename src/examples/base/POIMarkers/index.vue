@@ -16,13 +16,12 @@
       </div>
     </main>
 
-    <AppFooter :left-buttons="footerButtons" />
+    <AppFooter />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { MapPin } from 'lucide-vue-next'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 import AppHeader from '../../components/AppHeader.vue'
 import AppFooter from '../../components/AppFooter.vue'
@@ -40,30 +39,30 @@ const MAP_Y_GRID_COUNT = 1536
 const MAP_RESOLUTION   = 0.05
 const MAP_ZOOM_FACTOR  = 2
 
-// 实际地图内容所在的安全区域（分数坐标）
-// SLAM 图片四周约 22~32% 是透明空白，地图内容在中间区域
-const SAFE_MIN_FRAC = 0.28
-const SAFE_MAX_FRAC = 0.65
+// ===== 固定 mock 点位（SLAM 笛卡尔坐标，米；落在底图有效内容区内） =====
+const MOCK_POINTS = [
+  { id: 'poi-1', name: '大厅入口',   x: -29, y: 14, rotation: 90 },
+  { id: 'poi-2', name: '电梯间A',    x: -4,  y: 25, rotation: 0 },
+  { id: 'poi-3', name: '充电站',     x: 38,  y: 16, rotation: 180 },
+  { id: 'poi-4', name: '会议室C',    x: 52,  y: -6, rotation: 45 },
+  { id: 'poi-5', name: '休息区',     x: 26,  y: 26,  rotation: 270 },
+  { id: 'poi-6', name: '机器人停放点', x: 4,  y: 12, rotation: 135 },
+  { id: 'poi-7', name: '办公区A',    x: -6, y: 6, rotation: 0 },
+  { id: 'poi-8', name: '安全出口',   x: -16, y: 4,  rotation: 225 },
+  { id: 'poi-9', name: '前台服务',   x: -26,  y: 26, rotation: 315 }
+]
 
 // ===== 地图本体 =====
 const map = ref(null)
-const floorPlanBounds = ref(null)   // 根据安全区域计算的精确 GPS 边界
 
-// ===== 点位 Marker =====
+// ===== 点位 Marker（固定 mock 数据） =====
 const {
-  active: poiActive,
   selected: selectedPOI,
-  toggle: togglePOIMarkers
+  load: loadPOIMarkers
 } = usePOIMarkers(map, {
-  getBounds: () => floorPlanBounds.value,
-  edgePadding: 0.05,
+  pointsProvider: buildPoints,
   markerOptions: { size: 32 }
 })
-
-// ===== Footer 按钮 =====
-const footerButtons = computed(() => [
-  { label: '点位Marker', active: poiActive.value, icon: MapPin, onClick: togglePOIMarkers }
-])
 
 onMounted(() => { initMap() })
 onBeforeUnmount(() => {
@@ -101,33 +100,24 @@ async function loadBaseMap() {
       fitBounds: true,
       zoomFactor: MAP_ZOOM_FACTOR
     })
-    computeFloorPlanBounds()
+    // 底图就绪后直接加载固定点位 marker
+    loadPOIMarkers()
   } catch (error) {
     console.error('加载底图失败:', error)
   }
 }
 
-function computeFloorPlanBounds() {
+/**
+ * 将固定 mock 点位（笛卡尔坐标）转换为 usePOIMarkers 需要的经纬度点位
+ * @returns {Array<{id:string, lngLat:[number,number], rotation:number, name:string}>}
+ */
+function buildPoints() {
   const Mu = window.MapUtils
-  if (!Mu?.cartesianToGPS) return
-
-  const mapW = MAP_X_GRID_COUNT * MAP_RESOLUTION
-  const mapH = MAP_Y_GRID_COUNT * MAP_RESOLUTION
-
-  // 将安全区域（分数坐标）转换为笛卡尔坐标，再转为 GPS
-  const corners = [
-    { x: MAP_START_X + SAFE_MIN_FRAC * mapW, y: MAP_START_Y + SAFE_MIN_FRAC * mapH },
-    { x: MAP_START_X + SAFE_MAX_FRAC * mapW, y: MAP_START_Y + SAFE_MAX_FRAC * mapH },
-  ]
-  const gpsList = corners.map(c =>
-    Mu.cartesianToGPS({ x: c.x, y: c.y, scale: MAP_RESOLUTION, zoomFactor: MAP_ZOOM_FACTOR })
-  )
-  floorPlanBounds.value = {
-    minLng: Math.min(...gpsList.map(g => g.longitude)),
-    maxLng: Math.max(...gpsList.map(g => g.longitude)),
-    minLat: Math.min(...gpsList.map(g => g.latitude)),
-    maxLat: Math.max(...gpsList.map(g => g.latitude)),
-  }
+  if (!Mu?.cartesianToGPS) return []
+  return MOCK_POINTS.map(p => {
+    const gps = Mu.cartesianToGPS({ x: p.x, y: p.y, scale: MAP_RESOLUTION, zoomFactor: MAP_ZOOM_FACTOR })
+    return { id: p.id, lngLat: [gps.longitude, gps.latitude], rotation: p.rotation, name: p.name }
+  })
 }
 </script>
 
