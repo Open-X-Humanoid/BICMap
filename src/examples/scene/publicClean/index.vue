@@ -407,6 +407,24 @@ function buildCoveragePath(ring) {
   const ciMin = Math.min(a.ci, b.ci), ciMax = Math.max(a.ci, b.ci)
   const cjMin = Math.min(a.cj, b.cj), cjMax = Math.max(a.cj, b.cj)
 
+  // 严格裁剪到框选「多边形」内（而非仅包围盒）：把选区环转换到逻辑栅格浮点坐标，
+  // 用射线法判断格中心是否落在选区内。弓字形扫描与转移段 A* 都只允许落在选区内的格，
+  // 既支持任意/旋转选区，也消除包围盒带来的半格越界。
+  const poly = []
+  for (const [lng, lat] of ring) {
+    const p = lngLatToPixel(lng, lat)
+    if (p) poly.push([p.px / GRID_STRIDE, p.py / GRID_STRIDE])
+  }
+  const inSel = (ci, cj) => poly.length >= 3 && pointInPolygon(ci + 0.5, cj + 0.5, poly)
+  const cleanableInSel = (ci, cj) => inSel(ci, cj) && isCleanable(ci, cj)
+  const traversableInSel = (ci, cj) => inSel(ci, cj) && isTraversable(ci, cj)
+  // 同一行内两端之间是否全程「选区内可清洁」（直线段连接的前提）
+  const rowClear = (p, q) => {
+    const lo = Math.min(p.ci, q.ci), hi = Math.max(p.ci, q.ci)
+    for (let ci = lo; ci <= hi; ci++) if (!cleanableInSel(ci, p.cj)) return false
+    return true
+  }
+
   // 逐行扫描得到弓字形「停靠点」（每段可清洁区间的两端），逐行交替方向
   const stops = []
   let dir = 1
@@ -414,7 +432,7 @@ function buildCoveragePath(ring) {
     const runs = []
     let runStart = -1
     for (let ci = ciMin; ci <= ciMax; ci++) {
-      const ok = isCleanable(ci, cj)
+      const ok = cleanableInSel(ci, cj)
       if (ok && runStart < 0) runStart = ci
       if ((!ok || ci === ciMax) && runStart >= 0) {
         const runEnd = ok ? ci : ci - 1
@@ -443,12 +461,12 @@ function buildCoveragePath(ring) {
   for (let i = 1; i < stops.length; i++) {
     const to = stops[i]
     if (cur.ci === to.ci && cur.cj === to.cj) continue
-    if (cur.cj === to.cj && rowRunClear(cur, to)) {
+    if (cur.cj === to.cj && rowClear(cur, to)) {
       cells.push(to)
       cur = to
       continue
     }
-    const seg = astarCells(cur, to, isCleanable) || astarCells(cur, to, isTraversable)
+    const seg = astarCells(cur, to, cleanableInSel) || astarCells(cur, to, traversableInSel)
     if (seg && seg.length > 1) {
       for (let k = 1; k < seg.length; k++) cells.push(seg[k])
       cur = to
@@ -461,13 +479,22 @@ function buildCoveragePath(ring) {
   return dedupePath(simplified.map(c => logicalCenterToLngLat(c.ci, c.cj)))
 }
 
-/** 同一行内两端之间是否全程可清洁（直线段） */
-function rowRunClear(a, b) {
-  const lo = Math.min(a.ci, b.ci), hi = Math.max(a.ci, b.ci)
-  for (let ci = lo; ci <= hi; ci++) {
-    if (!isCleanable(ci, a.cj)) return false
+/**
+ * 射线法判断点 (x, y) 是否在多边形内
+ * @param {number} x
+ * @param {number} y
+ * @param {number[][]} poly 多边形顶点 [[x, y], ...]
+ * @returns {boolean}
+ */
+function pointInPolygon(x, y, poly) {
+  let inside = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i][0], yi = poly[i][1]
+    const xj = poly[j][0], yj = poly[j][1]
+    const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi)
+    if (intersect) inside = !inside
   }
-  return true
+  return inside
 }
 
 const NEI8 = []
