@@ -14,7 +14,7 @@ html, body {
   padding: 0;
   height: 100%;
   overflow: hidden;
-  font-family: Arial, sans-serif;
+  font-family: 'HarmonyOS Sans SC', system-ui, sans-serif;
   background: #e8f4fc;
 }
 

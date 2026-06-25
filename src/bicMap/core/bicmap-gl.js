@@ -192,10 +192,35 @@ class BicMap {
     
     const fontStyles = `
       @font-face {
+        font-family: 'HarmonyOS Sans SC';
+        src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_REGULAR.TTF') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'HarmonyOS Sans SC';
+        src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_MEDIUM.TTF') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'HarmonyOS Sans SC';
+        src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_BOLD.TTF') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
         font-family: 'Harmony Bold';
         src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_BOLD.TTF') format('truetype');
         font-weight: bold;
         font-style: normal;
+        font-display: swap;
       }
 
       @font-face {
@@ -203,6 +228,7 @@ class BicMap {
         src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_REGULAR.TTF') format('truetype');
         font-weight: normal;
         font-style: normal;
+        font-display: swap;
       }
 
       @font-face {
@@ -210,6 +236,7 @@ class BicMap {
         src: url('${this.resourcePaths.fontsUrl}/HARMONYOS_SANS_SC_MEDIUM.TTF') format('truetype');
         font-weight: 500;
         font-style: normal;
+        font-display: swap;
       }
     `;
     
