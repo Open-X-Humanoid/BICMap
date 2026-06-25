@@ -1620,3 +1620,5 @@ export function addBatchPOIMarkers(map, points = [], options = {}) {
     remove
   };
 } 
+
+export { addRobotMarkersSync } from './robo.js';

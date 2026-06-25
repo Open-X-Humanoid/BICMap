@@ -1,4 +1,4 @@
-import { addRobotMarkers } from '@/bicMap/core/markers/robo.js';
+import { addRobotMarkers, addRobotMarkersSync } from '@/bicMap/core/markers/robo.js';
 
 // ── 状态配置 ──────────────────────────────────────────────────────────────────
 
@@ -180,12 +180,13 @@ export function addStatusRobotMarkers(map, robots = [], options = {}) {
     showLabels  = true,
     showStatus  = true,
     showBattery = true,
+    sync        = false,
     GPSToCartesian = null,
     ...baseOptions
   } = options;
 
-  // 调用 addRobotMarkers（showLabels 强制 false，由本层接管气泡）
-  const base = addRobotMarkers(map, robots, {
+  // 调用 addRobotMarkers / addRobotMarkersSync（showLabels 强制 false，由本层接管气泡）
+  const base = (sync ? addRobotMarkersSync : addRobotMarkers)(map, robots, {
     ...baseOptions,
     showLabels: false,
     GPSToCartesian

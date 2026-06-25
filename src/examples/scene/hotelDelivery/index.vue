@@ -361,7 +361,7 @@ function createOverlays() {
     status: ROBOT_STATUS.IDLE,
     battery: 85,
     task: '待命中'
-  }], { size: 24 })
+  }], { size: 24, sync: true })
 
   robot3DCtrl = createRobot3DLayer(map, DELIVERY_ROBOT_CONFIG, {
     layerId: 'hotel-robot-3d-layer',

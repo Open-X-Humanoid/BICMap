@@ -8,9 +8,9 @@ export const MAP_WIDTH        = MAP_X_GRID_COUNT * MAP_RESOLUTION  // 80 m
 export const MAP_HEIGHT       = MAP_Y_GRID_COUNT * MAP_RESOLUTION  // 50 m
 
 // ===== 运动参数 =====
-export const ROBOT_SPEED  = 5  // m/s
+export const ROBOT_SPEED  = 2  // m/s
 export const UPDATE_MS    = 16    // RAF 动画首帧默认 delta（ms），首个 tick 无真实 dt 时回退至此值
-export const ARRIVAL_DIST = 0.5   // 到达判定距离（m）
+export const ARRIVAL_DIST = 0.1   // 到达判定距离（m）
 export const IDLE_HEADING = 90    // 待机朝向：北顺时针 0°，东 = 90°
 export const ROTATE_DPS   = 120   // 转向角速度（度/秒），匀速旋转
 
