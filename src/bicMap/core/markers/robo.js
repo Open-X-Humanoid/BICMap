@@ -1,8 +1,5 @@
 import maplibregl from 'maplibre-gl';
-
 import { safeImageLoader } from '../utils/loaders.js';
-import SyncIconLayer from '../layers/syncIconLayer.js';
-
 /**
  * 添加机器人位置标记，支持旋转角度和标签
  * @param {Object} maplibregl - maplibregl实例
@@ -571,278 +568,155 @@ export function addRobotMarkers(map, robots = [], options = {}) {
 }
 
 /**
- * 添加机器人位置标记（同步版本）
- * 内部接入 SyncIconLayer 作为渲染引擎，实现同步数据更新
+ * 添加机器人位置标记（同步版本，DOM Marker 实现）
  * @param {Object} map - 地图实例
  * @param {Array} robots - 机器人数组，每个机器人包含位置、旋转和标识信息 [{lngLat: [lng, lat], rotation: number, name: string, id: string}]
  * @param {Object} options - 配置选项
  * @param {string} options.svgPath - 标记SVG路径，默认为'/bicMap/assets/img/robo.png'
  * @param {number} options.size - 标记尺寸（CSS像素），默认为30px
- * @param {boolean} options.showLabels - 是否显示标签，默认为true
  * @param {Function} options.onClick - 点击机器人标记的回调函数
- * @param {Function} options.GPSToCartesian - GPS转笛卡尔坐标函数
  * @returns {Object} 包含机器人标记控制方法的对象
  */
 export function addRobotMarkersSync(map, robots = [], options = {}) {
   const {
     svgPath = '/bicMap/assets/img/robo.png',
     size = 30,
-    onClick = null,
-    GPSToCartesian = null
+    onClick = null
   } = options;
 
-  // 内部状态变量
-  let showLabels = options.showLabels !== undefined ? options.showLabels : true;
   let currentRobots = [...robots];
-  let labelMarkers = [];
-  let syncLayer = null;
-  const layerId = 'robot-markers-sync-layer';
+  const _markerPool = [];
+  let _activeMarkers = [];
+  let _displaySize = size; // 初始默认，图片加载后按异步版公式重算
 
-  // 创建 SyncIconLayer 兼容的 features 格式
-  const createFeatures = (robotsData) => {
-    return robotsData.map((robot, index) => ({
-      type: 'Feature',
+  // 创建单个 Marker 的 DOM 元素
+  const _createMarkerElement = () => {
+    const container = document.createElement('div');
+    container.className = 'bic-robot-dom-marker';
+    container.style.width = `${_displaySize}px`;
+    container.style.height = `${_displaySize}px`;
+
+    if (onClick) {
+      container.style.cursor = 'pointer';
+    }
+
+    const img = document.createElement('img');
+    img.src = svgPath;
+    img.style.display = 'block';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    img.style.pointerEvents = 'none';
+    img.onerror = function () {
+      const s = _displaySize;
+      const canvas = document.createElement('canvas');
+      canvas.width = s;
+      canvas.height = s;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#0066FF';
+      ctx.beginPath();
+      ctx.arc(s / 2, s / 2, s / 2 - 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#BBD6FF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      this.src = canvas.toDataURL();
+    };
+
+    container.appendChild(img);
+    return container;
+  };
+
+  // 从池中获取或创建 Marker，设置位置和旋转，绑定点击事件
+  const _acquireMarker = (robot, index) => {
+    let marker;
+    let isNew = false;
+
+    if (_markerPool.length > 0) {
+      marker = _markerPool.pop();
+      marker.addTo(map);
+    } else {
+      isNew = true;
+      const el = _createMarkerElement();
+      marker = new maplibregl.Marker({
+        element: el,
+        pitchAlignment: 'map',
+        rotationAlignment: 'map'
+      }).setLngLat(robot.lngLat).addTo(map);
+    }
+
+    // 更新位置
+    marker.setLngLat(robot.lngLat);
+
+    // 更新旋转角度
+    const imgEl = marker.getElement().querySelector('img');
+    if (imgEl) {
+      imgEl.style.transform = `rotate(${robot.rotation || 0}deg)`;
+    }
+
+    // 存储点击数据到 DOM 元素上
+    const clickData = {
+      lngLat: robot.lngLat,
+      rotation: robot.rotation,
+      name: robot.name,
       id: robot.id || `robot-${index}`,
-      geometry: {
-        type: 'Point',
-        coordinates: robot.lngLat
-      },
-      properties: {
-        id: robot.id || `robot-${index}`,
-        rotation: robot.rotation || 0,
-        name: robot.name || `机器人${index + 1}`
-      }
-    }));
-  };
+      index,
+      originalRobot: robot
+    };
+    marker.getElement()._robotClickData = clickData;
 
-  // 创建HTML标签元素
-  const createLabelElement = (robot) => {
-    const labelEl = document.createElement('div');
-    labelEl.className = 'bic-robot-label';
-    labelEl.style.position = 'absolute';
-    labelEl.style.pointerEvents = 'none';
-    labelEl.style.display = 'block';
-    labelEl.style.textAlign = 'center';
-    labelEl.style.marginTop = '-45px';
-    labelEl.style.transform = 'translateX(-50%)';
-    labelEl.style.zIndex = 2;
-
-    const bubbleContainer = document.createElement('div');
-    bubbleContainer.className = 'bic-robot-bubble-container';
-    bubbleContainer.style.position = 'relative';
-    bubbleContainer.style.padding = '0';
-    bubbleContainer.style.marginBottom = '7px';
-    bubbleContainer.style.display = 'inline-block';
-
-    const bgContainer = document.createElement('table');
-    bgContainer.className = 'bic-robot-bg-container';
-    bgContainer.style.borderCollapse = 'collapse';
-    bgContainer.style.borderRadius = '6px';
-    bgContainer.style.overflow = 'hidden';
-    bgContainer.style.border = '1px solid #86B3FF';
-    bgContainer.style.minWidth = '120px';
-    bgContainer.style.boxShadow = '0 1px 3px rgba(0, 102, 255, 0.2)';
-    bgContainer.style.width = '100%';
-    bgContainer.style.backgroundColor = '#0066FF';
-    bgContainer.style.borderBottomLeftRadius = '6px';
-    bgContainer.style.borderBottomRightRadius = '6px';
-
-    const coordRow = document.createElement('tr');
-    const nameRow = document.createElement('tr');
-
-    const coordCell = document.createElement('td');
-    coordCell.style.backgroundColor = '#FFFFFF';
-    coordCell.style.padding = '3px 0';
-    coordCell.style.height = '18px';
-    coordCell.style.textAlign = 'center';
-    coordCell.style.verticalAlign = 'middle';
-    coordCell.style.borderBottomLeftRadius = '6px';
-    coordCell.style.borderBottomRightRadius = '6px';
-
-    const gpsPoint = typeof GPSToCartesian === 'function'
-      ? GPSToCartesian(robot.lngLat[0], robot.lngLat[1])
-      : { x: robot.lngLat[0].toFixed(4), y: robot.lngLat[1].toFixed(4) };
-    const rotate = robot.rotation?.toFixed(1) || '0.0';
-    coordCell.innerHTML = `<span style="padding: 0px 10px;color:#0066FF;font-size:10px;font-weight:normal;font-family:Harmony Regular,sans-serif;line-height:1;white-space:nowrap;letter-spacing:-0.2px;">${gpsPoint.x},${gpsPoint.y},${rotate}°</span>`;
-
-    const nameCell = document.createElement('td');
-    nameCell.style.backgroundColor = '#0066FF';
-    nameCell.style.padding = '3px 0';
-    nameCell.style.height = '20px';
-    nameCell.style.textAlign = 'center';
-    nameCell.style.verticalAlign = 'middle';
-    nameCell.style.borderBottomLeftRadius = '6px';
-    nameCell.style.borderBottomRightRadius = '6px';
-
-    const robotName = robot.name || '未命名机器人';
-    const displayName = robotName.length > 10 ? robotName.substring(0, 10) + '...' : robotName;
-    nameCell.innerHTML = `<span style="color:#FFFFFF;font-size:12px;font-weight:bold;font-family:Harmony Regular,sans-serif;line-height:1;white-space:nowrap;">${displayName}</span>`;
-
-    coordRow.appendChild(coordCell);
-    nameRow.appendChild(nameCell);
-
-    bgContainer.appendChild(coordRow);
-    bgContainer.appendChild(nameRow);
-
-    bubbleContainer.appendChild(bgContainer);
-
-    labelEl.appendChild(bubbleContainer);
-
-    return labelEl;
-  };
-
-  // 为单个机器人创建标签元素并添加到DOM
-  const createLabelForRobot = (robot, index) => {
-    const labelEl = createLabelElement(robot);
-    labelEl.id = `bic-robot-label-${index}`;
-    labelEl.style.position = 'absolute';
-    labelEl.style.zIndex = 2;
-
-    const mapContainer = map.getContainer();
-    mapContainer.appendChild(labelEl);
-
-    labelMarkers.push({
-      element: labelEl,
-      robotIndex: index
-    });
-
-    updateLabelPosition(labelEl, robot.lngLat);
-  };
-
-  // 为所有机器人创建标签
-  const createLabelsForRobots = () => {
-    currentRobots.forEach((robot, index) => {
-      createLabelForRobot(robot, index);
-    });
-  };
-
-  // 更新单个标签位置
-  const updateLabelPosition = (labelEl, lngLat) => {
-    const pos = map.project(lngLat);
-    labelEl.style.left = `${pos.x}px`;
-    labelEl.style.top = `${pos.y - 38}px`;
-  };
-
-  // 更新所有标签位置
-  const updateLabelsPosition = () => {
-    if (!showLabels) return;
-
-    labelMarkers.forEach(marker => {
-      const robot = currentRobots[marker.robotIndex];
-      if (robot) {
-        updateLabelPosition(marker.element, robot.lngLat);
-      }
-    });
-  };
-
-  // 清除HTML标签
-  const clearLabels = () => {
-    labelMarkers.forEach(item => {
-      if (item.element && item.element.parentNode) {
-        item.element.parentNode.removeChild(item.element);
-      }
-    });
-    labelMarkers = [];
-  };
-
-  // 点击事件处理函数（命名函数，便于移除）
-  const syncClickHandler = (e) => {
-    if (!syncLayer || !syncLayer.queryRenderedFeatures) return;
-    const features = syncLayer.queryRenderedFeatures(e.point);
-    if (features.length > 0) {
-      const feature = features[0];
-      const robotId = feature.properties.id;
-      const robotIndex = currentRobots.findIndex(r =>
-        (r.id && r.id === robotId) || (!r.id && robotId.startsWith('robot-'))
-      );
-      if (robotIndex !== -1) {
-        e.originalEvent.stopPropagation();
-        onClick({
-          lngLat: feature.geometry.coordinates,
-          rotation: feature.properties.rotation,
-          name: feature.properties.name,
-          id: robotId,
-          index: robotIndex,
-          originalRobot: currentRobots[robotIndex]
-        });
-      }
-    }
-  };
-
-  // 鼠标悬停事件处理函数
-  const syncMouseEnterHandler = () => {
-    map.getCanvas().style.cursor = 'pointer';
-  };
-  const syncMouseLeaveHandler = () => {
-    map.getCanvas().style.cursor = '';
-  };
-
-  // 图标加载与图层初始化
-  // iconSize 为 CSS 像素，由 SyncIconLayer 在 render 时根据 zoom 换算 Mercator 大小
-  const initializeSyncLayer = () => {
-    safeImageLoader(svgPath)
-      .then(img => {
-        syncLayer = new SyncIconLayer({
-          id: layerId,
-          iconImage: img,
-          iconSize: size,
-          iconRotationAlignment: 'map'
-        });
-        map.addLayer(syncLayer);
-        syncLayer.setData(createFeatures(currentRobots));
-      })
-      .catch(error => {
-        console.error('加载机器人图标失败:', error);
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#0066FF';
-        ctx.beginPath();
-        ctx.arc(size/2, size/2, size/2-2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#BBD6FF';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        syncLayer = new SyncIconLayer({
-          id: layerId,
-          iconImage: canvas,
-          iconSize: size,
-          iconRotationAlignment: 'map'
-        });
-        map.addLayer(syncLayer);
-        syncLayer.setData(createFeatures(currentRobots));
+    // 新创建的 Marker 绑定点击事件（后续通过 _robotClickData 读取最新数据）
+    if (isNew && onClick) {
+      marker.getElement().addEventListener('click', function (e) {
+        e.stopPropagation();
+        onClick(this._robotClickData);
       });
+    }
+
+    _activeMarkers.push({
+      marker,
+      robotIndex: index,
+      robotId: robot.id
+    });
+
+    return marker;
   };
 
-  // 更新机器人数据
+  // 释放 Marker 到空闲池
+  const _releaseMarker = (marker) => {
+    marker.remove();
+    _markerPool.push(marker);
+  };
+
+  // 清空空闲池
+  const _drainPool = () => {
+    _markerPool.forEach(m => m.remove());
+    _markerPool.length = 0;
+  };
+
+  // --- 控制器 API ---
+
   const updateRobots = (newRobots = []) => {
-    currentRobots = newRobots;
-    if (syncLayer) {
-      syncLayer.setData(createFeatures(currentRobots));
-    }
-    clearLabels();
-    if (showLabels && currentRobots.length > 0) {
-      createLabelsForRobots();
-    }
+    // 先释放所有旧 Marker 到池中
+    _activeMarkers.forEach(active => _releaseMarker(active.marker));
+    _activeMarkers = [];
+
+    // 更新数据
+    currentRobots = [...newRobots];
+
+    // 从池中复用或创建新 Marker（此时池中已有旧 Marker）
+    currentRobots.forEach((robot, index) => {
+      _acquireMarker(robot, index);
+    });
   };
 
-  // 添加机器人
   const addRobot = (robot) => {
     const newIndex = currentRobots.length;
     currentRobots.push(robot);
-    const feat = createFeatures([robot])[0];
-    if (syncLayer) {
-      syncLayer.updateFeature(feat.id, feat);
-    }
-    if (showLabels) {
-      createLabelForRobot(robot, newIndex);
-    }
+    _acquireMarker(robot, newIndex);
     return newIndex;
   };
 
-  // 更新指定机器人
   const updateRobot = (identifier, robot) => {
     let index = -1;
     if (typeof identifier === 'number') {
@@ -850,32 +724,34 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
     } else if (typeof identifier === 'string') {
       index = currentRobots.findIndex(r => r.id === identifier);
     }
+
     if (index >= 0 && index < currentRobots.length) {
-      const oldRobot = currentRobots[index];
-      currentRobots[index] = { ...oldRobot, ...robot };
-      const feat = createFeatures([currentRobots[index]])[0];
-      if (syncLayer) {
-        syncLayer.updateFeature(feat.id, feat);
-      }
-      if (showLabels) {
-        const labelItem = labelMarkers.find(item => item.robotIndex === index);
-        if (labelItem && labelItem.element) {
-          if (labelItem.element.parentNode) {
-            labelItem.element.parentNode.removeChild(labelItem.element);
-          }
-          const itemIndex = labelMarkers.indexOf(labelItem);
-          if (itemIndex !== -1) {
-            labelMarkers.splice(itemIndex, 1);
-            createLabelForRobot(currentRobots[index], index);
-          }
+      currentRobots[index] = { ...currentRobots[index], ...robot };
+
+      const active = _activeMarkers.find(a => a.robotIndex === index);
+      if (active) {
+        active.marker.setLngLat(currentRobots[index].lngLat);
+        const imgEl = active.marker.getElement().querySelector('img');
+        if (imgEl) {
+          imgEl.style.transform = `rotate(${currentRobots[index].rotation || 0}deg)`;
         }
+        // 更新点击数据
+        active.marker.getElement()._robotClickData = {
+          lngLat: currentRobots[index].lngLat,
+          rotation: currentRobots[index].rotation,
+          name: currentRobots[index].name,
+          id: currentRobots[index].id || `robot-${index}`,
+          index,
+          originalRobot: currentRobots[index]
+        };
       }
+
       return true;
     }
+
     return false;
   };
 
-  // 删除指定机器人
   const removeRobot = (identifier) => {
     let index = -1;
     if (typeof identifier === 'number') {
@@ -883,100 +759,66 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
     } else if (typeof identifier === 'string') {
       index = currentRobots.findIndex(r => r.id === identifier);
     }
+
     if (index >= 0 && index < currentRobots.length) {
-      const removedId = currentRobots[index].id || `robot-${index}`;
       currentRobots.splice(index, 1);
-      if (syncLayer) {
-        syncLayer.removeFeature(removedId);
+
+      const activeIdx = _activeMarkers.findIndex(a => a.robotIndex === index);
+      if (activeIdx !== -1) {
+        const active = _activeMarkers[activeIdx];
+        _releaseMarker(active.marker);
+        _activeMarkers.splice(activeIdx, 1);
       }
-      if (showLabels) {
-        const labelItem = labelMarkers.find(item => item.robotIndex === index);
-        if (labelItem && labelItem.element) {
-          if (labelItem.element.parentNode) {
-            labelItem.element.parentNode.removeChild(labelItem.element);
-          }
-          const itemIndex = labelMarkers.indexOf(labelItem);
-          if (itemIndex !== -1) {
-            labelMarkers.splice(itemIndex, 1);
-          }
+
+      // 更新剩余活跃 Marker 的 robotIndex
+      _activeMarkers.forEach(a => {
+        if (a.robotIndex > index) {
+          a.robotIndex--;
         }
-        labelMarkers.forEach(item => {
-          if (item.robotIndex > index) {
-            item.robotIndex--;
-          }
-        });
-      }
+      });
+
       return true;
     }
+
     return false;
   };
 
-  // 删除所有机器人
   const clearRobots = () => {
     currentRobots = [];
-    if (syncLayer) {
-      syncLayer.clearFeatures();
-    }
-    clearLabels();
+    _activeMarkers.forEach(active => _releaseMarker(active.marker));
+    _activeMarkers = [];
   };
 
-  // 获取所有机器人
   const getRobots = () => [...currentRobots];
 
-  // 显示/隐藏标签
-  const toggleLabels = (show) => {
-    const newShowLabels = show === undefined ? !showLabels : show;
-    if (newShowLabels !== showLabels) {
-      if (newShowLabels) {
-        if (labelMarkers.length === 0) {
-          createLabelsForRobots();
-        } else {
-          labelMarkers.forEach(marker => {
-            if (marker.element) marker.element.style.display = 'block';
-          });
-        }
-      } else {
-        labelMarkers.forEach(marker => {
-          if (marker.element) marker.element.style.display = 'none';
-        });
-      }
-      showLabels = newShowLabels;
-    }
-    return showLabels;
-  };
+  const toggleLabels = () => true;
 
-  // 移除图层和清理
   const remove = () => {
-    if (syncLayer && map.getLayer(layerId)) {
-      map.removeLayer(layerId);
-      syncLayer = null;
-    }
-    map.off('move', updateLabelsPosition);
-    if (onClick && typeof onClick === 'function') {
-      map.off('click', syncClickHandler);
-      map.getCanvas().removeEventListener('mouseenter', syncMouseEnterHandler);
-      map.getCanvas().removeEventListener('mouseleave', syncMouseLeaveHandler);
-    }
-    clearLabels();
+    _activeMarkers.forEach(active => active.marker.remove());
+    _activeMarkers = [];
+    _drainPool();
   };
 
-  // 初始化
-  initializeSyncLayer();
-
-  // 注册地图移动事件更新标签位置
-  map.on('move', updateLabelsPosition);
-
-  // 初始创建标签
-  if (showLabels && currentRobots.length > 0) {
-    createLabelsForRobots();
-  }
-
-  // 注册点击事件（仅在提供了 onClick 时）
-  if (onClick && typeof onClick === 'function') {
-    map.on('click', syncClickHandler);
-    map.getCanvas().addEventListener('mouseenter', syncMouseEnterHandler);
-    map.getCanvas().addEventListener('mouseleave', syncMouseLeaveHandler);
-  }
+  // 预加载图片，按异步版 icon-size: size/48 公式计算实际 CSS 像素尺寸
+  const preloadImage = () => {
+    const tempImg = new Image();
+    tempImg.onload = () => {
+      // robo.png 实际 92×92，异步版 icon-size: size/48，等效 CSS 像素为 naturalWidth * size / 48
+      _displaySize = Math.round(tempImg.naturalWidth * size / 48);
+      // 图片加载完成后创建 Marker（此时已有正确尺寸）
+      currentRobots.forEach((robot, index) => {
+        _acquireMarker(robot, index);
+      });
+    };
+    tempImg.onerror = () => {
+      // 加载失败则使用默认 size，仍创建 Marker
+      currentRobots.forEach((robot, index) => {
+        _acquireMarker(robot, index);
+      });
+    };
+    tempImg.src = svgPath;
+  };
+  preloadImage();
 
   // 返回控制器对象
   return {
