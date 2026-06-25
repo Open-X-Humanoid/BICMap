@@ -577,7 +577,7 @@ export function addRobotMarkers(map, robots = [], options = {}) {
  * @param {Array} robots - 机器人数组，每个机器人包含位置、旋转和标识信息 [{lngLat: [lng, lat], rotation: number, name: string, id: string}]
  * @param {Object} options - 配置选项
  * @param {string} options.svgPath - 标记SVG路径，默认为'/bicMap/assets/img/robo.png'
- * @param {number} options.size - 标记尺寸，默认为30像素
+ * @param {number} options.size - 标记尺寸（CSS像素），默认为30px
  * @param {boolean} options.showLabels - 是否显示标签，默认为true
  * @param {Function} options.onClick - 点击机器人标记的回调函数
  * @param {Function} options.GPSToCartesian - GPS转笛卡尔坐标函数
@@ -778,15 +778,14 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
   };
 
   // 图标加载与图层初始化
+  // iconSize 为 CSS 像素，由 SyncIconLayer 在 render 时根据 zoom 换算 Mercator 大小
   const initializeSyncLayer = () => {
     safeImageLoader(svgPath)
       .then(img => {
-        // 匹配 symbol layer 的尺寸：图片原始宽度 × (size / 48)
-        const syncIconSize = img.naturalWidth * (size / 48);
         syncLayer = new SyncIconLayer({
           id: layerId,
           iconImage: img,
-          iconSize: syncIconSize,
+          iconSize: size,
           iconRotationAlignment: 'map'
         });
         map.addLayer(syncLayer);

@@ -1,14 +1,15 @@
 /**
- * 通用同步图标图层 - CustomLayer
+ * 通用同步图标图层 - CustomLayer (3D)
  *
- * 绕过 MapLibre GeoJSON worker 管线，在主线程中同步绘制图标点位。
- * setData() 仅替换内部数组，render() 直接读取，无异步延迟。
+ * 使用 renderingMode: '3d' + 投影矩阵，图标位置跟随 pitch/zoom/bearing。
+ * iconSize 为 CSS 像素（屏幕像素），每帧根据当前 zoom 换算 Mercator 大小，
+ * 实现 3D 空间定位 + 固定屏幕像素大小（类 billboard 效果）。
  *
  * 用法:
  *   const layer = new SyncIconLayer({
  *     id: 'my-layer',
  *     iconImage: imageData,       // ImageData | HTMLImageElement | HTMLCanvasElement
- *     iconSize: 30,               // 像素
+ *     iconSize: 30,               // CSS像素（屏幕像素），默认30
  *     iconRotationAlignment: 'map', // 'map' | 'viewport'
  *     onClick: (feature, point) => {}
  *   });
@@ -27,10 +28,10 @@ export default class SyncIconLayer {
 
     this.id = options.id;
     this.type = 'custom';
-    this.renderingMode = '2d';
+    this.renderingMode = '3d';
 
     this._iconImage = options.iconImage || null;
-    this._iconSize = options.iconSize || 30;
+    this._iconSize = options.iconSize || 30; // CSS像素（屏幕像素）
     this._rotationAlignment = options.iconRotationAlignment || 'map';
     this._onClick = typeof options.onClick === 'function' ? options.onClick : null;
 
@@ -45,9 +46,12 @@ export default class SyncIconLayer {
     this._vao = null;
     this._buffer = null;
 
+    // 3D 坐标系相关
+    this._map = null;
+
     // uniform 位置缓存
-    this._uResolution = null;
-    this._uCenter = null;
+    this._uMatrix = null;
+    this._uWorldPos = null;
     this._uRotation = null;
     this._uSize = null;
     this._uTexture = null;
@@ -61,7 +65,7 @@ export default class SyncIconLayer {
   // ==================== MapLibre CustomLayer 接口 ====================
 
   onAdd(map, gl) {
-    this.map = map;
+    this._map = map;
     this.gl = gl;
 
     // 兼容旧版 maplibre-gl（v3.x 用 painter 获取 GL 上下文）
@@ -78,17 +82,38 @@ export default class SyncIconLayer {
     this._initialized = true;
   }
 
-  render(gl, matrix) {
-    if (!this._initialized || this._features.length === 0) return;
+  render(gl, matrixOrArgs) {
+    if (!this._initialized) return;
+    if (this._features.length === 0) return;
 
-    const map = this.map;
+    const map = this._map;
     const features = this._features;
-    const size = this._iconSize;
     const texture = this._texture;
     const program = this._program;
-    const dpr = window.devicePixelRatio || 1;
 
-    if (!texture || !program) return;
+    if (!texture) return;
+    if (!program) return;
+
+    // 解析投影矩阵
+    let mainMatrix = null;
+    if (matrixOrArgs && (Array.isArray(matrixOrArgs) || ArrayBuffer.isView(matrixOrArgs))) {
+      mainMatrix = matrixOrArgs;
+    } else if (matrixOrArgs && typeof matrixOrArgs === 'object') {
+      const dpd = matrixOrArgs.defaultProjectionData;
+      if (dpd?.mainMatrix && dpd.mainMatrix.length === 16) {
+        mainMatrix = dpd.mainMatrix;
+      } else if (matrixOrArgs.projectionMatrix?.length === 16) {
+        mainMatrix = matrixOrArgs.projectionMatrix;
+      } else if (matrixOrArgs.modelViewProjectionMatrix?.length === 16) {
+        mainMatrix = matrixOrArgs.modelViewProjectionMatrix;
+      }
+    }
+    if (!mainMatrix || mainMatrix.length !== 16) return;
+
+    // WebGL gl.uniformMatrix4fv 只接受 Float32Array
+    if (mainMatrix instanceof Float64Array) {
+      mainMatrix = new Float32Array(mainMatrix);
+    }
 
     gl.useProgram(program);
 
@@ -97,10 +122,14 @@ export default class SyncIconLayer {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(this._uTexture, 0);
 
-    // 分辨率（CSS 像素）
-    const w = map.transform.width;
-    const h = map.transform.height;
-    gl.uniform2f(this._uResolution, w, h);
+    // 用 map.project() 将经纬度转屏幕像素，再转 clip space
+    const canvasW = map.getCanvas().width;
+    const canvasH = map.getCanvas().height;
+    const clipSize = this._iconSize / canvasW * 2;
+    gl.uniform1f(this._uClipSize, clipSize);
+
+    // 确保深度测试不遮挡图标
+    gl.depthFunc(gl.ALWAYS);
 
     // 绑定 VAO
     if (this._vao) {
@@ -112,45 +141,19 @@ export default class SyncIconLayer {
       if (!feat || !feat.geometry || !feat.geometry.coordinates) continue;
 
       const coords = feat.geometry.coordinates;
+
+      // map.project() → CSS 像素 → clip space
       const screenPos = map.project(coords);
+      const clipX = (screenPos.x / canvasW) * 2 - 1;
+      const clipY = -(screenPos.y / canvasH) * 2 + 1;
+      gl.uniform2f(this._uClipPos, clipX, clipY);
 
-      // 视口裁剪：在屏幕外则跳过
-      if (screenPos.x < -size || screenPos.x > w + size ||
-          screenPos.y < -size || screenPos.y > h + size) {
-        continue;
-      }
-
-      // 旋转角度
+      // 旋转
       let rotation = 0;
       if (feat.properties && feat.properties.rotation) {
         rotation = parseFloat(feat.properties.rotation) || 0;
       }
-      const rad = rotation * Math.PI / 180;
-
-      // 'map' 对齐：用 map.project() 投影偏移点计算屏幕角度。
-      // map.project() 已自动包含 bearing 和 pitch 影响，偏移方向直接用原始角度（无需减 bearing）。
-      let screenRotation;
-      if (this._rotationAlignment === 'map') {
-        const offset = 0.0001;
-        const lng = coords[0];
-        const lat = coords[1];
-        const dx = Math.sin(rad) * offset;
-        const dy = Math.cos(rad) * offset;
-        // 经度偏移除以 cos(lat) 以补偿纬圈收敛
-        const lngOffset = lng + dx / Math.cos(lat * Math.PI / 180);
-        const latOffset = lat + dy;
-        const pOffset = map.project([lngOffset, latOffset]);
-        screenRotation = Math.atan2(
-          pOffset.x - screenPos.x,
-          -(pOffset.y - screenPos.y)
-        );
-      } else {
-        screenRotation = rad;
-      }
-
-      gl.uniform2f(this._uCenter, screenPos.x, screenPos.y);
-      gl.uniform1f(this._uRotation, screenRotation);
-      gl.uniform1f(this._uSize, size * dpr);
+      gl.uniform1f(this._uRotation, rotation * Math.PI / 180);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
@@ -209,12 +212,12 @@ export default class SyncIconLayer {
 
   /** 点击检测，返回匹配的 feature 数组 */
   queryRenderedFeatures(point, radius) {
-    if (!this.map || this._features.length === 0) return [];
-    const hitRadius = radius != null ? radius : this._iconSize;
+    if (!this._map || this._features.length === 0) return [];
+    const hitRadius = radius != null ? radius : 20; // 默认 20 CSS 像素
     const results = [];
     for (const feat of this._features) {
       if (!feat.geometry || !feat.geometry.coordinates) continue;
-      const pos = this.map.project(feat.geometry.coordinates);
+      const pos = this._map.project(feat.geometry.coordinates);
       const dx = point.x - pos.x;
       const dy = point.y - pos.y;
       if (dx * dx + dy * dy <= hitRadius * hitRadius) {
@@ -225,6 +228,17 @@ export default class SyncIconLayer {
   }
 
   // ==================== 内部方法 ====================
+
+  /** 经纬度 → Mercator 坐标 */
+  _lngLatToMercator(lngLat) {
+    const maplibregl = window.maplibregl;
+    if (!maplibregl || !maplibregl.MercatorCoordinate) {
+      return { x: 0, y: 0, z: 0 };
+    }
+    return maplibregl.MercatorCoordinate.fromLngLat(
+      { lng: lngLat[0], lat: lngLat[1] }, 0
+    );
+  }
 
   _rebuildFeatureMap() {
     this._featureMap.clear();
@@ -242,10 +256,9 @@ export default class SyncIconLayer {
     const vsSource = `
       attribute vec2 a_pos;
       attribute vec2 a_uv;
-      uniform vec2 u_resolution;
-      uniform vec2 u_center;
+      uniform vec2 u_clipPos;
+      uniform float u_clipSize;
       uniform float u_rotation;
-      uniform float u_size;
       varying vec2 v_uv;
       void main() {
         float ca = cos(u_rotation);
@@ -254,10 +267,7 @@ export default class SyncIconLayer {
           a_pos.x * ca - a_pos.y * sa,
           a_pos.x * sa + a_pos.y * ca
         );
-        vec2 p = u_center + r * u_size;
-        vec2 c = (p / u_resolution) * 2.0 - 1.0;
-        c.y *= -1.0;
-        gl_Position = vec4(c, 0.0, 1.0);
+        gl_Position = vec4(u_clipPos + r * u_clipSize, 0.0, 1.0);
         v_uv = a_uv;
       }
     `;
@@ -275,25 +285,36 @@ export default class SyncIconLayer {
     const vs = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vs, vsSource);
     gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      console.error('[SyncIconLayer] VS compile error:', gl.getShaderInfoLog(vs));
+    }
 
     const fs = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fs, fsSource);
     gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      console.error('[SyncIconLayer] FS compile error:', gl.getShaderInfoLog(fs));
+    }
 
     this._program = gl.createProgram();
     gl.attachShader(this._program, vs);
     gl.attachShader(this._program, fs);
     gl.linkProgram(this._program);
+    if (!gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
+      console.error('[SyncIconLayer] program link error:', gl.getProgramInfoLog(this._program));
+    }
 
     gl.deleteShader(vs);
     gl.deleteShader(fs);
 
     // 缓存 uniform 位置
-    this._uResolution = gl.getUniformLocation(this._program, 'u_resolution');
-    this._uCenter = gl.getUniformLocation(this._program, 'u_center');
+    this._uMatrix = gl.getUniformLocation(this._program, 'u_matrix');
+    this._uWorldPos = gl.getUniformLocation(this._program, 'u_worldPos');
     this._uRotation = gl.getUniformLocation(this._program, 'u_rotation');
     this._uSize = gl.getUniformLocation(this._program, 'u_size');
     this._uTexture = gl.getUniformLocation(this._program, 'u_texture');
+    this._uClipPos = gl.getUniformLocation(this._program, 'u_clipPos');
+    this._uClipSize = gl.getUniformLocation(this._program, 'u_clipSize');
   }
 
   _createBuffers(gl) {
