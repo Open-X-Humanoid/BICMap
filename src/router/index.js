@@ -191,22 +191,10 @@ const routes = [
     meta: { title: '室外点云' }
   },
   {
-    path: '/scene/stationGuide',
-    name: 'StationGuide',
-    component: () => import('../examples/scene/stationGuide/index.vue'),
-    meta: { title: '火车/高铁站导览' }
-  },
-  {
-    path: '/scene/passengerStation',
-    name: 'PassengerStation',
-    component: () => import('../examples/scene/passengerStation/index.vue'),
-    meta: { title: '客运站导览' }
-  },
-  {
-    path: '/scene/airportGuide',
-    name: 'AirportGuide',
-    component: () => import('../examples/scene/airportGuide/index.vue'),
-    meta: { title: '飞机场导览' }
+    path: '/scene/transportHub',
+    name: 'TransportHub',
+    component: () => import('../examples/scene/transportHub/index.vue'),
+    meta: { title: '三站一场导览' }
   },
   {
     path: '/scene/publicClean',

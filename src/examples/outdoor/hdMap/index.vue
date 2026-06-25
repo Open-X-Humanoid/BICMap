@@ -386,6 +386,12 @@ async function addHdMapLayers() {
       'symbol-spacing': BIKE_ICON_SPACING,
       'icon-image': BIKE_ICON_ID,
       'icon-size': 1.85,
+      'icon-rotate': [
+        'case',
+        ['==', ['get', 'road_name'], '创业路'],
+        180,
+        0
+      ],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true
     }
