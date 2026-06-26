@@ -554,6 +554,24 @@ export function addRobotMarkers(map, robots = [], options = {}) {
   // 初始化图层
   initializeLayer();
   
+  // 控制符号图层和标签的显示/隐藏
+  const setVisible = (visible) => {
+    const visibility = visible ? 'visible' : 'none';
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', visibility);
+    }
+    // 同步控制 HTML 标签
+    if (visible) {
+      labelMarkers.forEach(marker => {
+        if (marker.element) marker.element.style.display = 'block';
+      });
+    } else {
+      labelMarkers.forEach(marker => {
+        if (marker.element) marker.element.style.display = 'none';
+      });
+    }
+  };
+
   // 返回控制器对象
   return {
     updateRobots,
@@ -563,6 +581,7 @@ export function addRobotMarkers(map, robots = [], options = {}) {
     clearRobots,
     getRobots,
     toggleLabels,
+    setVisible,
     remove
   };
 }
@@ -793,6 +812,12 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
 
   const toggleLabels = () => true;
 
+  const setVisible = (visible) => {
+    _activeMarkers.forEach(({ marker }) => {
+      marker.getElement().style.display = visible ? '' : 'none';
+    });
+  };
+
   const remove = () => {
     _activeMarkers.forEach(active => active.marker.remove());
     _activeMarkers = [];
@@ -829,6 +854,7 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
     clearRobots,
     getRobots,
     toggleLabels,
+    setVisible,
     remove
   };
 }
