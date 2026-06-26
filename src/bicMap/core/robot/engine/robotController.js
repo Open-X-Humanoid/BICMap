@@ -1,8 +1,7 @@
 import { RobotPhase, canTransition } from '../core/robotPhase.js'
 import { createRobotProfile } from '../core/robotProfile.js'
-import { MoveTask } from './moveTask.js'
-import { TaskStatus } from './taskStatus.js'
-export { TaskStatus } from './taskStatus.js'
+import { MoveTask, WaitTask, ActionTask } from './tasks/atomics.js'
+import { TaskStatus } from './tasks/taskStatus.js'
 
 /**
  * 机器人控制器 — 管理单个机器人的状态、行为和任务
@@ -45,6 +44,14 @@ export class RobotController {
       elapsed: 0,
       signals: {},
       robotStates: {},
+      // 基础设施引用（由 RobotEngine 注入）
+      eventBus: null,
+      resourceManager: null,
+      // 环境感知数据（由外部每帧更新）
+      sensors: {},
+      zones: {},
+      elevators: {},
+      trafficLights: {},
     }
   }
 
@@ -75,6 +82,38 @@ export class RobotController {
    */
   setHeading(heading) {
     this._heading = heading
+  }
+
+  /**
+   * 注入事件总线（由 RobotEngine 在 addRobot 后调用）
+   * @param {EventBus} bus
+   */
+  setEventBus(bus) {
+    this._context.eventBus = bus
+  }
+
+  /**
+   * 注入资源管理器（由 RobotEngine 在 addRobot 后调用）
+   * @param {ResourceManager} rm
+   */
+  setResourceManager(rm) {
+    this._context.resourceManager = rm
+  }
+
+  /**
+   * 更新环境感知数据（传感器、区域、电梯、红绿灯）
+   * 可由外部每帧推入最新状态
+   * @param {Object} env
+   * @param {Object} [env.sensors]
+   * @param {Object} [env.zones]
+   * @param {Object} [env.elevators]
+   * @param {Object} [env.trafficLights]
+   */
+  updateEnv(env = {}) {
+    if (env.sensors)      Object.assign(this._context.sensors, env.sensors)
+    if (env.zones)        Object.assign(this._context.zones, env.zones)
+    if (env.elevators)    Object.assign(this._context.elevators, env.elevators)
+    if (env.trafficLights) Object.assign(this._context.trafficLights, env.trafficLights)
   }
 
   // ── 阶段管理 ──
@@ -118,39 +157,44 @@ export class RobotController {
   }
 
   /**
-   * 等待条件满足
+   * 等待条件满足（由 RAF tick 驱动，与任务系统完全集成）
    * @param {Object} condition - WaitCondition 实例
    * @param {Object} [options]
-   * @param {number} [options.timeout]
+   * @param {number} [options.timeout=30000]
    * @returns {Promise<void>}
    */
   waitFor(condition, options = {}) {
-    const timeout = options.timeout || 30000
-    return new Promise((resolve, reject) => {
-      this._transitionTo(RobotPhase.WAITING)
-      const startTime = Date.now()
-      const checkInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime
-        const result = condition.evaluate({
-          ...this._context,
-          elapsed,
-        })
-        if (result.met) {
-          clearInterval(checkInterval)
-          this._transitionTo(RobotPhase.MOVING)
-          resolve()
-        } else if (elapsed >= timeout) {
-          clearInterval(checkInterval)
-          this._transitionTo(RobotPhase.ERROR)
-          reject(new Error(`waitFor timeout after ${timeout}ms`))
-        }
-      }, 100)
+    const task = new WaitTask({
+      condition,
+      timeout: options.timeout !== undefined ? options.timeout : 30000,
     })
+    return this._executeTask(task)
+  }
+
+  /**
+   * 执行自定义动作
+   * @param {Function} action - async (context, params) => void
+   * @param {*} [params]
+   * @returns {Promise<void>}
+   */
+  performAction(action, params) {
+    const task = new ActionTask({ action, params })
+    return this._executeTask(task)
+  }
+
+  /**
+   * 执行任意 Task 实例（原子任务或组合任务均可）
+   * 供 RobotEngine.assignMission 及外部直接调用
+   * @param {Task} task
+   * @returns {Promise<void>}
+   */
+  execute(task) {
+    return this._executeTask(task)
   }
 
   /**
    * 执行一个任务
-   * @param {Object} task
+   * @param {Task} task
    * @returns {Promise<void>}
    * @private
    */
@@ -205,6 +249,14 @@ export class RobotController {
       this._currentTask = null
       if (this._taskReject) {
         this._taskReject(new Error('Task failed'))
+        this._taskResolve = null
+        this._taskReject = null
+      }
+    } else if (status === TaskStatus.CANCELLED) {
+      this._taskStatus = TaskStatus.CANCELLED
+      this._currentTask = null
+      if (this._taskReject) {
+        this._taskReject(new Error('Task cancelled'))
         this._taskResolve = null
         this._taskReject = null
       }

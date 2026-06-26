@@ -125,6 +125,8 @@ export class RobotEngine {
       throw new Error(`Robot "${robotId}" already exists`)
     }
     const controller = new RobotController(robotId, profile, initialState)
+    controller.setEventBus(this._eventBus)
+    controller.setResourceManager(this._resourceManager)
     this._robots.set(robotId, controller)
     return controller
   }
@@ -178,7 +180,7 @@ export class RobotEngine {
     if (!controller) {
       throw new Error(`Robot "${robotId}" not found`)
     }
-    controller._executeTask(task)
+    controller.execute(task)
   }
 
   /**
@@ -280,5 +282,28 @@ export class RobotEngine {
    */
   getConditionFactory(type) {
     return this._conditionFactories?.get(type)
+  }
+
+  // ── 动作类型注册（供 ActionTask 使用） ──
+
+  /**
+   * 注册自定义动作类型
+   * @param {string} type - 动作类型标识
+   * @param {Function} handler - async (context, params) => void
+   */
+  registerActionType(type, handler) {
+    if (!this._actionHandlers) {
+      this._actionHandlers = new Map()
+    }
+    this._actionHandlers.set(type, handler)
+  }
+
+  /**
+   * 获取已注册的动作处理器
+   * @param {string} type
+   * @returns {Function|undefined}
+   */
+  getActionHandler(type) {
+    return this._actionHandlers?.get(type)
   }
 }

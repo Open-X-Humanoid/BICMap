@@ -46,19 +46,63 @@ export const RobotPhase = {
  * @type {Object<string, Set<string>>}
  */
 export const PHASE_TRANSITIONS = {
-  [RobotPhase.IDLE]: new Set([RobotPhase.MOVING, RobotPhase.CHARGING, RobotPhase.DOCKING, RobotPhase.ERROR]),
-  [RobotPhase.MOVING]: new Set([RobotPhase.ARRIVED, RobotPhase.ERROR, RobotPhase.RETURNING, RobotPhase.PAUSED, RobotPhase.ROTATING, RobotPhase.WAITING, RobotPhase.IDLE]),
-  [RobotPhase.ROTATING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR]),
-  [RobotPhase.ARRIVED]: new Set([RobotPhase.IDLE, RobotPhase.MOVING, RobotPhase.DWELLING, RobotPhase.WAITING, RobotPhase.CHARGING, RobotPhase.ERROR, RobotPhase.PAUSED]),
-  [RobotPhase.DWELLING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.PAUSED]),
-  [RobotPhase.WAITING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.PAUSED]),
-  [RobotPhase.CHARGING]: new Set([RobotPhase.IDLE, RobotPhase.ERROR, RobotPhase.PAUSED]),
-  [RobotPhase.DOCKING]: new Set([RobotPhase.IDLE, RobotPhase.ERROR, RobotPhase.PAUSED, RobotPhase.CHARGING]),
-  [RobotPhase.ERROR]: new Set([RobotPhase.RECOVERING, RobotPhase.IDLE, RobotPhase.MANUAL]),
-  [RobotPhase.RECOVERING]: new Set([RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.IDLE]),
-  [RobotPhase.RETURNING]: new Set([RobotPhase.DOCKING, RobotPhase.CHARGING, RobotPhase.ERROR, RobotPhase.PAUSED]),
-  [RobotPhase.MANUAL]: new Set([RobotPhase.IDLE, RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.RECOVERING]),
-  [RobotPhase.PAUSED]: new Set([RobotPhase.MOVING, RobotPhase.DWELLING, RobotPhase.WAITING, RobotPhase.IDLE]),
+  // IDLE：MoveTask 可直接开始旋转；WaitTask 可直接等待；支持紧急停止 → MANUAL
+  [RobotPhase.IDLE]: new Set([
+    RobotPhase.MOVING, RobotPhase.ROTATING, RobotPhase.WAITING,
+    RobotPhase.CHARGING, RobotPhase.DOCKING,
+    RobotPhase.ERROR, RobotPhase.MANUAL,
+  ]),
+  // MOVING：正常抵达/旋转/等待，以及取消 → IDLE
+  [RobotPhase.MOVING]: new Set([
+    RobotPhase.ARRIVED, RobotPhase.ROTATING, RobotPhase.WAITING,
+    RobotPhase.IDLE, RobotPhase.RETURNING, RobotPhase.PAUSED, RobotPhase.ERROR,
+  ]),
+  // ROTATING：旋转完成 → MOVING；取消 → IDLE
+  [RobotPhase.ROTATING]: new Set([
+    RobotPhase.MOVING, RobotPhase.IDLE, RobotPhase.ERROR,
+  ]),
+  // ARRIVED：停靠 / 充电 / 等待 / 继续移动 / 取消
+  [RobotPhase.ARRIVED]: new Set([
+    RobotPhase.IDLE, RobotPhase.MOVING,
+    RobotPhase.DWELLING, RobotPhase.WAITING,
+    RobotPhase.CHARGING, RobotPhase.DOCKING,
+    RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  // DWELLING：任务完成 → MOVING / IDLE；取消 → IDLE
+  [RobotPhase.DWELLING]: new Set([
+    RobotPhase.MOVING, RobotPhase.IDLE, RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  // WAITING：条件满足 → MOVING；取消 → IDLE
+  [RobotPhase.WAITING]: new Set([
+    RobotPhase.MOVING, RobotPhase.IDLE, RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  // CHARGING：充满 → IDLE；Sequence 中接 MoveTask → MOVING；取消 → IDLE
+  [RobotPhase.CHARGING]: new Set([
+    RobotPhase.IDLE, RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  // DOCKING：停靠完成 → CHARGING / IDLE；Sequence 接续 → MOVING
+  [RobotPhase.DOCKING]: new Set([
+    RobotPhase.CHARGING, RobotPhase.IDLE, RobotPhase.MOVING,
+    RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  [RobotPhase.ERROR]: new Set([
+    RobotPhase.RECOVERING, RobotPhase.IDLE, RobotPhase.MANUAL,
+  ]),
+  [RobotPhase.RECOVERING]: new Set([
+    RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.IDLE,
+  ]),
+  // RETURNING：取消 → IDLE
+  [RobotPhase.RETURNING]: new Set([
+    RobotPhase.DOCKING, RobotPhase.CHARGING,
+    RobotPhase.IDLE, RobotPhase.ERROR, RobotPhase.PAUSED,
+  ]),
+  [RobotPhase.MANUAL]: new Set([
+    RobotPhase.IDLE, RobotPhase.MOVING, RobotPhase.ERROR, RobotPhase.RECOVERING,
+  ]),
+  // PAUSED：恢复 → 原活跃阶段或 IDLE（取消时）
+  [RobotPhase.PAUSED]: new Set([
+    RobotPhase.MOVING, RobotPhase.DWELLING, RobotPhase.WAITING, RobotPhase.IDLE,
+  ]),
 }
 
 /**

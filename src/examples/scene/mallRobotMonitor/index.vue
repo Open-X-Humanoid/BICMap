@@ -593,7 +593,7 @@ async function createOverlays() {
     onClick: (info) => console.log('[MallZone]', info),
   })
 
-  robotCtrl = addStatusRobotMarkers(map, [], { size: 24 })
+  robotCtrl = addStatusRobotMarkers(map, [], { size: 24, sync: true })
 
   loadDefaultPois()
   await addShopLabels()

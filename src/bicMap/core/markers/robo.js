@@ -588,6 +588,7 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
   const _markerPool = [];
   let _activeMarkers = [];
   let _displaySize = size; // 初始默认，图片加载后按异步版公式重算
+  let _destroyed = false;
 
   // 创建单个 Marker 的 DOM 元素
   const _createMarkerElement = () => {
@@ -794,6 +795,7 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
   const toggleLabels = () => true;
 
   const remove = () => {
+    _destroyed = true;
     _activeMarkers.forEach(active => active.marker.remove());
     _activeMarkers = [];
     _drainPool();
@@ -803,6 +805,7 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
   const preloadImage = () => {
     const tempImg = new Image();
     tempImg.onload = () => {
+      if (_destroyed) return;
       // robo.png 实际 92×92，异步版 icon-size: size/48，等效 CSS 像素为 naturalWidth * size / 48
       _displaySize = Math.round(tempImg.naturalWidth * size / 48);
       // 图片加载完成后创建 Marker（此时已有正确尺寸）
@@ -811,6 +814,7 @@ export function addRobotMarkersSync(map, robots = [], options = {}) {
       });
     };
     tempImg.onerror = () => {
+      if (_destroyed) return;
       // 加载失败则使用默认 size，仍创建 Marker
       currentRobots.forEach((robot, index) => {
         _acquireMarker(robot, index);

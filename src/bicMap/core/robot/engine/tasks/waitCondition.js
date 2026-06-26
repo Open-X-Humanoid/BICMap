@@ -206,6 +206,130 @@ class NotCondition extends Condition {
 }
 
 /**
+ * 传感器条件 — 等待传感器值满足指定条件
+ *
+ * context.sensors 格式：{ [type]: number | string }
+ * operator 支持：'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
+ */
+class SensorCondition extends Condition {
+  constructor(type, options = {}) {
+    super()
+    this._type = type
+    this._targetValue = options.value
+    this._operator = options.operator || 'eq'
+  }
+
+  evaluate(context) {
+    const sensors = context.sensors
+    if (!sensors || !(this._type in sensors)) {
+      return { met: false }
+    }
+    const current = sensors[this._type]
+    const target = this._targetValue
+    switch (this._operator) {
+      case 'eq':  this._met = current === target; break
+      case 'neq': this._met = current !== target; break
+      case 'gt':  this._met = current > target;   break
+      case 'gte': this._met = current >= target;  break
+      case 'lt':  this._met = current < target;   break
+      case 'lte': this._met = current <= target;  break
+      default:    this._met = false
+    }
+    return { met: this._met }
+  }
+}
+
+/**
+ * 区域占用条件 — 等待区域进入指定状态
+ *
+ * context.zones 格式：{ [zoneId]: 'free' | 'occupied' }
+ * state 默认 'free'
+ */
+class OccupancyCondition extends Condition {
+  constructor(zoneId, state = 'free') {
+    super()
+    this._zoneId = zoneId
+    this._state = state
+  }
+
+  evaluate(context) {
+    const zones = context.zones
+    if (!zones) return { met: false }
+    this._met = zones[this._zoneId] === this._state
+    return { met: this._met }
+  }
+}
+
+/**
+ * 电梯条件 — 等待指定电梯到达目标楼层且方向匹配
+ *
+ * context.elevators 格式：
+ *   { [elevatorId]: { floor: string, direction: 'up' | 'down' | 'idle', doorsOpen: boolean } }
+ *
+ * elevatorId 省略时匹配任意电梯。direction 省略时只匹配楼层。
+ */
+class ElevatorCondition extends Condition {
+  constructor(floor, options = {}) {
+    super()
+    this._floor = floor
+    this._direction = options.direction || null
+    this._elevatorId = options.elevatorId || null
+    this._requireDoorsOpen = options.requireDoorsOpen !== false
+  }
+
+  evaluate(context) {
+    const elevators = context.elevators
+    if (!elevators) return { met: false }
+
+    const entries = this._elevatorId
+      ? (elevators[this._elevatorId] ? [[this._elevatorId, elevators[this._elevatorId]]] : [])
+      : Object.entries(elevators)
+
+    for (const [, state] of entries) {
+      const floorMatch = state.floor === this._floor
+      const dirMatch = !this._direction || state.direction === this._direction
+      const doorsMatch = !this._requireDoorsOpen || state.doorsOpen === true
+      if (floorMatch && dirMatch && doorsMatch) {
+        this._met = true
+        return { met: true }
+      }
+    }
+
+    this._met = false
+    return { met: false }
+  }
+}
+
+/**
+ * 红绿灯条件 — 等待指定信号灯变为目标颜色
+ *
+ * context.trafficLights 格式：{ [lightId]: 'red' | 'yellow' | 'green' }
+ *
+ * lightId 省略时匹配任意灯。
+ */
+class TrafficLightCondition extends Condition {
+  constructor(color, options = {}) {
+    super()
+    this._color = color
+    this._lightId = options.lightId || null
+  }
+
+  evaluate(context) {
+    const lights = context.trafficLights
+    if (!lights) return { met: false }
+
+    if (this._lightId) {
+      this._met = lights[this._lightId] === this._color
+      return { met: this._met }
+    }
+
+    // 匹配任意灯
+    this._met = Object.values(lights).some(c => c === this._color)
+    return { met: this._met }
+  }
+}
+
+/**
  * WaitCondition 静态工厂 - 统一的对外接口
  */
 export class WaitCondition {
@@ -242,5 +366,47 @@ export class WaitCondition {
   /** NOT 取反 */
   static not(condition) {
     return new NotCondition(condition)
+  }
+
+  /**
+   * 等待传感器值满足条件
+   * @param {string} type - 传感器类型，对应 context.sensors[type]
+   * @param {Object} options
+   * @param {*} options.value - 目标值
+   * @param {string} [options.operator='eq'] - 'eq'|'neq'|'gt'|'gte'|'lt'|'lte'
+   */
+  static sensor(type, options = {}) {
+    return new SensorCondition(type, options)
+  }
+
+  /**
+   * 等待区域进入指定占用状态
+   * @param {string} zoneId - 区域 ID，对应 context.zones[zoneId]
+   * @param {string} [state='free'] - 'free' | 'occupied'
+   */
+  static occupancy(zoneId, state = 'free') {
+    return new OccupancyCondition(zoneId, state)
+  }
+
+  /**
+   * 等待电梯到达指定楼层
+   * @param {string} floor - 目标楼层，如 '2F'
+   * @param {Object} [options]
+   * @param {string} [options.direction] - 'up' | 'down' | 'idle'，省略不限方向
+   * @param {string} [options.elevatorId] - 指定电梯 ID，省略匹配任意电梯
+   * @param {boolean} [options.requireDoorsOpen=true] - 是否要求门已打开
+   */
+  static elevator(floor, options = {}) {
+    return new ElevatorCondition(floor, options)
+  }
+
+  /**
+   * 等待红绿灯变为指定颜色
+   * @param {string} color - 'red' | 'yellow' | 'green'
+   * @param {Object} [options]
+   * @param {string} [options.lightId] - 指定灯 ID，省略匹配任意灯
+   */
+  static trafficLight(color, options = {}) {
+    return new TrafficLightCondition(color, options)
   }
 }

@@ -28,20 +28,48 @@
 
 ## 模块清单
 
-| # | 模块 | 文件 | 职责 |
-|---|---|---|---|
-| 1 | **状态机** | `core/robotPhase.js` | 13 种机器人阶段定义 + 状态转移白名单 |
-| 2 | **航点系统** | `core/waypointTypes.js` | 12 种航点类型 + 生命周期事件钩子 + 类型注册表 |
-| 3 | **条件系统** | `core/waitCondition.js` | 等待条件：定时/信号/距离/资源 + AND/OR/NOT 组合 |
-| 4 | **机器人画像** | `core/robotProfile.js` | 机器人配置模板：运动学/电池/传感器/显示 |
-| 5 | **事件总线** | `infra/eventBus.js` | 机器人间及外部通信的事件系统 |
-| 6 | **资源管理器** | `infra/resourceManager.js` | 共享资源（电梯/充电桩/路段）的调度 |
-| 7 | **移动任务** | `engine/moveTask.js` | 原子移动任务：运动学/朝向平滑/到达判定/电池消耗 |
-| 8 | **任务状态** | `engine/taskStatus.js` | 任务生命周期状态枚举（PENDING / RUNNING / COMPLETED / FAILED / CANCELLED） |
-| 9 | **机器人控制器** | `engine/robotController.js` | 单个机器人的状态封装和行为控制 |
-| 10 | **引擎核心** | `engine/robotEngine.js` | 多机器人生命周期管理 + requestAnimationFrame 主循环 |
-| 11 | **显示管理器** | `infra/displayManager.js` | 2D/3D 可插拔渲染器抽象层 |
-| 12 | **入口** | `index.js` | 所有公共 API 的 barrel export |
+### `core/` — 机器人模型层
+
+| 文件 | 导出 | 职责 |
+|---|---|---|
+| `robotPhase.js` | `RobotPhase` `canTransition` `isTerminal` `isActive` `PHASE_TRANSITIONS` | 13 种机器人阶段定义 + 状态转移白名单 |
+| `waypointTypes.js` | `WaypointType` `Waypoint` `WaypointTypeRegistry` | 12 种航点类型 + 生命周期事件钩子 + 类型注册表 |
+| `robotProfile.js` | `createRobotProfile` `getAvailableProfileTypes` `hasCapability` `ROBOT_PROFILE_TYPES` | 机器人配置模板：运动学/电池/传感器/显示 |
+
+### `infra/` — 基础设施层
+
+| 文件 | 导出 | 职责 |
+|---|---|---|
+| `eventBus.js` | `EventBus` | 机器人间及外部通信的发布/订阅事件系统 |
+| `resourceManager.js` | `ResourceManager` `ResourceType` `ResourceLock` | 共享资源（电梯/充电桩/路段/区域）的获取与释放 |
+| `displayManager.js` | `DisplayManager` `DisplayMode` | 2D/3D 可插拔渲染器统一门面，对外暴露与 `addStatusRobotMarkers` 相同的接口 |
+
+### `engine/` — 引擎核心层
+
+| 文件 | 导出 | 职责 |
+|---|---|---|
+| `robotController.js` | `RobotController` | 单个机器人的状态封装、运动控制、任务驱动 |
+| `robotEngine.js` | `RobotEngine` | 多机器人生命周期管理 + RAF 主循环 + 插件注册 |
+| `tasks/task.js` | `Task` | 活动树节点基类：`start` / `update` / `cancel` / `reset` |
+| `tasks/taskStatus.js` | `TaskStatus` | 任务生命周期状态枚举 |
+| `tasks/waitCondition.js` | `WaitCondition` | 11 种等待条件工厂方法（含 sensor / occupancy / elevator / trafficLight）+ AND/OR/NOT |
+| `tasks/composites.js` | `Sequence` `Parallel` `Loop` `Conditional` `Retry` `Race` | 活动树组合节点 |
+| `tasks/atomics.js` | `MoveTask` `WaitTask` `ActionTask` `AnnounceTask` `ChargeTask` `DockTask` `SignalTask` `SensorTask` | 活动树原子节点 |
+
+### `visual/` — 视觉渲染层
+
+| 文件 | 导出 | 职责 |
+|---|---|---|
+| `robotStatus.js` | `addStatusRobotMarkers` `ROBOT_STATUS` | 2D 图标 + 状态气泡（含电量/状态/坐标） |
+| `robot3DLayer.js` | `createRobot3DLayer` `createRobot3DStatusLayer` | Three.js GLB 3D 模型渲染层 + 自动动画状态机 |
+| `robot3DPresets.js` | `ROBOT_EXPRESSIVE_CONFIG` | 3D 模型预设配置（RobotExpressive.glb） |
+| `fov.js` | `createRobotFOV` | 机器人视野扇形（FOV）图层 |
+
+### 入口
+
+| 文件 | 职责 |
+|---|---|
+| `index.js` | 所有公共 API 的 barrel export |
 
 ## 快速开始
 
@@ -116,6 +144,10 @@ engine.start()
 | `WaitCondition.signal(name, options)` | 等待外部信号 |
 | `WaitCondition.distance(robotId, minDist)` | 等待机器人远离 |
 | `WaitCondition.resource(type, id, options)` | 等待资源可用 |
+| `WaitCondition.sensor(type, options)` | 等待传感器值满足条件（eq/neq/gt/gte/lt/lte） |
+| `WaitCondition.occupancy(zoneId, state)` | 等待区域进入指定占用状态 |
+| `WaitCondition.elevator(floor, options)` | 等待电梯到达目标楼层 |
+| `WaitCondition.trafficLight(color, options)` | 等待红绿灯变为指定颜色 |
 | `WaitCondition.all(...conditions)` | AND 组合 |
 | `WaitCondition.race(...conditions)` | OR 组合 |
 | `WaitCondition.not(condition)` | 取反 |

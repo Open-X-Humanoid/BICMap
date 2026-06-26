@@ -101,12 +101,12 @@ class WaitCondition {
 }
 ```
 
-未实现（计划中）：
+新增（已实现）：
 ```javascript
-  static sensor(type, { value, operator })             // ❌ 等待传感器
-  static occupancy(zoneId, state)                      // ❌ 等待区域空闲
-  static elevator(floor, direction)                    // ❌ 等电梯专用
-  static trafficLight(color)                           // ❌ 等红绿灯专用
+  static sensor(type, { value, operator })             // ✅ 等待传感器值满足条件
+  static occupancy(zoneId, state)                      // ✅ 等待区域进入指定占用状态
+  static elevator(floor, options)                      // ✅ 等待电梯到达目标楼层
+  static trafficLight(color, options)                  // ✅ 等待红绿灯变为指定颜色
 ```
 
 ### 2.3 机器人状态机 ✅ 已实现
@@ -182,35 +182,37 @@ const robotProfiles = {
 // 导出：createRobotProfile / getAvailableProfileTypes / hasCapability / ROBOT_PROFILE_TYPES
 ```
 
-### 2.5 活动树 (Activity Tree) ❌ 未实现
+### 2.5 活动树 (Activity Tree) ✅ 已实现
 
 ```javascript
-// 任务基类
+// 任务基类（engine/tasks/task.js）
 class Task {
   constructor(config) { this.config = config }
-  async start(context) { /* 开始执行 */ }
-  async update(deltaTime, context) { /* 每帧更新，返回 'running' | 'completed' | 'failed' */ }
-  async cancel(context) { /* 取消 */ }
-  getStatus() { /* 当前状态 */ }
+  start(context)                   // ✅ 启动任务，设置 RUNNING
+  update(deltaTime, context)       // ✅ 每帧更新，返回 TaskStatus 字符串
+  cancel(context)                  // ✅ 取消，向子任务递归传播
+  getStatus()                      // ✅ 返回当前 TaskStatus
+  isCompleted()                    // ✅ 快捷判断
+  reset()                          // ✅ 重置到 PENDING（供 Loop/Retry 复用）
 }
 
-// 组合任务（均未实现）
-class Sequence extends Task { constructor(tasks) }   // ❌ 顺序执行
-class Parallel extends Task { constructor(tasks) }    // ❌ 并行执行
-class Loop extends Task { constructor({ times, task }) } // ❌ 循环
-class Conditional extends Task { constructor({ if: cond, then, else }) } // ❌ 条件分支
-class Retry extends Task { constructor({ maxRetries, task }) } // ❌ 重试
-class Race extends Task { constructor(tasks) }         // ❌ 竞速(任一完成即返回)
+// 组合任务（engine/tasks/composites.js）
+class Sequence extends Task { constructor(tasks) }                      // ✅ 顺序执行
+class Parallel extends Task { constructor(tasks, { failFast }) }        // ✅ 并行执行
+class Loop extends Task { constructor({ task, times }) }                // ✅ 循环（times=-1 无限）
+class Conditional extends Task { constructor({ condition, then, else }) } // ✅ 条件分支
+class Retry extends Task { constructor({ task, maxRetries }) }          // ✅ 失败重试
+class Race extends Task { constructor(tasks) }                          // ✅ 竞速（任一完成即返回）
 
-// 原子任务
-class MoveTask extends Task { constructor({ to, route, tolerance }) } // ✅ 已实现
-class WaitTask extends Task { constructor({ condition, timeout }) }   // ❌ 未实现
-class ActionTask extends Task { constructor({ action, params }) }     // ❌ 未实现
-class AnnounceTask extends Task { constructor({ message, tts }) }    // ❌ 未实现
-class ChargeTask extends Task { constructor({ stationId, minCharge }) } // ❌ 未实现
-class DockTask extends Task { constructor({ stationId }) }            // ❌ 未实现
-class SignalTask extends Task { constructor({ signal, data }) }       // ❌ 未实现
-class SensorTask extends Task { constructor({ sensor, action }) }     // ❌ 未实现
+// 原子任务（engine/tasks/atomics.js）
+class MoveTask extends Task { constructor({ target, kinematics, tolerance }) }  // ✅ 移动
+class WaitTask extends Task { constructor({ condition, timeout }) }             // ✅ 等待条件
+class ActionTask extends Task { constructor({ action, params }) }               // ✅ 自定义异步动作
+class AnnounceTask extends Task { constructor({ message, channel, meta }) }     // ✅ 广播消息
+class ChargeTask extends Task { constructor({ stationId, minCharge, chargeRate }) } // ✅ 充电
+class DockTask extends Task { constructor({ stationId, duration }) }            // ✅ 停靠
+class SignalTask extends Task { constructor({ signal, data }) }                 // ✅ 发射信号
+class SensorTask extends Task { constructor({ sensor, action }) }               // ✅ 传感器动作
 ```
 
 ---
@@ -237,6 +239,7 @@ class RobotEngine {
   removeRobot(id): void
   getRobot(id): RobotController
   getRobots(): Map<string, RobotController>
+  getRobotIds(): string[]              // ✅ 新增
 
   // 任务管理 ✅
   assignMission(robotId, missionTree): void
@@ -246,18 +249,22 @@ class RobotEngine {
   // 事件/信号 ✅
   emitSignal(name, data): void
   onSignal(name, handler): void
+  getEventBus(): EventBus              // ✅ 新增
 
   // 资源管理 ✅
   getResourceManager(): ResourceManager
 
-  // 显示同步 ✅
-  setDisplayMode(mode: '2d' | '3d' | 'both'): void
-  getDisplayManager(): DisplayManager
+  // 显示同步 ❌ 未集成到引擎（DisplayManager 作为独立模块使用，见第六节）
+  // setDisplayMode(mode): void        // ❌ 未实现（计划接口，暂未落地）
+  // getDisplayManager(): DisplayManager // ❌ 未实现
 
   // 插件注册 ✅
   registerWaypointType(type, handler): void
-  registerConditionType(type, handler): void
-  registerActionType(type, handler): void  // ❌ 接口预留，ActionTask 未实现
+  getWaypointRegistry(): WaypointTypeRegistry  // ✅ 新增
+  registerConditionType(type, factory): void
+  getConditionFactory(type): Function          // ✅ 新增
+  registerActionType(type, handler): void      // ✅ 已实现（注册自定义动作处理器）
+  getActionHandler(type): Function             // ✅ 已实现
 }
 ```
 
@@ -344,16 +351,32 @@ const ErrorRecoveryStrategies = {
 
 ## 六、Display 管理 ✅ 已实现
 
+> `DisplayManager` 作为独立模块使用，不集成到 `RobotEngine` 内部。
+
 ```javascript
+// DisplayMode 枚举（独立导出）✅
+const DisplayMode = { MODE_2D: '2d', MODE_3D: '3d', BOTH: 'both' }
+
 class DisplayManager {
-  constructor(map)
-  setMode(mode)                       // '2d' | '3d' | 'both'
-  addRobotMarker(robotId, config)    // 添加机器人标记
-  updateRobotMarker(robotId, state)  // 更新位置/朝向/状态
-  removeRobotMarker(robotId)         // 移除标记
-  syncAll(robots)                     // 全量同步
-  // 2D 模式使用 addStatusRobotMarkers（visual/robotStatus.js）
-  // 3D 模式使用 createRobot3DStatusLayer（visual/robot3DLayer.js）
+  constructor(config)                 // config: { mode, renderer2d, renderer3d }
+
+  // 模式管理 ✅
+  setMode(mode)                       // '2d' | '3d' | 'both'，自动同步渲染器
+  getMode(): string
+
+  // 渲染器注入 ✅（解耦地图实例，支持运行时切换）
+  setRenderer2d(renderer)             // 注入 addStatusRobotMarkers 兼容渲染器
+  setRenderer3d(renderer)             // 注入 createRobot3DStatusLayer 兼容渲染器
+
+  // addStatusRobotMarkers 同构接口 ✅（与 2D/3D 渲染器保持相同签名）
+  addRobot(robot): number
+  updateRobot(identifier, patch): boolean
+  updateRobots(newRobots): void
+  removeRobot(identifier): boolean
+  clearRobots(): void
+  getRobots(): Robot[]
+  toggleLabels(show?): void
+  remove(): void
 }
 ```
 
@@ -374,34 +397,41 @@ class DisplayManager {
 
 - [x] 目录结构 + 基础类型定义
 - [x] WaypointType（12 种）+ Waypoint 类 + WaypointTypeRegistry
-- [x] WaitCondition 条件系统（7 种工厂方法）
+- [x] WaitCondition 条件系统（7 种工厂方法：duration / signal / all / race / not / distance / resource）
 - [x] RobotPhase 状态机（13 种状态 + 转移白名单）
-- [x] RobotProfile 配置系统（3 种内置画像）
+- [x] RobotProfile 配置系统（3 种内置画像：guide-indoor / patrol-outdoor / delivery-indoor）
 - [x] TaskStatus 枚举
-- [x] RobotEngine 核心类 + RAF tick 主循环
+- [x] RobotEngine 核心类 + RAF tick 主循环 + 插件注册接口
 - [x] RobotController 单机状态封装
 - [x] MoveTask 原子任务（运动学 + 朝向平滑 + 电量消耗）
 
-### Phase 2 — 活动树 + 组合任务 ❌ 未开始
+### Phase 2 — 活动树 + 组合任务 ✅ 已完成
 
-- [ ] Task 基类
-- [ ] Sequence / Parallel / Loop / Conditional / Retry / Race 组合任务
-- [ ] WaitTask / ActionTask / AnnounceTask / ChargeTask / DockTask / SignalTask / SensorTask
-- [ ] 任务中断与恢复
+- [x] Task 基类（`engine/tasks/task.js`）
+- [x] Sequence / Parallel / Loop / Conditional / Retry / Race 组合任务（`engine/tasks/composites.js`）
+- [x] WaitTask / ActionTask / AnnounceTask / ChargeTask / DockTask / SignalTask / SensorTask（`engine/tasks/atomics.js`）
+- [x] 任务取消与 reset 递归传播
+- [x] `registerActionType` / `getActionHandler` 插件接口
 
 ### Phase 3 — 资源调度 + 错误恢复 🔶 部分完成
 
 - [x] ResourceManager + ResourceType + ResourceLock
 - [x] EventBus 机器人间及外部通信
 - [ ] 错误恢复策略注册模块（ErrorRecoveryStrategies）
-- [ ] WaitCondition 补全：sensor / occupancy / elevator / trafficLight
+- [x] WaitCondition 补全：sensor / occupancy / elevator / trafficLight（`engine/tasks/waitCondition.js`）
 
 ### Phase 4 — 显示层 + 运维能力 🔶 部分完成
 
-- [x] DisplayManager（2D/3D 统一接口）
-- [x] visual/robotStatus.js — 2D 状态标记
-- [x] visual/robot3DLayer.js — 3D GLB 渲染层
+- [x] DisplayManager（2D/3D 统一接口，独立模块，含 DisplayMode 枚举）
+- [x] DisplayManager 与引擎解耦（`setRenderer2d` / `setRenderer3d` 运行时注入）
+- [x] visual/robotStatus.js — 2D 状态标记（addStatusRobotMarkers）
+- [x] visual/robot3DLayer.js — 3D GLB 渲染层（createRobot3DLayer / createRobot3DStatusLayer）
 - [x] visual/robot3DPresets.js — 3D 预设配置
 - [x] visual/fov.js — FOV 视野扇形
+- [ ] `RobotEngine.setDisplayMode()` / `getDisplayManager()` 未落地（DisplayManager 目前为独立使用）
 - [ ] 任务日志与回放
 - [ ] 时间表调度（定时任务）
+
+---
+
+_最后更新：2026-06-26（活动树全部落地，WaitCondition 补全至 11 种工厂方法）_
