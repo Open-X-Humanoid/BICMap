@@ -9,7 +9,7 @@
 
 import { shallowRef } from 'vue'
 import { RobotEngine, RobotController, createRobotFOV, createRobotProfile } from '@/bicMap/core/robot'
-import { Pathfinder } from '@/bicMap/core/navigation/pathFinding.js'
+import { Pathfinder } from '@/bicMap/core/navigation'
 
 /**
  * 创建 RobotEngine composable

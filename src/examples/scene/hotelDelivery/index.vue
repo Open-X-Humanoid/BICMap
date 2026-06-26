@@ -210,6 +210,9 @@ function setSlamVisible(visible) {
 function syncRobotVisibility() {
   if (!robotCtrl || !fov || !map) return
   const visible = robotFloor.value === currentFloor.value
+  if (!is3D.value && robotCtrl) {
+    robotCtrl.setVisible(visible)
+  }
   if (!is3D.value && map.getLayer('robot-markers-layer')) {
     map.setLayoutProperty('robot-markers-layer', 'visibility', visible ? 'visible' : 'none')
   }
@@ -243,6 +246,7 @@ async function initMap() {
       if (is3D.value) {
         setSlamVisible(false)
         // 3D模式：显示3D机器人，隐藏2D机器人标记
+        robotCtrl?.setVisible(false)
         if (map?.getLayer('robot-markers-layer')) {
           map.setLayoutProperty('robot-markers-layer', 'visibility', 'none')
         }
@@ -255,6 +259,7 @@ async function initMap() {
         if (map?.getLayer(FLOOR_LAYER_ID)) map.setLayoutProperty(FLOOR_LAYER_ID, 'visibility', 'visible')
         setSlamVisible(true)
         // 2D模式：显示2D机器人标记，隐藏3D机器人
+        robotCtrl?.setVisible(true)
         if (map?.getLayer('robot-markers-layer')) {
           map.setLayoutProperty('robot-markers-layer', 'visibility', 'visible')
         }
@@ -525,6 +530,7 @@ function toggle3D() {
     if (map?.getLayer(FLOOR_LAYER_ID)) map.setLayoutProperty(FLOOR_LAYER_ID, 'visibility', 'visible')
     setSlamVisible(false)
     // 3D模式：显示3D机器人，隐藏2D标记
+    robotCtrl?.setVisible(false)
     if (map?.getLayer('robot-markers-layer')) {
       map.setLayoutProperty('robot-markers-layer', 'visibility', 'none')
     }
@@ -537,6 +543,7 @@ function toggle3D() {
     if (map?.getLayer(FLOOR_LAYER_ID)) map.setLayoutProperty(FLOOR_LAYER_ID, 'visibility', 'visible')
     setSlamVisible(true)
     // 2D模式：显示2D标记，隐藏3D机器人
+    robotCtrl?.setVisible(true)
     if (map?.getLayer('robot-markers-layer')) {
       map.setLayoutProperty('robot-markers-layer', 'visibility', 'visible')
     }
@@ -570,6 +577,7 @@ function resetScene() {
   buildingCtrl?.hide()
   if (map?.getLayer(FLOOR_LAYER_ID)) map.setLayoutProperty(FLOOR_LAYER_ID, 'visibility', 'visible')
   setSlamVisible(true)
+  robotCtrl?.setVisible(true)
   if (map?.getLayer('robot-markers-layer')) {
     map.setLayoutProperty('robot-markers-layer', 'visibility', 'visible')
   }

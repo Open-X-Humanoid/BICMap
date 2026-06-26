@@ -328,6 +328,16 @@ export function addStatusRobotMarkers(map, robots = [], options = {}) {
     base.remove();
   };
 
+  /** 控制底层标记和状态气泡的显示/隐藏 */
+  const setVisible = (visible) => {
+    base.setVisible?.(visible);
+    if (visible) {
+      if (labelsVisible) rebuildStatusLabels();
+    } else {
+      clearStatusLabels();
+    }
+  };
+
   return {
     updateRobots,
     updateRobot,
@@ -336,6 +346,7 @@ export function addStatusRobotMarkers(map, robots = [], options = {}) {
     clearRobots,
     getRobots,
     toggleLabels,
+    setVisible,
     remove
   };
 }

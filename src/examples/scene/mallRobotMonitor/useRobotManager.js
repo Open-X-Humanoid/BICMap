@@ -14,9 +14,16 @@ import {
   ARRIVAL_DIST,
   ROBOT_SPEED,
   ROTATE_DPS,
-  GUIDE_PHASE,
+  GUIDE_PHASE
 } from './constants.js'
-import { createGeoUtils, iconRot, findAnnouncementPoint, initPathfinder, buildPathfindingRoute, routeIdsToCoords } from '@/bicMap/core/navigation'
+import {
+  createGeoUtils,
+  iconRot,
+  findAnnouncementPoint,
+  initPathfinder,
+  buildPathfindingRoute,
+  routeIdsToCoords
+} from '@/bicMap/core/navigation'
 import { SHOPS, PARKING_ZONES } from './mallLayout.js'
 import { RobotEngine, createRobotProfile } from '@/bicMap/core/robot'
 
@@ -26,7 +33,7 @@ const { fracToCart, cartToGPS } = createGeoUtils({
   width: MAP_WIDTH_M * (LAYOUT_SCALE || 1),
   height: MAP_HEIGHT_M * (LAYOUT_SCALE || 1),
   scale: MAP_RESOLUTION,
-  zoomFactor: 2,
+  zoomFactor: 2
 })
 
 // ==================== 模块级常量 ====================
@@ -38,9 +45,7 @@ const FOV_INDEX_MAP = new Map()
 const BUSINESS_SHOPS = SHOPS
 
 // B1 禁行区：只包含停车位区域（行车通道除外，机器人需沿通道行驶）
-const B1_FORBIDDEN_ZONES = PARKING_ZONES.filter(
-  (zone) => !zone.id.startsWith('b1-lane-') && zone.id !== 'b1-park-d1'
-)
+const B1_FORBIDDEN_ZONES = PARKING_ZONES.filter((zone) => !zone.id.startsWith('b1-lane-') && zone.id !== 'b1-park-d1')
 
 function getForbiddenZones(robotFloor) {
   return robotFloor === 'B1' ? B1_FORBIDDEN_ZONES : BUSINESS_SHOPS
@@ -121,7 +126,15 @@ function spreadPositions(basePositions, allPois) {
 }
 
 // 创建巡逻状态对象（路线、位置、朝向、电量等）
-function createPatrolState(config, routeIds, routeCoords, poiIndices, announcementPoints, initFrac, phase = GUIDE_PHASE.IDLE) {
+function createPatrolState(
+  config,
+  routeIds,
+  routeCoords,
+  poiIndices,
+  announcementPoints,
+  initFrac,
+  phase = GUIDE_PHASE.IDLE
+) {
   const initialCartesian = fracToCart(...initFrac)
   return {
     route: routeCoords,
@@ -138,7 +151,7 @@ function createPatrolState(config, routeIds, routeCoords, poiIndices, announceme
     floor: config.floor || '1F',
     battery: config.battery ?? 100,
     batteryLowWarned: false,
-    initFrac: [...initFrac],   // 分散后的出发坐标，导览结束后回归用
+    initFrac: [...initFrac] // 分散后的出发坐标，导览结束后回归用
   }
 }
 
@@ -185,6 +198,9 @@ export function useRobotManager(options) {
   const patrolRoutes = ref({ ...PATROL_ROUTES })
   const robotConfigs = ref([...ROBOT_CONFIGS])
 
+  // 气泡状态缓存：避免 status/battery/task 无变化时重建 DOM（key: robotId, value: cacheKey 字符串）
+  const _prevStatusCache = new Map()
+
   // ==================== 计算属性 ====================
 
   // 根据机器人配置和路线自动计算机器人分散位置
@@ -221,13 +237,25 @@ export function useRobotManager(options) {
       const firstTarget = [firstPoi.xFrac, firstPoi.yFrac]
       let lastAnchorPoint = initFrac || firstTarget
       const forbiddenZones = getForbiddenZones(config.floor)
-      const firstAnnouncement = findAnnouncementPoint({ poiXFrac: firstPoi.xFrac, poiYFrac: firstPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones })
+      const firstAnnouncement = findAnnouncementPoint({
+        poiXFrac: firstPoi.xFrac,
+        poiYFrac: firstPoi.yFrac,
+        prevXFrac: lastAnchorPoint[0],
+        prevYFrac: lastAnchorPoint[1],
+        forbiddenZones
+      })
       announcementList.push({ frac: firstAnnouncement, status: 'pending' })
       lastAnchorPoint = firstAnnouncement
       for (let poiIndex = 0; poiIndex < routeIdList.length - 1; poiIndex++) {
         const nextPoi = poiMap.get(routeIdList[poiIndex + 1])
         if (!nextPoi) continue
-        const nextAnnouncement = findAnnouncementPoint({ poiXFrac: nextPoi.xFrac, poiYFrac: nextPoi.yFrac, prevXFrac: lastAnchorPoint[0], prevYFrac: lastAnchorPoint[1], forbiddenZones })
+        const nextAnnouncement = findAnnouncementPoint({
+          poiXFrac: nextPoi.xFrac,
+          poiYFrac: nextPoi.yFrac,
+          prevXFrac: lastAnchorPoint[0],
+          prevYFrac: lastAnchorPoint[1],
+          forbiddenZones
+        })
         announcementList.push({ frac: nextAnnouncement, status: 'pending' })
         lastAnchorPoint = nextAnnouncement
       }
@@ -252,10 +280,7 @@ export function useRobotManager(options) {
       const initFrac = spreadMap.get(config.id) || config.initialFrac || [0.5, 0.5]
       const annPoints = announcementsMap[config.id] || []
       const waypointCoords = routeIdsToCoords(routeIdList, allPois)
-      const pathPoints = [
-        initFrac,
-        ...waypointCoords.map((coord, i) => annPoints[i]?.frac || coord),
-      ]
+      const pathPoints = [initFrac, ...waypointCoords.map((coord, i) => annPoints[i]?.frac || coord)]
       const { coords, poiIndices } = buildPathfindingRoute(pathPoints, getForbiddenZones(config.floor))
       all[config.id] = { coords, poiIndices }
       const firstPoi = allPois.find((poi) => poi.id === routeIdList[0])
@@ -329,7 +354,7 @@ export function useRobotManager(options) {
     })
   }
 
-  // 同步所有机器人标记位置、朝向到地图
+  // 同步所有机器人标记位置、朝向到地图（仅传 lngLat/rotation 走快速路径，避免每帧重建气泡 DOM）
   function syncRobotMarkers() {
     const currentFloor = getCurrentFloor?.() || '1F'
     for (const [robotId, state] of patrolState) {
@@ -337,20 +362,13 @@ export function useRobotManager(options) {
       const lngLat = cartToGPS(state.cartPos.x, state.cartPos.y)
       state.lngLat = lngLat
       const rotation = iconRot(state.smoothHeading)
-      const patrolStatus = state.phase === GUIDE_PHASE.IDLE ? ROBOT_STATUS.IDLE : ROBOT_STATUS.RUNNING
-      const task = phaseToTask(state.phase)
       // ── DEBUG: 启动后首次推送到地图层 ──
       if (!_debugSyncedFirstFrame && _debugLoggedFirstFrame) {
         _debugSyncedFirstFrame = true
         // console.log(`[DEBUG] syncMarkers robot=${robotId} lngLat=(${lngLat[0].toFixed(6)},${lngLat[1].toFixed(6)}) rotation=${rotation} smoothHeading=${state.smoothHeading}`)
       }
-      getRobotCtrl().updateRobot(robotId, {
-        lngLat: lngLat,
-        rotation: rotation,
-        status: patrolStatus,
-        battery: state.battery,
-        task: task
-      })
+      // 只传位置和旋转，触发 robotStatus.js 快速路径（仅移动 CSS，不重建气泡 DOM）
+      getRobotCtrl().updateRobot(robotId, { lngLat, rotation })
       if (fovSet.has(robotId) && fovMap.has(robotId)) fovMap.get(robotId).update(state.cartPos, state.smoothHeading)
     }
   }
@@ -367,27 +385,35 @@ export function useRobotManager(options) {
     if (state) getMap().jumpTo({ center: state.lngLat, bearing: 0, pitch: 0, zoom: 24 })
   }
 
-  // 更新侧边栏机器人列表状态
+  // 更新侧边栏机器人列表状态，同时将 status/battery/task 同步给地图气泡（非位置字段，低频更新）
   function updateSidebarStatus() {
     const currentFloor = getCurrentFloor?.() || '1F'
     robots.value = Array.from(patrolState)
       .filter(([, state]) => state.floor === currentFloor)
       .map(([robotId, state]) => {
-      const config = robotConfigs.value.find((configItem) => configItem.id === robotId) || {},
-        battery = state.battery,
-        patrolStatus = state.phase === GUIDE_PHASE.IDLE ? ROBOT_STATUS.IDLE : ROBOT_STATUS.RUNNING
-      return {
-        id: robotId,
-        name: config.name || robotId,
-        status: patrolStatus,
-        statusColor: STATUS_COLORS[patrolStatus] || STATUS_COLORS[ROBOT_STATUS.IDLE],
-        battery: battery,
-        batteryColor: getBatteryColor(battery),
-        task: phaseToTask(state.phase),
-        floor: state.floor || '1F',
-        fovActive: fovSet.has(robotId)
-      }
-    })
+        const config = robotConfigs.value.find((configItem) => configItem.id === robotId) || {},
+          battery = state.battery,
+          patrolStatus = state.phase === GUIDE_PHASE.IDLE ? ROBOT_STATUS.IDLE : ROBOT_STATUS.RUNNING,
+          task = phaseToTask(state.phase)
+        // 将非位置字段推给 robotCtrl，robotStatus.js 会检测 onlyPosition=false 并重建气泡
+        // 此处每帧调用代价依然存在，通过 _prevStatusCache 缓存跳过无变化帧
+        const cacheKey = `${patrolStatus}|${Math.round(battery)}|${task}`
+        if (_prevStatusCache.get(robotId) !== cacheKey) {
+          _prevStatusCache.set(robotId, cacheKey)
+          getRobotCtrl()?.updateRobot(robotId, { status: patrolStatus, battery, task })
+        }
+        return {
+          id: robotId,
+          name: config.name || robotId,
+          status: patrolStatus,
+          statusColor: STATUS_COLORS[patrolStatus] || STATUS_COLORS[ROBOT_STATUS.IDLE],
+          battery: battery,
+          batteryColor: getBatteryColor(battery),
+          task,
+          floor: state.floor || '1F',
+          fovActive: fovSet.has(robotId)
+        }
+      })
   }
 
   // ── 循环控制辅助 ──
@@ -395,7 +421,10 @@ export function useRobotManager(options) {
   function stopLoop() {
     isRunning.value = false
     followCam.value = false
-    if (rafId.value) { cancelAnimationFrame(rafId.value); rafId.value = 0 }
+    if (rafId.value) {
+      cancelAnimationFrame(rafId.value)
+      rafId.value = 0
+    }
   }
 
   function checkAndStopIfAllIdle() {
@@ -413,7 +442,7 @@ export function useRobotManager(options) {
     const targetCoord = state.route[state.waypointIndex]
     const targetCart = fracToCart(...targetCoord)
     engineCtrl.moveTo([targetCart.x, targetCart.y], {
-      tolerance: ARRIVAL_DIST,
+      tolerance: ARRIVAL_DIST
     })
     return true
   }
@@ -527,7 +556,9 @@ export function useRobotManager(options) {
               showFov(robotId, state)
             }
             if (state.announcementPoints) {
-              state.announcementPoints.forEach(ap => { ap.status = 'pending' })
+              state.announcementPoints.forEach((ap) => {
+                ap.status = 'pending'
+              })
             }
             // 检查是否所有机器人都已完成（需包含 dwell 等所有活跃 phase，避免其他机器人正在讲解时 RAF 被提前取消）
             checkAndStopIfAllIdle()
@@ -628,12 +659,12 @@ export function useRobotManager(options) {
     const { x, y } = fracToCart(...initFrac)
     const profile = createRobotProfile('guide-indoor', {
       kinematics: { maxSpeed: ROBOT_SPEED, acceleration: 0.5, rotationSpeed: ROTATE_DPS },
-      battery: { capacity: config.battery ?? 100, drainMove: 0.0000017, drainIdle: 0.00000085, drainRotate: 0.0000008 },
+      battery: { capacity: config.battery ?? 100, drainMove: 0.0000017, drainIdle: 0.00000085, drainRotate: 0.0000008 }
     })
     const controller = robotEngine.addRobot(robotId, profile, {
       position: { x, y },
       heading: IDLE_HEADING,
-      battery: config.battery ?? 100,
+      battery: config.battery ?? 100
     })
     engineControllerMap.set(robotId, controller)
     return controller
@@ -695,6 +726,7 @@ export function useRobotManager(options) {
     engineControllerMap.clear()
     patrolState.clear()
     robots.value = []
+    _prevStatusCache.clear()
   }
 
   // 暂停所有巡逻
@@ -766,12 +798,12 @@ export function useRobotManager(options) {
       console.warn('[RM] stopSingle: robot not found', robotId)
       return false
     }
-      state.phase = GUIDE_PHASE.IDLE
-      const engineCtrl = engineControllerMap.get(robotId)
-      if (engineCtrl) engineCtrl.cancelCurrentTask()
-      getRobotCtrl().updateRobot(robotId, { lngLat: state.lngLat, rotation: iconRot(state.smoothHeading) })
-      if (fovSet.has(robotId)) showFov(robotId, state)
-      checkAndStopIfAllIdle()
+    state.phase = GUIDE_PHASE.IDLE
+    const engineCtrl = engineControllerMap.get(robotId)
+    if (engineCtrl) engineCtrl.cancelCurrentTask()
+    getRobotCtrl().updateRobot(robotId, { lngLat: state.lngLat, rotation: iconRot(state.smoothHeading) })
+    if (fovSet.has(robotId)) showFov(robotId, state)
+    checkAndStopIfAllIdle()
     updateSidebarStatus()
     return true
   }
@@ -779,7 +811,7 @@ export function useRobotManager(options) {
   // ==================== 交互操作 ====================
 
   function hideAllFov() {
-    fovMap.forEach(fov => fov.hide())
+    fovMap.forEach((fov) => fov.hide())
   }
 
   function restoreFov() {
@@ -847,9 +879,11 @@ export function useRobotManager(options) {
     const { configs, routes } = loadFromStorageAndMerge(configDefinitions, routeMap)
     robotConfigs.value = configs
     patrolRoutes.value = { ...routes }
+    _prevStatusCache.clear()
     const spreadMap = spreadPositionsMap.value
     const announcementsMap = robotAnnouncementPoints.value
     const paths = robotPaths.value
+    const currentFloor = getCurrentFloor?.() || '1F'
     for (const config of configs) {
       const routeIdList = routes[config.id] || []
       const initFrac = spreadMap.get(config.id) || config.initialFrac || [0.5, 0.5]
@@ -864,11 +898,13 @@ export function useRobotManager(options) {
 
       // 创建引擎控制器（空闲态，无活跃任务）
       createEngineController(config.id, config, initFrac)
-      addRobotToMap(config.id, initFrac, config.name || config.id)
+      // 只将当前楼层的机器人加入地图，其余楼层在切换时按需添加
+      if (config.floor === currentFloor) {
+        addRobotToMap(config.id, initFrac, config.name || config.id)
+      }
     }
     initFovInstances()
     const isFirst = fovSet.size === 0
-    const currentFloor = getCurrentFloor?.() || '1F'
     for (const robotId of patrolState.keys()) {
       const state = patrolState.get(robotId),
         fovInstance = fovMap.get(robotId)
