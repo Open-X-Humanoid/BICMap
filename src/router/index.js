@@ -194,7 +194,7 @@ const routes = [
     path: '/scene/transportHub',
     name: 'TransportHub',
     component: () => import('../examples/scene/transportHub/index.vue'),
-    meta: { title: '三站一场导览' }
+    meta: { title: '三站一场地图引导' }
   },
   {
     path: '/scene/publicClean',
