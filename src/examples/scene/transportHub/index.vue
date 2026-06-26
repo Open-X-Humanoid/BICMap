@@ -5,7 +5,7 @@
 -->
 <template>
   <div class="transport-hub">
-    <AppHeader title="三站一场路径规划" />
+    <AppHeader title="三站一场地图引导" />
 
     <div class="transport-hub__scene">
       <component
