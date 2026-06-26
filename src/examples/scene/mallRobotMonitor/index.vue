@@ -848,12 +848,6 @@ function handleResetAll() {
   zoomToFit()
   robotManager.initRobots(ROBOT_CONFIGS, PATROL_ROUTES)
   if (followCam.value) zoomToFit()
-  // 移除非当前楼层的机器人标记
-  ROBOT_CONFIGS.forEach(config => {
-    if (config.floor !== currentFloor.value) {
-      try { robotCtrl?.removeRobot(config.id) } catch (e) { /* ignore */ }
-    }
-  })
 }
 
 // ===== cleanup =====

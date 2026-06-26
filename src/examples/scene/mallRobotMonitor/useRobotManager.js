@@ -850,6 +850,7 @@ export function useRobotManager(options) {
     const spreadMap = spreadPositionsMap.value
     const announcementsMap = robotAnnouncementPoints.value
     const paths = robotPaths.value
+    const currentFloor = getCurrentFloor?.() || '1F'
     for (const config of configs) {
       const routeIdList = routes[config.id] || []
       const initFrac = spreadMap.get(config.id) || config.initialFrac || [0.5, 0.5]
@@ -864,11 +865,13 @@ export function useRobotManager(options) {
 
       // 创建引擎控制器（空闲态，无活跃任务）
       createEngineController(config.id, config, initFrac)
-      addRobotToMap(config.id, initFrac, config.name || config.id)
+      // 只将当前楼层的机器人加入地图，其余楼层在切换时按需添加
+      if (config.floor === currentFloor) {
+        addRobotToMap(config.id, initFrac, config.name || config.id)
+      }
     }
     initFovInstances()
     const isFirst = fovSet.size === 0
-    const currentFloor = getCurrentFloor?.() || '1F'
     for (const robotId of patrolState.keys()) {
       const state = patrolState.get(robotId),
         fovInstance = fovMap.get(robotId)
