@@ -69,13 +69,6 @@ const showLabels = ref(true)
 
 const footerButtons = computed(() => [
   {
-    label: is3D.value ? '切换平面视图' : '切换三维视图',
-    active: is3D.value,
-    icon: is3D.value ? MapIcon : Box,
-    onClick: toggleDimension,
-    disabled: !ready.value
-  },
-  {
     label: showLabels.value ? '隐藏名称' : '显示名称',
     active: showLabels.value,
     icon: showLabels.value ? EyeOff : Eye,

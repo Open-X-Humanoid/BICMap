@@ -1,12 +1,12 @@
 <!--
  * @Date: 2026-06-03 12:33:21
- * @LastEditTime: 2026-06-08 10:14:34
+ * @LastEditTime: 2026-06-24 18:03:38
  * @FilePath: /bic-map/src/examples/scene/stationGuide/index.vue
  * @Description: 火车站导览 2D 室内背景地图示例
 -->
 <template>
-  <div class="station-guide">
-    <AppHeader title="火车/高铁站导览" />
+  <div class="station-guide" :class="{ 'station-guide--embedded': embedded }">
+    <AppHeader v-if="!embedded" title="火车/高铁站导览" />
 
     <main class="station-guide__main">
       <div class="station-guide__grid"></div>
@@ -79,12 +79,16 @@
       </section>
     </main>
 
-    <AppFooter :left-buttons="footerButtons" />
+    <AppFooter v-if="!embedded" :left-buttons="footerButtons" />
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
+defineProps({
+  embedded: { type: Boolean, default: false },
+})
 import { Maximize, MapPin, RotateCcw } from 'lucide-vue-next'
 
 import AppFooter from '../../components/AppFooter.vue'
@@ -334,10 +338,7 @@ function selectPoi(poi, options = {}) {
   }
 
   prepareGuideRoute(poi)
-  const shouldStart = window.confirm(`路线已生成完毕，是否现在出发前往「${poi.name}」？`)
-  if (shouldStart) {
-    startGuide()
-  }
+  startGuide()
 }
 
 function prepareGuideRoute(targetPoi) {
@@ -855,6 +856,8 @@ function cleanup() {
     map = null
   }
 }
+
+defineExpose({ footerButtons })
 </script>
 
 <style lang="scss" scoped>
@@ -869,6 +872,15 @@ function cleanup() {
   top: 0;
   left: 0;
   background: linear-gradient(160deg, #e8f4fc 0%, #eef1f8 30%, #f0f6fb 60%, #e6f0fa 100%);
+
+  &--embedded {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    inset: auto;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .station-guide__main {
@@ -914,8 +926,8 @@ function cleanup() {
 
 .station-guide__legend {
   position: absolute;
-  left: 0px;
-  bottom: 0px;
+  left: 12px;
+  bottom: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

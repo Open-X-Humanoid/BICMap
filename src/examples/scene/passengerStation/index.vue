@@ -4,8 +4,8 @@
  * @FilePath: /bic-map/src/examples/scene/passengerStation/index.vue
 -->
 <template>
-  <div class="passenger-station">
-    <AppHeader title="长途客运站导览" />
+  <div class="passenger-station" :class="{ 'passenger-station--embedded': embedded }">
+    <AppHeader v-if="!embedded" title="长途客运站导览" />
 
     <main class="passenger-station__main">
       <div class="passenger-station__grid"></div>
@@ -57,12 +57,16 @@
       </section>
     </main>
 
-    <AppFooter :left-buttons="footerButtons" />
+    <AppFooter v-if="!embedded" :left-buttons="footerButtons" />
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
+
+defineProps({
+  embedded: { type: Boolean, default: false },
+})
 import { Maximize, RotateCcw } from 'lucide-vue-next'
 
 import AppFooter from '../../components/AppFooter.vue'
@@ -365,6 +369,8 @@ function cleanupMap() {
     map = null
   }
 }
+
+defineExpose({ footerButtons })
 </script>
 
 <style lang="scss" scoped>
@@ -377,6 +383,15 @@ function cleanupMap() {
   position: fixed;
   inset: 0;
   background: linear-gradient(160deg, #e8f4fc 0%, #eef1f8 30%, #f0f6fb 60%, #e6f0fa 100%);
+
+  &--embedded {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    inset: auto;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .passenger-station__main {
@@ -438,8 +453,8 @@ function cleanupMap() {
 
 .passenger-station__legend {
   position: absolute;
-  left: 0;
-  bottom: 0;
+  left: 12px;
+  bottom: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

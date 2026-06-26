@@ -1,6 +1,6 @@
 /* Basic reset and utility styles for BIC Map Plugin */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'HarmonyOS Sans SC', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   
@@ -88,23 +88,61 @@ button:focus-visible {
   }
 }
 
+/* ============================================================
+   统一字体：HarmonyOS Sans SC（单一字族，含 Regular/Medium/Bold 三个字重）
+   ============================================================ */
 @font-face {
-  font-family: 'Harmony Bold'; /* 字体名称 */
-  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_BOLD.TTF') format('truetype'); /* 字体文件路径 */
-  font-weight: bold;
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_REGULAR.TTF') format('truetype');
+  font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Harmony Regular'; /* 字体名称 */
-  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_REGULAR.TTF') format('truetype'); /* 字体文件路径 */
-  font-weight: bold;
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_MEDIUM.TTF') format('truetype');
+  font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Harmony Medium'; /* 字体名称 */
-  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_MEDIUM.TTF') format('truetype'); /* 字体文件路径 */
-  font-weight: bold;
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_BOLD.TTF') format('truetype');
+  font-weight: 700;
   font-style: normal;
+  font-display: swap;
+}
+
+/* 兼容历史引用的字族别名，全部指向同一套鸿蒙字体 */
+@font-face {
+  font-family: 'Harmony Regular';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_REGULAR.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Harmony Medium';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_MEDIUM.TTF') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Harmony Bold';
+  src: url('/bicMap/assets/ttf/HARMONYOS_SANS_SC_BOLD.TTF') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 强制全站所有文字（含内联样式、装饰/等宽字体）统一为鸿蒙字体 */
+*,
+*::before,
+*::after {
+  font-family: 'HarmonyOS Sans SC', system-ui, sans-serif !important;
 }
