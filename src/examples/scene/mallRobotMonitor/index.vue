@@ -55,7 +55,6 @@ import GuideNarrationPanel from './GuideNarrationPanel.vue'
 import GuidePoiPanel from './components/GuidePoiPanel.vue'
 import RobotStatusPanel from './components/RobotStatusPanel.vue'
 import StatusHud from './components/StatusHud.vue'
-import HeadingHud from './components/HeadingHud.vue'
 
 import bicMap from '@/bicMap/core/bicmap-gl'
 import { ROBOT_STATUS, addStatusRobotMarkers } from '@/bicMap/core/robot'

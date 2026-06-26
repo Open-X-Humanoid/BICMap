@@ -4,9 +4,7 @@
  * @module useRouteController
  */
 
-import { createGeoUtils } from '@/bicMap/core/navigation/geoUtils.js'
-import { GraphPathfinder } from '@/bicMap/core/navigation/graphPathfinding.js'
-import { buildGraphCoveragePath, buildGraphPointToPointPath, removeEdgesThroughBuildings } from '@/bicMap/core/navigation/graphPathBuild.js'
+import { GraphPathfinder, createGeoUtils, buildGraphCoveragePath, buildGraphPointToPointPath, removeEdgesThroughBuildings } from '@/bicMap/core/navigation'
 import { PARK_BUILDINGS, PARK_GRAPH, PARK_INTERSECTIONS, WEIGHT_SCALE } from './parkLayout.js'
 
 /**

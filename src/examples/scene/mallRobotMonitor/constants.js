@@ -34,8 +34,7 @@ export const GUIDE_PHASE = Object.freeze({
 })
 
 // 运动参数
-export const ROBOT_SPEED     = 10.0
-export const UPDATE_MS       = 16
+export const ROBOT_SPEED     = 16.0
 export const ARRIVAL_DIST    = 0.5
 export const IDLE_HEADING    = 0
 export const ROTATE_DPS      = 120

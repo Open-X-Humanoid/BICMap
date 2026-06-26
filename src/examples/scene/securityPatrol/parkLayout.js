@@ -8,7 +8,7 @@
 // ─── 坐标辅助 ─────────────────────────────────────────────────────────────────
 
 import { rect } from '@/bicMap/core/mapFeatures/shape.js'
-import { pointInPolygon } from '@/bicMap/core/navigation/pointUtil.js'
+import { pointInPolygon } from '@/bicMap/core/navigation'
 
 // ─── 底图地面 ──────────────────────────────────────────────────────────────────
 export const PARK_GROUND = {
