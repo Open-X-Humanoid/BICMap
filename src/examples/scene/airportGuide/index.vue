@@ -4,10 +4,10 @@
  * @FilePath: /bic-map/src/examples/scene/airportGuide/index.vue
 -->
 <template>
-  <div class="airport-guide">
+  <div class="airport-guide" :class="{ 'airport-guide--embedded': embedded }">
     <canvas id="airportCanvasMap" class="airport-guide__canvas"></canvas>
 
-    <AppHeader title="飞机场导览" />
+    <AppHeader v-if="!embedded" title="飞机场导览" />
 
     <main class="airport-guide__main">
       <div class="airport-guide__grid"></div>
@@ -87,12 +87,16 @@
       </section>
     </main>
 
-    <AppFooter :left-buttons="footerButtons" />
+    <AppFooter v-if="!embedded" :left-buttons="footerButtons" />
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
+defineProps({
+  embedded: { type: Boolean, default: false },
+})
 
 import { Copy, Maximize, Pencil, Trash2 } from 'lucide-vue-next'
 
@@ -449,6 +453,8 @@ function cleanup() {
   map = null
   cameraBound = null
 }
+
+defineExpose({ footerButtons })
 </script>
 
 <style lang="scss" scoped>
@@ -461,6 +467,15 @@ function cleanup() {
   position: fixed;
   inset: 0;
   background: linear-gradient(160deg, #e8f4fc 0%, #eef1f8 30%, #f0f6fb 60%, #e6f0fa 100%);
+
+  &--embedded {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    inset: auto;
+    flex: 1;
+    min-height: 0;
+  }
 
   &__canvas {
     display: none;

@@ -553,26 +553,26 @@ const TRAVEL_BEARING = {
 
 /** 路口进口直行导向图标固定点位（由地图点击标定） */
 const CY_STRAIGHT_ICON_POSITIONS = [
-  { coordinates: [116.410168, 39.903019], travel: 'east' },
-  { coordinates: [116.410420, 39.903019], travel: 'west', bearing: TRAVEL_BEARING.west + 180 },
-  { coordinates: [116.410421, 39.903052], travel: 'west', bearing: TRAVEL_BEARING.west + 180 },
-  { coordinates: [116.410169, 39.902978], travel: 'east', bearing: TRAVEL_BEARING.east + 180 },
-  { coordinates: [116.410174, 39.902941], travel: 'east', bearing: TRAVEL_BEARING.east + 180 },
-  { coordinates: [116.410429, 39.902973], travel: 'west', bearing: TRAVEL_BEARING.west },
-  { coordinates: [116.410243, 39.903130], travel: 'south', road_name: '东环路', bearing: TRAVEL_BEARING.south + 180 },
-  { coordinates: [116.410281, 39.903126], travel: 'south', road_name: '东环路', bearing: TRAVEL_BEARING.south + 180 },
-  { coordinates: [116.410322, 39.903125], travel: 'south', road_name: '东环路' },
-  { coordinates: [116.410322, 39.902871], travel: 'north', road_name: '东环路', bearing: TRAVEL_BEARING.north + 180 },
-  { coordinates: [116.410356, 39.902872], travel: 'north', road_name: '东环路', bearing: TRAVEL_BEARING.north + 180 },
-  { coordinates: [116.410277, 39.902874], travel: 'north', road_name: '东环路' },
+  { coordinates: [116.410168, 39.903019], travel: 'east', bearing: TRAVEL_BEARING.east + 180 },
+  { coordinates: [116.410174, 39.903051], travel: 'east', bearing: TRAVEL_BEARING.east + 180 },
+  { coordinates: [116.410431, 39.903049], travel: 'west', bearing: TRAVEL_BEARING.west },
+  { coordinates: [116.410174, 39.902941], travel: 'east' },
+  { coordinates: [116.410429, 39.902973], travel: 'west', bearing: TRAVEL_BEARING.west + 180},
+  { coordinates: [116.410426, 39.902943], travel: 'west', bearing: TRAVEL_BEARING.west + 180},
+  { coordinates: [116.410243, 39.903130], travel: 'south' },
+  { coordinates: [116.410322, 39.903125], travel: 'south', bearing: TRAVEL_BEARING.south + 180 },
+  { coordinates: [116.410356, 39.902872], travel: 'north' },
+  { coordinates: [116.410244, 39.902878], travel: 'north', bearing: TRAVEL_BEARING.north + 180 },
+  { coordinates: [116.410277, 39.902874], travel: 'north', bearing: TRAVEL_BEARING.north + 180 },
+  { coordinates: [116.410356, 39.903120], travel: 'north' },
 ]
 
 /** 路口进口直行左转导向图标固定点位（由地图点击标定） */
 const LEFT_TURN_ICON_POSITIONS = [
-  { coordinates: [116.410174, 39.903051], travel: 'east' },
-  { coordinates: [116.410425, 39.902941], travel: 'west', bearing: TRAVEL_BEARING.west },
-  { coordinates: [116.410248, 39.902875], travel: 'north', road_name: '东环路' },
-  { coordinates: [116.410357, 39.903124], travel: 'south', road_name: '东环路' },
+  { coordinates: [116.410430, 39.903013], travel: 'west', bearing: TRAVEL_BEARING.west },
+  { coordinates: [116.410170, 39.902978], travel: 'east' },
+  { coordinates: [116.410281, 39.903126], travel: 'south' },
+  { coordinates: [116.410322, 39.902871], travel: 'north' },
 ]
 
 /**
