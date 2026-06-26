@@ -111,10 +111,10 @@ const robotManager = useRobotManager({
   getCurrentFloor: () => currentFloor.value,
 })
 
-const { robots, isRunning, followCam, followRobotId, robotHeading, stopAll, startSingle, stopSingle, toggleFov, setFollowRobot, getPatrolState, setRobotRoute, setRobotPosition, routeDisplayData, updateSidebarStatus } = robotManager
+const { robots, isRunning, followCam, followRobotId, robotHeading, stopAll, startSingle, stopSingle, toggleFov, setFollowRobot, getPatrolState, setRobotRoute, setRobotPosition, setRobotStartPoi, routeDisplayData, updateSidebarStatus } = robotManager
 
 const routeLayer = useRouteLayer(() => map, fracToGPS, () => routeDisplayData.value)
-const { showRoute, toggleRoute, updateAnnouncementPoints } = routeLayer
+const { showRoute, toggleRoute, updateRoutes, updateAnnouncementPoints } = routeLayer
 
 const viewControls = useViewControls(() => map, {
   followCam,
@@ -798,8 +798,13 @@ function handleConfigRoute({ robotId, route, startPosition, startPoiId }) {
   robotRoutes.value[robotId] = route
   robotStartPoiIds.value[robotId] = startPoiId
 
+  // 同步更新 robotConfigs 中的 startPoiId，使 spreadPositionsMap / robotPaths 重新计算
+  setRobotStartPoi(robotId, startPoiId)
+
   if (route.length >= 2) {
     setRobotRoute(robotId, route)
+    // 刷新地图上的路线图层
+    updateRoutes()
     refreshAnnouncementLayer()
   }
 

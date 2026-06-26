@@ -954,6 +954,23 @@ export function useRobotManager(options) {
     return true
   }
 
+  // 编辑模式下设置机器人出发点 POI ID
+  function setRobotStartPoi(robotId, startPoiId) {
+    const config = robotConfigs.value.find((configItem) => configItem.id === robotId)
+    if (config) {
+      config.startPoiId = startPoiId
+      // 触发响应式更新，使 spreadPositionsMap / robotPaths 等 computed 重新计算
+      robotConfigs.value = [...robotConfigs.value]
+      // 同步保存到 localStorage
+      const currentConfigs = loadFromStorage(STORAGE_KEYS.CONFIGS, [...ROBOT_CONFIGS])
+      const savedIndex = currentConfigs.findIndex((configItem) => configItem.id === robotId)
+      if (savedIndex >= 0) {
+        currentConfigs[savedIndex].startPoiId = startPoiId
+        saveToStorage(STORAGE_KEYS.CONFIGS, currentConfigs)
+      }
+    }
+  }
+
   // 编辑模式下设置机器人位置
   function setRobotPosition(robotId, position) {
     const state = patrolState.get(robotId)
@@ -1015,6 +1032,7 @@ export function useRobotManager(options) {
     setRobotRoute,
     routeDisplayData,
     setRobotPosition,
+    setRobotStartPoi,
     updateSidebarStatus,
     get onPoiArrival() {
       return onPoiArrival.value
