@@ -9,11 +9,14 @@ libraries. The CDN build (`dist/cdn/bicMap.ext.min.js`) inlines them into a
 single file; the npm build references them as dependencies. Their copyright
 notices and license texts are reproduced below as required by their licenses.
 
-| 库 / Library | 版本 / Version | 许可证 / License |
-| --- | --- | --- |
-| [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) | 3.6.2 | BSD-3-Clause |
-| [Three.js](https://github.com/mrdoob/three.js) | 0.149.0 | MIT |
-| [Turf.js (@turf/turf)](https://github.com/Turfjs/turf) | 7.3.5 | MIT |
+| 库 / Library | 版本 / Version | 许可证 / License | 打包范围 / Bundled in |
+| --- | --- | --- | --- |
+| [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) | 3.6.2 | BSD-3-Clause | CDN |
+| [Three.js](https://github.com/mrdoob/three.js) | 0.149.0 | MIT | CDN |
+| [Turf.js (@turf/turf)](https://github.com/Turfjs/turf) | 7.3.5 | MIT | CDN |
+| [urdf-loader](https://github.com/gkjohnson/urdf-loaders) | 0.12.7 | Apache-2.0 | CDN + npm |
+
+> 说明：`maplibre-gl` / `three` / `@turf/turf` 在 npm 构建中作为 external 依赖由消费方安装，仅在 CDN 单文件产物中被内联；`urdf-loader` 未被列入 external，因此在 **CDN 与 npm 两种产物中均被打包再分发**。
 
 ---
 
@@ -193,4 +196,28 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+---
+
+## urdf-loader
+
+Apache License 2.0
+
+完整协议文本见 <https://www.apache.org/licenses/LICENSE-2.0>。版权与许可声明（来自上游 [gkjohnson/urdf-loaders](https://github.com/gkjohnson/urdf-loaders/blob/master/LICENSE)）如下：
+
+```
+Copyright 2020 California Institute of Technology
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```
