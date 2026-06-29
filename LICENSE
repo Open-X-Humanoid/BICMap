@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024-2026 北京人形机器人创新中心 (Beijing Humanoid Robot Innovation Center)
+Copyright (c) 2024-2026 北京人形机器人创新中心 (Beijing Innovation Center of Humanoid Robotics)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+This product bundles and redistributes third-party open source components.
+Their copyright notices and license texts are provided separately in
+THIRD-PARTY-LICENSES.md.
+
+本产品打包并再分发了第三方开源组件，其版权声明与许可证文本见同目录下的
+THIRD-PARTY-LICENSES.md。

@@ -8,7 +8,9 @@
   "main": "./dist/bic-map.umd.js",
   "module": "./dist/bic-map.mjs",
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "THIRD-PARTY-LICENSES.md"
   ],
   "publishConfig": {
     "registry": "https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/"

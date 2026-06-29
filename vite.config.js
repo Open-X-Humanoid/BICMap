@@ -13,6 +13,26 @@ const LIB_GLOBALS = {
   '@turf/turf': 'turf'
 }
 
+// CDN 单文件产物内联了第三方库，但上游 dist 未必携带版权横幅（如 maplibre-gl）。
+// 在产物头部注入聚合的署名横幅，确保 BSD/MIT/Apache 的版权声明随单文件一并分发。
+// 使用 /*! 前缀使其匹配 terser 的 comments: 'some'，不会被压缩删除。
+const CDN_LICENSE_BANNER = `/*!
+ * @license
+ * @preserve
+ * bic-map (@x-humanoid-cloud/bic-map)
+ * Copyright (c) 2024-2026 北京人形机器人创新中心 (Beijing Innovation Center of Humanoid Robotics)
+ * Released under the MIT License.
+ *
+ * This bundle inlines the following third-party open source libraries:
+ *   - MapLibre GL JS — Copyright (c) 2023 MapLibre contributors; portions Copyright (c) 2020 Mapbox — BSD-3-Clause
+ *   - Three.js       — Copyright (c) 2010-2023 three.js authors — MIT
+ *   - Turf.js        — Copyright (c) 2017 TurfJS — MIT
+ *   - urdf-loader    — Copyright 2020 California Institute of Technology — Apache-2.0
+ *
+ * Full copyright notices and license texts: see THIRD-PARTY-LICENSES.md
+ * (https://github.com/x-humanoid-cloud/bic-map/blob/main/THIRD-PARTY-LICENSES.md)
+ */`
+
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
   // 检查是否为 CDN 构建模式
@@ -40,7 +60,9 @@ export default defineConfig(({ command, mode }) => {
     },
     mangle: true,
     format: {
-      comments: false
+      // 保留含 @license / @preserve / Copyright 的版权横幅（含本产物注入的聚合署名横幅与
+      // 第三方库自带横幅），满足 MIT/BSD/Apache 等再分发的署名要求
+      comments: /@license|@preserve|@cc_on|Copyright/i
     }
   }
 
@@ -83,7 +105,12 @@ export default defineConfig(({ command, mode }) => {
           }
         },
         minify: 'terser',
-        terserOptions
+        // 用 terser 的 format.preamble 注入聚合署名横幅：它会被原样前置且不参与
+        // comments 过滤/压缩，是 lib 模式下最可靠的 banner 注入方式
+        terserOptions: {
+          ...terserOptions,
+          format: { ...terserOptions.format, preamble: CDN_LICENSE_BANNER }
+        }
       }
     } else {
       // npm 包构建：输出 ESM(.mjs) + UMD(.umd.js)，第三方依赖 external 由消费方安装

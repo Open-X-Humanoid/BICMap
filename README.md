@@ -111,11 +111,6 @@ pnpm build:all      # 同时构建 npm 包与 CDN 版本
 
 * [在线 API 文档](http://localhost:5173/)：示例门户与最新接口说明
 * [示例门户](http://localhost:5173/)：所有示例的可交互预览，点击卡片即可打开对应示例
-* 子模块说明文档：
-  * [机器人编排 robot](src/bicMap/core/robot/README.md)
-  * [导航 navigation](src/bicMap/core/navigation/README.md)
-  * [地图要素 mapFeatures](src/bicMap/core/mapFeatures/README.md)
-  * [覆盖物 overlay](src/bicMap/core/overlay/README.md)
 
 ## 技术栈
 
@@ -128,4 +123,6 @@ BicMap 构建于以下开源项目之上：
 
 ## License
 
-[MIT](./LICENSE) © 2024-2026 北京人形机器人创新中心 (Beijing Humanoid Robot Innovation Center)
+[MIT](./LICENSE) © 2024-2026 北京人形机器人创新中心 (Beijing Innovation Center of Humanoid Robotics)
+
+本项目打包并再分发了若干第三方开源库，其版权与许可证声明见 [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md)。
