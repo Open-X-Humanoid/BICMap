@@ -17,7 +17,7 @@
 
 <h5 align="center">室内外一体化的 GPU 地图渲染与交互解决方案 · 面向机器人场景</h5>
 
-[![BicMap 示例门户](src/examples/assets/home-thum/scene_airportGuide.png)](http://localhost:5173/)
+[![BicMap 示例门户](src/examples/assets/home-thum/indoor_pointCloud.png)](http://localhost:5173/)
 
 BicMap（`@x-humanoid-cloud/bic-map`）是一套基于 WebGL 的地图渲染库，在 [MapLibre GL](https://maplibre.org) + [Three.js](https://threejs.org) + [Turf](https://turfjs.org) 之上做了面向机器人业务的二次封装，提供 **室内 SLAM 地图、室外瓦片/高精地图、点云、3D 模型、POI 标注、绘制工具、路径规划与机器人编排** 等开箱即用的能力。
 
