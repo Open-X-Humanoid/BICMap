@@ -35,8 +35,6 @@ BicMap 将 **数据**（GeoJSON / 点云 / 机器人位姿）映射为一组可�
 
 ### NPM Module
 
-BicMap 发布在企业私有仓库，安装前需配置对应 registry：
-
 ```bash
 # .npmrc
 @x-humanoid-cloud:registry=https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/
