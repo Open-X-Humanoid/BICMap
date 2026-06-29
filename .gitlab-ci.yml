@@ -1,0 +1,63 @@
+variables:
+  REPO_DIR: image.x-humanoid-cloud.com/cloud/
+  SVC_NAME: bic-map
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^.*release.*$/'
+
+stages:
+  - prepare
+  - build
+  - prod-deploy
+
+prepare:
+  stage: prepare
+  script:
+    - echo "BUILD_ENV=prod" >> build.env
+    - echo "BUILD_VERSION=prod.`date +"%H%M"`.$CI_COMMIT_SHORT_SHA" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+
+pnpm-build:
+  stage: build
+  script:
+    - docker build -t local/node-pnpm:1.0  -f .Dockerfile .
+    - docker run -i --rm  -e BUILD_ENV=$BUILD_ENV -v $(pwd):/app --user 1000 local/node-pnpm:1.0
+  after_script:
+    - docker rmi -f local/node-pnpm:1.0 || true
+  artifacts:
+    paths:
+      - dist/web/
+  needs:
+    - prepare
+
+docker-build:
+  stage: build
+  script:
+    - docker build -t $REPO_DIR$SVC_NAME:$BUILD_VERSION .
+    - docker push $REPO_DIR$SVC_NAME:$BUILD_VERSION
+  after_script:
+    - docker rmi -f $REPO_DIR$SVC_NAME:$BUILD_VERSION || true
+  needs:
+    - prepare
+    - pnpm-build
+
+prod-deploy:
+  stage: prod-deploy
+  before_script:
+    - git clone --branch release git@git.x-humanoid-cloud.com:cloud/deployment.git
+  script:
+    - cd deployment/$SVC_NAME/overlays/prod/
+    - kustomize edit set image $REPO_DIR$SVC_NAME=$REPO_DIR$SVC_NAME:$BUILD_VERSION
+    - kustomize build .
+    - git add . && git commit -am "[$CI_PROJECT_NAME $BUILD_VERSION] $CI_COMMIT_BRANCH $CI_COMMIT_SHORT_SHA kustomize update"
+    - git pull --rebase origin release
+    - git push origin
+  needs:
+    - prepare
+    - pnpm-build
+    - docker-build
+  retry: 2
