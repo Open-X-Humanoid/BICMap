@@ -25,7 +25,8 @@
     "build:cdn:debug": "cross-env KEEP_CONSOLE=true vite build --mode cdn",
     "build:web": "vite build --mode web",
     "build:all:debug": "cross-env KEEP_CONSOLE=true pnpm run build && cross-env KEEP_CONSOLE=true pnpm run build:cdn",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:github": "bash sync-github.sh"
   },
   "dependencies": {
     "@turf/turf": "7.3.5",
