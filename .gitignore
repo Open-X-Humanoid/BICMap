@@ -26,3 +26,11 @@ dist-ssr
 .temp_public
 .pnpm-store
 .trae
+
+# 内部运维文件（仅保留在内网 GitLab，不推送到 GitHub）
+.cursor/
+.Dockerfile
+.gitlab-ci.yml
+Dockerfile
+nginx.conf
+pnpm.sh
