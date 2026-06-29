@@ -54,6 +54,7 @@ prod-deploy:
     - kustomize edit set image $REPO_DIR$SVC_NAME=$REPO_DIR$SVC_NAME:$BUILD_VERSION
     - kustomize build .
     - git add . && git commit -am "[$CI_PROJECT_NAME $BUILD_VERSION] $CI_COMMIT_BRANCH $CI_COMMIT_SHORT_SHA kustomize update"
+    - git pull --rebase origin release
     - git push origin
   needs:
     - prepare
