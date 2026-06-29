@@ -85,9 +85,10 @@ createApp(App).use(bicMap).mount('#app')
 
 | | | |
 | :---: | :---: | :---: |
-| ![SLAM 地图](src/examples/assets/home-thum/indoor_slam.png)<br/>室内 SLAM 地图 | ![点云](src/examples/assets/home-thum/indoor_pointCloud.png)<br/>二三维点云 | ![3D 模型](src/examples/assets/home-thum/indoor_load3dMarker.png)<br/>3D 空间数据 |
-| ![机器人跟随](src/examples/assets/home-thum/indoor_robotFollow.png)<br/>机器人视角跟随 | ![路径规划](src/examples/assets/home-thum/base_PathPlanning.png)<br/>路径规划 | ![地图编辑](src/examples/assets/home-thum/expand_MapEditor.png)<br/>地图编辑 |
-| ![室外瓦片](src/examples/assets/home-thum/outdoor_mapTiles.png)<br/>室外瓦片底图 | ![高精地图](src/examples/assets/home-thum/outdoor_hdMap.png)<br/>高精地图 | ![场景案例](src/examples/assets/home-thum/scene_hotelDelivery.png)<br/>机器人场景案例 |
+| ![机器人建图](src/examples/assets/home-thum/indoor_buildMap.png)<br/>机器人建图 | ![3D模型控制](src/examples/assets/home-thum/indoor_load3dControl.png)<br/>3D 模型控制 | ![实时位置更新](src/examples/assets/home-thum/indoor_location.png)<br/>实时位置更新 |
+| ![点位Marker](src/examples/assets/home-thum/base_POIMarkers.png)<br/>点位 Marker | ![图形绘制](src/examples/assets/home-thum/expand_GraphicDrawing.png)<br/>图形绘制 | ![扫地机器人场景](src/examples/assets/home-thum/scene_indoorCleaning.png)<br/>扫地机器人场景 |
+| ![三站一场地图引导](src/examples/assets/home-thum/scene_transportHub.png)<br/>三站一场地图引导 | ![博物馆导览讲解](src/examples/assets/home-thum/scene_robotGuideTour.png)<br/>博物馆导览讲解 | ![社区24h无人值守巡检](src/examples/assets/home-thum/scene_communityInspect.png)<br/>社区 24h 无人值守巡检 |
+| ![室外建筑物](src/examples/assets/home-thum/outdoor_buildings.png)<br/>室外建筑物 | ![室外点云](src/examples/assets/home-thum/outdoor_pointCloud.png)<br/>室外点云 | ![高精地图加载](src/examples/assets/home-thum/outdoor_hdMap.png)<br/>高精地图加载 |
 
 ## 本地开发与示例
 
@@ -120,6 +121,29 @@ BicMap 构建于以下开源项目之上：
 * [Three.js](https://threejs.org) — 3D 模型与自定义图层渲染
 * [Turf.js](https://turfjs.org) — 地理空间计算
 * [Vue 3](https://vuejs.org) + [Vite](https://vite.dev) — 示例门户与构建工具链
+
+## Contributors
+
+感谢以下开发者对 BicMap 的贡献：
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/JMSChen">
+        <img src="https://github.com/JMSChen.png" width="80" height="80" style="border-radius:50%" alt="JMSChen"/>
+        <br/>
+        <sub><b>JMSChen</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/lxycreate">
+        <img src="https://github.com/lxycreate.png" width="80" height="80" style="border-radius:50%" alt="lxycreate"/>
+        <br/>
+        <sub><b>lxycreate</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## License
 
