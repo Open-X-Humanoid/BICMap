@@ -13,7 +13,7 @@
   </a>
 </p>
 
-<h1 align="center">BicMap | <a href="http://localhost:5173/">在线文档</a></h1>
+<h1 align="center">BicMap | <a href="https://bicmap.x-humanoid-cloud.com/">在线文档</a></h1>
 
 <h5 align="center">室内外一体化的 GPU 地图渲染与交互解决方案 · 面向机器人场景</h5>
 
