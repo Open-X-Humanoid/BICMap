@@ -13,8 +13,8 @@
     <div class="footer-line"></div>
     <div class="footer-line-glow"></div>
 
+    <!-- 第一行：功能按钮区 -->
     <div class="footer-content">
-      <!-- 左侧按钮区 -->
       <div class="footer-left">
         <slot name="left">
           <TechButton
@@ -32,7 +32,6 @@
         </slot>
       </div>
 
-      <!-- 右侧按钮区（有内容时才渲染） -->
       <div class="footer-right" v-if="rightButtons.length || $slots.right">
         <slot name="right">
           <TechButton
@@ -49,6 +48,18 @@
           </TechButton>
         </slot>
       </div>
+    </div>
+
+    <!-- 第二行：版权声明 & ICP备案（独立行，不与按钮区混叠） -->
+    <div class="footer-beian">
+      <span>Copyright © 2026 北京人形机器人创新中心 版权所有 All Rights Reserved.</span>
+      <span class="footer-beian__sep">|</span>
+      <a
+        href="https://beian.miit.gov.cn/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-beian__link"
+      >京ICP备2024078606号-2</a>
     </div>
   </footer>
 </template>
@@ -103,6 +114,31 @@ defineProps({
 }
 .footer-left  { display: flex; align-items: center; gap: 12px; }
 .footer-right { display: flex; align-items: center; gap: 12px; }
+
+/* 版权备案行 */
+.footer-beian {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 24px 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+  border-top: 1px solid rgba(14, 165, 233, 0.08);
+}
+.footer-beian__sep {
+  opacity: 0.35;
+}
+.footer-beian__link {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.footer-beian__link:hover {
+  color: #1d81f5;
+}
 
 @keyframes slide-in-bottom {
   from { opacity: 0; }
