@@ -20,7 +20,10 @@
           瓦片配置
         </div>
 
-        <div class="hud-section-label">快捷预设</div>
+        <div class="hud-section-label">
+          快捷预设
+          <span class="hud-section-hint">仅供参考</span>
+        </div>
         <div class="hud-presets">
           <button
             v-for="preset in TILE_PRESETS"
@@ -34,6 +37,7 @@
         </div>
 
         <div class="hud-section-label">瓦片地址</div>
+        <div class="hud-notice">本地图引擎不提供地图服务，仅作为示例演示</div>
         <textarea
           v-model="tileUrl"
           class="hud-url-input"
@@ -85,9 +89,18 @@
           <span class="hud-label">缩放级别</span>
           <span class="hud-value">{{ currentZoom }}</span>
         </div>
-        <div class="hud-row">
+        <div class="hud-col">
           <span class="hud-label">归因</span>
           <span class="hud-value hud-value--sm">{{ currentAttribution || '—' }}</span>
+        </div>
+
+        <div class="hud-divider"></div>
+
+        <div class="hud-legal">
+          <div class="hud-legal-title">⚠ 合规声明</div>
+          <p>快捷预设均为第三方公开瓦片服务，<strong>仅供示例演示</strong>，不得用于生产环境。</p>
+          <p>使用 OpenStreetMap 数据须遵守 ODbL 授权协议并保留归因信息。</p>
+          <p>在中国境内使用网络地图服务须取得相应<strong>测绘资质</strong>，并确保符合《测绘法》坐标系要求。</p>
         </div>
       </div>
     </main>
@@ -120,18 +133,6 @@ const TILE_PRESETS = [
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileSize: 256,
     attribution: '© OpenStreetMap contributors'
-  },
-  {
-    name: 'ESRI 卫星',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    tileSize: 256,
-    attribution: '© Esri, Maxar, Earthstar Geographics'
-  },
-  {
-    name: 'CartoDB 浅色',
-    url: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    tileSize: 256,
-    attribution: '© CartoDB, © OpenStreetMap contributors'
   }
 ]
 
@@ -343,7 +344,7 @@ watch(tileSize, () => {
   top: 18px;
   right: 18px;
   z-index: 30;
-  width: 280px;
+  width: 327px;
   padding: 14px 16px 16px;
   border-radius: 14px;
   background: rgba(5, 18, 48, 0.82);
@@ -377,11 +378,28 @@ watch(tileSize, () => {
   }
 
   .hud-section-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.06em;
     color: #6a9fd8;
     margin-top: 4px;
+  }
+
+  .hud-section-hint {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: rgba(100, 140, 180, 0.6);
+  }
+
+  .hud-notice {
+    font-size: 10px;
+    color: rgba(100, 150, 200, 0.55);
+    line-height: 1.5;
+    margin-top: -2px;
   }
 
   .hud-presets {
@@ -455,6 +473,12 @@ watch(tileSize, () => {
     }
   }
 
+  .hud-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .hud-label {
     color: #8eb4e6;
     flex-shrink: 0;
@@ -473,8 +497,10 @@ watch(tileSize, () => {
 
     &--sm {
       font-size: 10px;
-      color: #7099c4;
+      color: #a0bfe0;
       font-family: inherit;
+      text-align: left;
+      word-break: break-word;
     }
   }
 
@@ -542,6 +568,32 @@ watch(tileSize, () => {
       transparent 100%
     );
     margin: 4px 0;
+  }
+
+  .hud-legal {
+    font-size: 10px;
+    color: rgba(120, 155, 200, 0.6);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .hud-legal-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(250, 190, 80, 0.7);
+      letter-spacing: 0.04em;
+      margin-bottom: 1px;
+    }
+
+    p {
+      margin: 0;
+
+      strong {
+        color: rgba(180, 210, 255, 0.75);
+        font-weight: 600;
+      }
+    }
   }
 }
 </style>
