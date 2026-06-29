@@ -67,7 +67,7 @@ cleanup() {
 trap cleanup EXIT
 
 # ── 在隔离 worktree 中基于当前提交创建临时过滤分支 ───────────────────────────
-info "创建临时过滤 worktree：$WORKTREE_DIR（分支 $TEMP_BRANCH）"
+info "创建临时过滤 worktree：${WORKTREE_DIR}（分支 ${TEMP_BRANCH}）"
 git worktree add --quiet -b "$TEMP_BRANCH" "$WORKTREE_DIR" "$SOURCE_COMMIT"
 
 # ── 检测哪些内部文件当前被 git 追踪（在临时 worktree 中操作）──────────────────
