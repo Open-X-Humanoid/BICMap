@@ -13,7 +13,8 @@
     "THIRD-PARTY-LICENSES.md"
   ],
   "publishConfig": {
-    "registry": "https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "scripts": {
     "dev": "vite",
