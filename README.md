@@ -29,7 +29,7 @@ BicMap 将 **数据**（GeoJSON / 点云 / 机器人位姿）映射为一组可�
 * 丰富的覆盖物：方向标记、批量 POI、机器人标记、矩形/多边形/圆形/折线/宽线段
 * 交互式绘制：矩形、多边形、折线、圆形、可通行区域绘制与编辑
 * 机器人能力：位姿跟随、重定位、实时定位、路径规划与回放、任务编排
-* 引擎内置：`maplibre-gl` / `three` / `@turf/turf` 通过 npm 静态打包，CSS 与字体运行时自动注入，零额外配置
+* 引擎内置：`maplibre-gl` / `three` / `@turf/turf` / `urdf-loader` 通过 npm 静态打包，CSS 与字体运行时自动注入，零额外配置
 
 ## 安装方式
 
@@ -90,6 +90,8 @@ createApp(App).use(bicMap).mount('#app')
 | ![三站一场地图引导](src/examples/assets/home-thum/scene_transportHub.png)<br/>三站一场地图引导 | ![博物馆导览讲解](src/examples/assets/home-thum/scene_robotGuideTour.png)<br/>博物馆导览讲解 | ![社区24h无人值守巡检](src/examples/assets/home-thum/scene_communityInspect.png)<br/>社区 24h 无人值守巡检 |
 | ![室外建筑物](src/examples/assets/home-thum/outdoor_buildings.png)<br/>室外建筑物 | ![室外点云](src/examples/assets/home-thum/outdoor_pointCloud.png)<br/>室外点云 | ![高精地图加载](src/examples/assets/home-thum/outdoor_hdMap.png)<br/>高精地图加载 |
 
+<p align="right"><a href="https://bicmap.x-humanoid-cloud.com/">查看更多示例 →</a></p>
+
 ## 本地开发与示例
 
 仓库内置了一套示例门户，覆盖室内/室外/基础/扩展/场景共 30+ 个示例：
@@ -121,6 +123,7 @@ BicMap 构建于以下开源项目之上：
 * [Three.js](https://threejs.org) — 3D 模型与自定义图层渲染
 * [Turf.js](https://turfjs.org) — 地理空间计算
 * [Vue 3](https://vuejs.org) + [Vite](https://vite.dev) — 示例门户与构建工具链
+* [urdf-loader](https://github.com/gkjohnson/urdf-loaders) — URDF 机器人模型加载
 
 ## Contributors
 
