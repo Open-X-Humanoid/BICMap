@@ -135,6 +135,13 @@ BicMap 构建于以下开源项目之上：
 <table>
   <tr>
     <td align="center">
+      <a href="https://github.com/mayanhui">
+        <img src="https://github.com/mayanhui.png" width="80" height="80" style="border-radius:50%" alt="mayanhui"/>
+        <br/>
+        <sub><b>mayanhui (Yuri)</b></sub>
+      </a>
+    </td>
+    <td align="center">
       <a href="https://github.com/HouserHao">
         <img src="https://github.com/HouserHao.png" width="80" height="80" style="border-radius:50%" alt="HouserHao"/>
         <br/>
