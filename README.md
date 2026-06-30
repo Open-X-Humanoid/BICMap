@@ -1,4 +1,8 @@
 <p align="right">
+  <a href="./README.en.md">English</a> | 中文
+</p>
+
+<p align="right">
   <a href="https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/">
     <img src="https://img.shields.io/badge/version-0.0.1-1d81f5.svg?style=flat-square" alt="version" />
   </a>
