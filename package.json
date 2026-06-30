@@ -1,7 +1,7 @@
 {
   "name": "@x-humanoid-cloud/bic-map",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GL地图库，室内外一体化的地图渲染与交互解决方案",
   "keywords": [
     "map",
