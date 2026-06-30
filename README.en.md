@@ -21,7 +21,7 @@
 
 <h5 align="center">Seamless indoor/outdoor GPU map rendering & interaction SDK · Built for robotics</h5>
 
-[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_pointCloud.png)](http://localhost:5173/)
+[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_pointCloud.png)](https://bicmap.x-humanoid-cloud.com/)
 
 BicMap (`@x-humanoid-cloud/bic-map`) is a WebGL-based map rendering library built on top of [MapLibre GL](https://maplibre.org), [Three.js](https://threejs.org), and [Turf](https://turfjs.org), extended with robotics-oriented features including **indoor SLAM maps, outdoor tile/HD maps, point clouds, 3D models, POI markers, drawing tools, path planning, and robot orchestration** — all ready to use out of the box.
 
@@ -95,7 +95,7 @@ The repository includes a built-in example portal covering 30+ examples across i
 
 ```bash
 pnpm install
-pnpm dev            # Start the example portal at http://localhost:5173/
+pnpm dev            # Start the example portal at https://bicmap.x-humanoid-cloud.com/
 ```
 
 Build commands:
@@ -109,8 +109,8 @@ pnpm build:all      # Build both npm package and CDN version
 
 ## Resources
 
-* [Online API Docs](http://localhost:5173/) — Example portal and latest API reference
-* [Example Portal](http://localhost:5173/) — Interactive preview of all examples; click any card to open the corresponding demo
+* [Online API Docs](https://bicmap.x-humanoid-cloud.com/) — Example portal and latest API reference
+* [Example Portal](https://bicmap.x-humanoid-cloud.com/) — Interactive preview of all examples; click any card to open the corresponding demo
 
 ## Tech Stack
 
@@ -129,10 +129,10 @@ Thanks to the following developers for their contributions to BicMap:
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/JMSChen">
-        <img src="https://github.com/JMSChen.png" width="80" height="80" style="border-radius:50%" alt="JMSChen"/>
+      <a href="https://github.com/HouserHao">
+        <img src="https://github.com/HouserHao.png" width="80" height="80" style="border-radius:50%" alt="HouserHao"/>
         <br/>
-        <sub><b>JMSChen</b></sub>
+        <sub><b>HouserHao</b></sub>
       </a>
     </td>
     <td align="center">

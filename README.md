@@ -21,7 +21,7 @@
 
 <h5 align="center">室内外一体化的 GPU 地图渲染与交互解决方案 · 面向机器人场景</h5>
 
-[![BicMap 示例门户](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_pointCloud.png)](http://localhost:5173/)
+[![BicMap 示例门户](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_pointCloud.png)](https://bicmap.x-humanoid-cloud.com/)
 
 BicMap（`@x-humanoid-cloud/bic-map`）是一套基于 WebGL 的地图渲染库，在 [MapLibre GL](https://maplibre.org) + [Three.js](https://threejs.org) + [Turf](https://turfjs.org) 之上做了面向机器人业务的二次封装，提供 **室内 SLAM 地图、室外瓦片/高精地图、点云、3D 模型、POI 标注、绘制工具、路径规划与机器人编排** 等开箱即用的能力。
 
@@ -95,7 +95,7 @@ createApp(App).use(bicMap).mount('#app')
 
 ```bash
 pnpm install
-pnpm dev            # 启动示例门户，默认 http://localhost:5173/
+pnpm dev            # 启动示例门户，默认 https://bicmap.x-humanoid-cloud.com/
 ```
 
 构建命令：
@@ -109,8 +109,8 @@ pnpm build:all      # 同时构建 npm 包与 CDN 版本
 
 ## 学习资源
 
-* [在线 API 文档](http://localhost:5173/)：示例门户与最新接口说明
-* [示例门户](http://localhost:5173/)：所有示例的可交互预览，点击卡片即可打开对应示例
+* [在线 API 文档](https://bicmap.x-humanoid-cloud.com/)：示例门户与最新接口说明
+* [示例门户](https://bicmap.x-humanoid-cloud.com/)：所有示例的可交互预览，点击卡片即可打开对应示例
 
 ## 技术栈
 
@@ -129,10 +129,10 @@ BicMap 构建于以下开源项目之上：
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/JMSChen">
-        <img src="https://github.com/JMSChen.png" width="80" height="80" style="border-radius:50%" alt="JMSChen"/>
+      <a href="https://github.com/HouserHao">
+        <img src="https://github.com/HouserHao.png" width="80" height="80" style="border-radius:50%" alt="HouserHao"/>
         <br/>
-        <sub><b>JMSChen</b></sub>
+        <sub><b>HouserHao</b></sub>
       </a>
     </td>
     <td align="center">
