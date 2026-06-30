@@ -164,7 +164,15 @@ export function addRobotMarkers(map, robots = [], options = {}) {
     const robotName = robot.name || '未命名机器人';
     // 限制显示10个字符，超出显示...
     const displayName = robotName.length > 10 ? robotName.substring(0, 10) + '...' : robotName;
-    nameCell.innerHTML = `<span style="color:#FFFFFF;font-size:12px;font-weight:bold;font-family:Harmony Regular,sans-serif;line-height:1;white-space:nowrap;">${displayName}</span>`;
+    const nameSpan = document.createElement('span');
+    nameSpan.style.color = '#FFFFFF';
+    nameSpan.style.fontSize = '12px';
+    nameSpan.style.fontWeight = 'bold';
+    nameSpan.style.fontFamily = 'Harmony Regular,sans-serif';
+    nameSpan.style.lineHeight = '1';
+    nameSpan.style.whiteSpace = 'nowrap';
+    nameSpan.textContent = displayName;
+    nameCell.appendChild(nameSpan);
     
     // 创建气泡箭头 (蓝色，与下部分同色)
     // const arrow = document.createElement('div');
