@@ -109,8 +109,14 @@ pnpm build:all      # Build both npm package and CDN version
 
 ## Resources
 
-* [Online API Docs](https://bicmap.x-humanoid-cloud.com/) — Example portal and latest API reference
-* [Example Portal](https://bicmap.x-humanoid-cloud.com/) — Interactive preview of all examples; click any card to open the corresponding demo
+* [Online Docs & Example Portal](https://bicmap.x-humanoid-cloud.com/) — Latest API reference and interactive preview of all examples; click any card to open the corresponding demo
+
+## Ecosystem
+
+| Project | Description | Repository |
+|---------|-------------|------------|
+| **BICMap-Mobile** | Mobile app built with uni-app (Vue3 + Vite), integrating BicMap via renderJS for scenes like SLAM mapping | [GitHub](https://github.com/Open-X-Humanoid/BICMap-Mobile) |
+| **BICMap-Python** | Lets Python code drive the BicMap JS SDK directly through a pywebview desktop container and JS Bridge, enabling map rendering and data visualization from Python | [GitHub](https://github.com/Open-X-Humanoid/BICMap-Python) |
 
 ## Tech Stack
 

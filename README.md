@@ -109,8 +109,14 @@ pnpm build:all      # 同时构建 npm 包与 CDN 版本
 
 ## 学习资源
 
-* [在线 API 文档](https://bicmap.x-humanoid-cloud.com/)：示例门户与最新接口说明
-* [示例门户](https://bicmap.x-humanoid-cloud.com/)：所有示例的可交互预览，点击卡片即可打开对应示例
+* [在线文档 & 示例门户](https://bicmap.x-humanoid-cloud.com/)：最新接口说明与所有示例的可交互预览，点击卡片即可打开对应示例
+
+## 生态项目
+
+| 项目 | 说明 | 仓库 |
+|------|------|------|
+| **BICMap-Mobile** | 基于 uni-app（Vue3 + Vite）的移动端应用，通过 renderJS 模式集成 BicMap，实现 SLAM 建图等场景 | [GitHub](https://github.com/Open-X-Humanoid/BICMap-Mobile) |
+| **BICMap-Python** | 通过 pywebview 桌面容器 + JS Bridge，让 Python 代码直接调用 BicMap JS SDK 进行地图展示与数据渲染 | [GitHub](https://github.com/Open-X-Humanoid/BICMap-Python) |
 
 ## 技术栈
 
