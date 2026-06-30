@@ -79,7 +79,7 @@
     "@vitejs/plugin-vue": "^5.2.2",
     "cross-env": "^7.0.3",
     "events": "^3.3.0",
-    "fabric": "^6.7.0",
+    "fabric": "^7.4.0",
     "lucide-vue-next": "^0.577.0",
     "sass-embedded": "^1.99.0",
     "terser": "^5.42.0",

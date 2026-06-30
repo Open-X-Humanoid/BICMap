@@ -127,6 +127,7 @@ BicMap is built on top of the following open-source projects:
 * [Turf.js](https://turfjs.org) — Geospatial computation
 * [Vue 3](https://vuejs.org) + [Vite](https://vite.dev) — Example portal and build toolchain
 * [urdf-loader](https://github.com/gkjohnson/urdf-loaders) — URDF robot model loading
+* [Fabric.js](https://fabricjs.com) — Canvas-based drawing engine for the map editor in the example portal
 
 ## Contributors
 

@@ -614,6 +614,8 @@ class WorkspacePlugin {
       top: top,
       width: width,
       height: height,
+      originX: 'left',
+      originY: 'top',
       absolutePositioned: true,
       name: 'clipPath'
     });
