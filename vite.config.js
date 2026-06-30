@@ -30,7 +30,7 @@ const CDN_LICENSE_BANNER = `/*!
  *   - urdf-loader    — Copyright 2020 California Institute of Technology — Apache-2.0
  *
  * Full copyright notices and license texts: see THIRD-PARTY-LICENSES.md
- * (https://github.com/x-humanoid-cloud/bic-map/blob/main/THIRD-PARTY-LICENSES.md)
+ * (https://github.com/Open-X-Humanoid/BICMap/blob/develop/THIRD-PARTY-LICENSES.md)
  */`
 
 // https://vite.dev/config/
