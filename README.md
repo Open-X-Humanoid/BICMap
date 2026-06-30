@@ -1,5 +1,9 @@
 <p align="right">
-  <a href="https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/">
+  <a href="./README.en.md">English</a> | 中文
+</p>
+
+<p align="right">
+  <a href="https://www.npmjs.com/package/@x-humanoid-cloud/bic-map">
     <img src="https://img.shields.io/badge/version-0.0.1-1d81f5.svg?style=flat-square" alt="version" />
   </a>
   <a href="./LICENSE">
@@ -17,7 +21,7 @@
 
 <h5 align="center">室内外一体化的 GPU 地图渲染与交互解决方案 · 面向机器人场景</h5>
 
-[![BicMap 示例门户](src/examples/assets/home-thum/indoor_pointCloud.png)](http://localhost:5173/)
+[![BicMap 示例门户](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_pointCloud.png)](https://bicmap.x-humanoid-cloud.com/)
 
 BicMap（`@x-humanoid-cloud/bic-map`）是一套基于 WebGL 的地图渲染库，在 [MapLibre GL](https://maplibre.org) + [Three.js](https://threejs.org) + [Turf](https://turfjs.org) 之上做了面向机器人业务的二次封装，提供 **室内 SLAM 地图、室外瓦片/高精地图、点云、3D 模型、POI 标注、绘制工具、路径规划与机器人编排** 等开箱即用的能力。
 
@@ -34,11 +38,6 @@ BicMap 将 **数据**（GeoJSON / 点云 / 机器人位姿）映射为一组可�
 ## 安装方式
 
 ### NPM Module
-
-```bash
-# .npmrc
-@x-humanoid-cloud:registry=https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/
-```
 
 ```bash
 pnpm add @x-humanoid-cloud/bic-map
@@ -83,10 +82,10 @@ createApp(App).use(bicMap).mount('#app')
 
 | | | |
 | :---: | :---: | :---: |
-| ![机器人建图](src/examples/assets/home-thum/indoor_buildMap.png)<br/>机器人建图 | ![3D模型控制](src/examples/assets/home-thum/indoor_load3dControl.png)<br/>3D 模型控制 | ![实时位置更新](src/examples/assets/home-thum/indoor_location.png)<br/>实时位置更新 |
-| ![点位Marker](src/examples/assets/home-thum/base_POIMarkers.png)<br/>点位 Marker | ![图形绘制](src/examples/assets/home-thum/expand_GraphicDrawing.png)<br/>图形绘制 | ![扫地机器人场景](src/examples/assets/home-thum/scene_indoorCleaning.png)<br/>扫地机器人场景 |
-| ![三站一场地图引导](src/examples/assets/home-thum/scene_transportHub.png)<br/>三站一场地图引导 | ![博物馆导览讲解](src/examples/assets/home-thum/scene_robotGuideTour.png)<br/>博物馆导览讲解 | ![社区24h无人值守巡检](src/examples/assets/home-thum/scene_communityInspect.png)<br/>社区 24h 无人值守巡检 |
-| ![室外建筑物](src/examples/assets/home-thum/outdoor_buildings.png)<br/>室外建筑物 | ![室外点云](src/examples/assets/home-thum/outdoor_pointCloud.png)<br/>室外点云 | ![高精地图加载](src/examples/assets/home-thum/outdoor_hdMap.png)<br/>高精地图加载 |
+| ![机器人建图](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_buildMap.png)<br/>机器人建图 | ![3D模型控制](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_load3dControl.png)<br/>3D 模型控制 | ![实时位置更新](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/indoor_location.png)<br/>实时位置更新 |
+| ![点位Marker](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/base_POIMarkers.png)<br/>点位 Marker | ![图形绘制](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/expand_GraphicDrawing.png)<br/>图形绘制 | ![扫地机器人场景](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/scene_indoorCleaning.png)<br/>扫地机器人场景 |
+| ![三站一场地图引导](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/scene_transportHub.png)<br/>三站一场地图引导 | ![博物馆导览讲解](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/scene_robotGuideTour.png)<br/>博物馆导览讲解 | ![社区24h无人值守巡检](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/scene_communityInspect.png)<br/>社区 24h 无人值守巡检 |
+| ![室外建筑物](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/outdoor_buildings.png)<br/>室外建筑物 | ![室外点云](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/outdoor_pointCloud.png)<br/>室外点云 | ![高精地图加载](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/main/src/examples/assets/home-thum/outdoor_hdMap.png)<br/>高精地图加载 |
 
 <p align="right"><a href="https://bicmap.x-humanoid-cloud.com/">查看更多示例 →</a></p>
 
@@ -96,7 +95,7 @@ createApp(App).use(bicMap).mount('#app')
 
 ```bash
 pnpm install
-pnpm dev            # 启动示例门户，默认 http://localhost:5173/
+pnpm dev            # 启动示例门户，默认 https://bicmap.x-humanoid-cloud.com/
 ```
 
 构建命令：
@@ -110,8 +109,8 @@ pnpm build:all      # 同时构建 npm 包与 CDN 版本
 
 ## 学习资源
 
-* [在线 API 文档](http://localhost:5173/)：示例门户与最新接口说明
-* [示例门户](http://localhost:5173/)：所有示例的可交互预览，点击卡片即可打开对应示例
+* [在线 API 文档](https://bicmap.x-humanoid-cloud.com/)：示例门户与最新接口说明
+* [示例门户](https://bicmap.x-humanoid-cloud.com/)：所有示例的可交互预览，点击卡片即可打开对应示例
 
 ## 技术栈
 
@@ -130,10 +129,10 @@ BicMap 构建于以下开源项目之上：
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/JMSChen">
-        <img src="https://github.com/JMSChen.png" width="80" height="80" style="border-radius:50%" alt="JMSChen"/>
+      <a href="https://github.com/HouserHao">
+        <img src="https://github.com/HouserHao.png" width="80" height="80" style="border-radius:50%" alt="HouserHao"/>
         <br/>
-        <sub><b>JMSChen</b></sub>
+        <sub><b>HouserHao</b></sub>
       </a>
     </td>
     <td align="center">
@@ -141,6 +140,27 @@ BicMap 构建于以下开源项目之上：
         <img src="https://github.com/lxycreate.png" width="80" height="80" style="border-radius:50%" alt="lxycreate"/>
         <br/>
         <sub><b>lxycreate</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/yinwensong">
+        <img src="https://github.com/yinwensong.png" width="80" height="80" style="border-radius:50%" alt="yinwensong"/>
+        <br/>
+        <sub><b>yinwensong</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tianxiangLee">
+        <img src="https://github.com/tianxiangLee.png" width="80" height="80" style="border-radius:50%" alt="tianxiangLee"/>
+        <br/>
+        <sub><b>tianxiangLee</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Zy9907yy">
+        <img src="https://github.com/Zy9907yy.png" width="80" height="80" style="border-radius:50%" alt="Zy9907yy"/>
+        <br/>
+        <sub><b>Zy9907yy</b></sub>
       </a>
     </td>
   </tr>
