@@ -40,11 +40,6 @@ BicMap 将 **数据**（GeoJSON / 点云 / 机器人位姿）映射为一组可�
 ### NPM Module
 
 ```bash
-# .npmrc
-@x-humanoid-cloud:registry=https://maven.x-humanoid-cloud.com/repository/pnpm-hosted/
-```
-
-```bash
 pnpm add @x-humanoid-cloud/bic-map
 ```
 
@@ -145,6 +140,27 @@ BicMap 构建于以下开源项目之上：
         <img src="https://github.com/lxycreate.png" width="80" height="80" style="border-radius:50%" alt="lxycreate"/>
         <br/>
         <sub><b>lxycreate</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/yinwensong">
+        <img src="https://github.com/yinwensong.png" width="80" height="80" style="border-radius:50%" alt="yinwensong"/>
+        <br/>
+        <sub><b>yinwensong</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tianxiangLee">
+        <img src="https://github.com/tianxiangLee.png" width="80" height="80" style="border-radius:50%" alt="tianxiangLee"/>
+        <br/>
+        <sub><b>tianxiangLee</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Zy9907yy">
+        <img src="https://github.com/Zy9907yy.png" width="80" height="80" style="border-radius:50%" alt="Zy9907yy"/>
+        <br/>
+        <sub><b>Zy9907yy</b></sub>
       </a>
     </td>
   </tr>
