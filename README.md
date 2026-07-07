@@ -180,6 +180,14 @@ BicMap 构建于以下开源项目之上：
   </tr>
 </table>
 
+## 联系我们
+
+欢迎微信扫码加入社群，获取最新动态与技术支持：
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/src/examples/assets/contact_us.png" width="400" alt="微信扫码加入群聊"/>
+</p>
+
 ## License
 
 [MIT](./LICENSE) © 2024-2026 北京人形机器人创新中心 (Beijing Innovation Center of Humanoid Robotics)

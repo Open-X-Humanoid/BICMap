@@ -180,6 +180,14 @@ Thanks to the following developers for their contributions to BicMap:
   </tr>
 </table>
 
+## Contact Us
+
+Scan the QR code below to join our WeChat community for the latest updates and technical support:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/src/examples/assets/contact_us.png" width="400" alt="Scan to join WeChat group"/>
+</p>
+
 ## License
 
 [MIT](./LICENSE) © 2024-2026 Beijing Innovation Center of Humanoid Robotics
