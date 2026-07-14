@@ -21,7 +21,7 @@
 
 <h5 align="center">Seamless indoor/outdoor GPU map rendering & interaction SDK · Built for robotics</h5>
 
-[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/src/examples/assets/home-thum/indoor_pointCloud.png)](https://bicmap.x-humanoid-cloud.com/)
+[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/src/examples/assets/home-thum/scene_robotGuideTour.png)](https://bicmap.x-humanoid-cloud.com/)
 
 BicMap (`@x-humanoid-cloud/bic-map`) is a WebGL-based map rendering library built on top of [MapLibre GL](https://maplibre.org), [Three.js](https://threejs.org), and [Turf](https://turfjs.org), extended with robotics-oriented features including **indoor SLAM maps, outdoor tile/HD maps, point clouds, 3D models, POI markers, drawing tools, path planning, and robot orchestration** — all ready to use out of the box.
 
@@ -136,13 +136,6 @@ Thanks to the following developers for their contributions to BicMap:
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/mayanhui">
-        <img src="https://github.com/mayanhui.png" width="80" height="80" style="border-radius:50%" alt="mayanhui"/>
-        <br/>
-        <sub><b>mayanhui (Yuri)</b></sub>
-      </a>
-    </td>
-    <td align="center">
       <a href="https://github.com/HouserHao">
         <img src="https://github.com/HouserHao.png" width="80" height="80" style="border-radius:50%" alt="HouserHao"/>
         <br/>
@@ -175,6 +168,13 @@ Thanks to the following developers for their contributions to BicMap:
         <img src="https://github.com/Zy9907yy.png" width="80" height="80" style="border-radius:50%" alt="Zy9907yy"/>
         <br/>
         <sub><b>Zy9907yy</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/mayanhui">
+        <img src="https://github.com/mayanhui.png" width="80" height="80" style="border-radius:50%" alt="mayanhui"/>
+        <br/>
+        <sub><b>mayanhui (Yuri)</b></sub>
       </a>
     </td>
   </tr>
