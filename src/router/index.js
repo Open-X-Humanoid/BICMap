@@ -167,10 +167,16 @@ const routes = [
     meta: { title: '地图编辑' }
   },
   {
-    path: '/expand/GraphicDrawing',
-    name: 'GraphicDrawing',
-    component: () => import('../examples/expand/GraphicDrawing/index.vue'),
-    meta: { title: '图形绘制' }
+    path: '/expand/PcdViewer',
+    name: 'pcdViewer',
+    component: () => import('../examples/expand/PcdViewer/index.vue'),
+    meta: { title: 'PCD点云加载' }
+  },
+  {
+    path: '/expand/PathPlanning',
+    name: 'PathPlanning',
+    component: () => import('../examples/base/pathPlanning/index.vue'),
+    meta: { title: '路径规划' }
   },
   {
     path: '/base/passableArea',
