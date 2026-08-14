@@ -47,6 +47,9 @@ importers:
       lucide-vue-next:
         specifier: ^0.577.0
         version: 0.577.0(vue@3.5.13)
+      pcl.js:
+        specifier: ^1.16.0
+        version: 1.16.0
       sass-embedded:
         specifier: ^1.99.0
         version: 1.99.0
@@ -1428,6 +1431,10 @@ packages:
   pbf@3.3.0:
     resolution: {integrity: sha512-XDF38WCH3z5OV/OVa8GKUNtLAyneuzbCisx7QUCF8Q6Nutx0WnJrQe5O+kOtBlLfRNUws98Y58Lblp+NJG5T4Q==}
     hasBin: true
+
+  pcl.js@1.16.0:
+    resolution: {integrity: sha512-/Us4by9meeEqG4EkB2T2S0VqpWdxREPqsgVhRmt4jdiXf5wrMkbR650II3hjjxkhmnIzVa6JfhWPITz1Fy1kyg==}
+    engines: {node: '>=14.0.0'}
 
   perfect-debounce@2.1.0:
     resolution: {integrity: sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g==}
@@ -4046,6 +4053,10 @@ snapshots:
     dependencies:
       ieee754: 1.2.1
       resolve-protobuf-schema: 2.1.0
+
+  pcl.js@1.16.0:
+    dependencies:
+      three: 0.149.0
 
   perfect-debounce@2.1.0: {}
 

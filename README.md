@@ -128,6 +128,7 @@ BicMap 构建于以下开源项目之上：
 * [Vue 3](https://vuejs.org) + [Vite](https://vite.dev) — 示例门户与构建工具链
 * [urdf-loader](https://github.com/gkjohnson/urdf-loaders) — URDF 机器人模型加载
 * [Fabric.js](https://fabricjs.com) — 示例门户中地图编辑器的 Canvas 绘图引擎
+* [PCL.js](https://github.com/PointCloudLibrary/pcl) — 点云处理
 
 ## Contributors
 

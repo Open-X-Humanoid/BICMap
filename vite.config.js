@@ -71,7 +71,7 @@ export default defineConfig(({ command, mode }) => {
       vue()
     ],
     publicDir,
-    assetsInclude: ['**/*.bmp'],
+    assetsInclude: ['**/*.bmp', '**/*.pcd'],
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src')

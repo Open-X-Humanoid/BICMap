@@ -12,6 +12,9 @@ const DEFAULT_OPTIONS = {
     [1, '#ff5a5a']
   ],
   zRange: [0, 5],
+  // 逐点颜色 Float32Array（长度 = 点数 × 3，分量 0~1）。传入后优先于 pointColor / colorMap，
+  // 供调用方自带 RGB / 强度等着色结果的场景使用
+  colors: null,
   heightScale: 1,
   heightOffset: 0,
   sizeAttenuation: false,
@@ -56,6 +59,7 @@ function getColorFromZ(z, range, colorMap) {
  * @param {Object} map - maplibre 地图实例
  * @param {Array<[number,number,number?]>} points - 点云数据 [lng, lat, z?]
  * @param {Object} [options]
+ * @param {Float32Array} [options.colors] - 逐点颜色（长度 = 点数 × 3，分量 0~1），优先级高于 pointColor / colorMap
  * @returns {Object} 控制器：update / show / hide / remove / getPoints / getOptions
  */
 export function createPointCloud3D(map, points = [], options = {}) {
@@ -112,13 +116,13 @@ export function createPointCloud3D(map, points = [], options = {}) {
     const colors = new Float32Array(count * 3)
     const baseColor = hexToRgb(opts.pointColor)
     const invMPM = 1 / metersPerMercator
+    const srcColors = opts.colors && opts.colors.length >= count * 3 ? opts.colors : null
 
     for (let i = 0; i < count; i++) {
       const p = pointsData[i]
       const z = p.length > 2 && p[2] !== undefined ? p[2] : 0
       const altitude = z * opts.heightScale + opts.heightOffset
       const mc = maplibregl.MercatorCoordinate.fromLngLat({ lng: p[0], lat: p[1] }, altitude)
-      const color = opts.useColorMap ? getColorFromZ(z, opts.zRange, opts.colorMap) : baseColor
 
       const o = i * 3
       // 东向米：mercator x 正方向即东，直接用
@@ -127,9 +131,17 @@ export function createPointCloud3D(map, points = [], options = {}) {
       positions[o + 1] = -(mc.y - originMC.y) * invMPM
       // 上向米：mercator z 正方向即高度，直接用
       positions[o + 2] = (mc.z - originMC.z) * invMPM
-      colors[o] = color[0]
-      colors[o + 1] = color[1]
-      colors[o + 2] = color[2]
+
+      if (srcColors) {
+        colors[o] = srcColors[o]
+        colors[o + 1] = srcColors[o + 1]
+        colors[o + 2] = srcColors[o + 2]
+      } else {
+        const color = opts.useColorMap ? getColorFromZ(z, opts.zRange, opts.colorMap) : baseColor
+        colors[o] = color[0]
+        colors[o + 1] = color[1]
+        colors[o + 2] = color[2]
+      }
     }
 
     if (geometry) geometry.dispose()
