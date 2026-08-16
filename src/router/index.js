@@ -173,12 +173,6 @@ const routes = [
     meta: { title: 'PCD点云加载' }
   },
   {
-    path: '/expand/PathPlanning',
-    name: 'PathPlanning',
-    component: () => import('../examples/base/pathPlanning/index.vue'),
-    meta: { title: '路径规划' }
-  },
-  {
     path: '/base/passableArea',
     name: 'PassableArea',
     component: () => import('../examples/base/passableArea/index.vue'),
