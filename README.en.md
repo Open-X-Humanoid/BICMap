@@ -21,7 +21,7 @@
 
 <h5 align="center">Seamless indoor/outdoor GPU map rendering & interaction SDK · Built for robotics</h5>
 
-[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/src/examples/assets/home-thum/scene_robotGuideTour.png)](https://bicmap.x-humanoid-cloud.com/)
+[![BicMap Example Portal](https://raw.githubusercontent.com/Open-X-Humanoid/BICMap/develop/cover.gif)](https://bicmap.x-humanoid-cloud.com/)
 
 BicMap (`@x-humanoid-cloud/bic-map`) is a WebGL-based map rendering library built on top of [MapLibre GL](https://maplibre.org), [Three.js](https://threejs.org), and [Turf](https://turfjs.org), extended with robotics-oriented features including **indoor SLAM maps, outdoor tile/HD maps, point clouds, 3D models, POI markers, drawing tools, path planning, and robot orchestration** — all ready to use out of the box.
 
