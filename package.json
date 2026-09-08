@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@turf/turf": "7.3.5",
-    "maplibre-gl": "3.6.2",
+    "maplibre-gl": "6.4.1",
     "three": "0.149.0",
     "urdf-loader": "^0.12.5",
     "pcl.js": "^1.16.0",
