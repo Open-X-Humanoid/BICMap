@@ -25,6 +25,14 @@
       </div>
     </Transition>
 
+    <!-- 规划失败提示 -->
+    <Transition name="toast-fade">
+      <div v-if="navError" class="error-toast" role="alert">
+        <TriangleAlert :size="15" />
+        <span>{{ navError }}</span>
+      </div>
+    </Transition>
+
     <main class="map-area">
       <div class="grid-bg"></div>
 
@@ -53,14 +61,14 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { CheckCircle, Eye, EyeOff, MapPin, Navigation, X } from 'lucide-vue-next'
+import { CheckCircle, Eye, EyeOff, MapPin, Navigation, TriangleAlert, X } from 'lucide-vue-next'
 import URDFPlugin from '../../../bicMap/core/urdf'
 
 import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
 
 import bicMap from '../../../bicMap/core/bicmap-gl'
-import slamImage from '../../assets/slam_transparent.png'
+import slamImage from '../../assets/slam_pathplan.png'
 
 // ===== SLAM 地图参数 =====
 const MAP_START_X      = -58.999993705749512
@@ -84,7 +92,9 @@ const ROBOT_SPEED          = 0.35   // m/s（慢走速度，便于观察 3D 关�
 const ANIM_FRAME_MS        = 50     // ms
 const MAP_ZOOM_FACTOR      = 2
 const GRID_STRIDE          = 10
-const LUMA_THRESHOLD       = 120
+// 像素颜色与可通行背景色的距离平方超过此值即视为障碍。
+// 相比固定亮度阈值，可识别浅色家具描边和不同底色的 SLAM 地图。
+const OBSTACLE_COLOR_DISTANCE = 600
 const WALL_PENALTY         = 2.6
 const TURN_PENALTY         = 4.0
 const DIAGONAL_PENALTY     = 1.2
@@ -113,6 +123,7 @@ const loadingText   = ref('加载地图…')
 const modelLoaded   = ref(false)
 const isNavigating  = ref(false)
 const navSuccess    = ref(false)
+const navError      = ref('')
 const robotLngLat   = ref([...MAP_CENTER])
 const isFPV         = ref(false)   // 第一视角（机器人眼睛方向）
 
@@ -143,6 +154,7 @@ let walkPhase       = 0      // 行走相位（rad）
 let currentBearing  = 0      // 机器人当前朝向（°），FPV 实时跟随用
 let targetMarkerCtrl = null
 let successTimer    = null
+let errorTimer      = null
 
 // 路径可视化状态
 let navStartPos  = null
@@ -162,6 +174,7 @@ onMounted(initMap)
 
 onBeforeUnmount(() => {
   clearTimeout(successTimer)
+  clearTimeout(errorTimer)
   clearInterval(animIntervalId)
   clearInterval(walkIntervalId)
   animIntervalId = null
@@ -550,7 +563,7 @@ function animateRobotAlongPath(waypoints) {
   runSegment()
 }
 
-// ===== 路径规划（与 singleNavigation 完全一致） =====
+// ===== 路径规划（与 pathPlanning 示例保持一致） =====
 
 function lngLatToPixel(lng, lat) {
   const Mu = window.MapUtils
@@ -583,23 +596,84 @@ function logicalCenterToLngLat(ci, cj) {
   return [gps.longitude, gps.latitude]
 }
 
+/**
+ * 从非透明像素中统计主色，自动识别 SLAM 图的可通行区域背景色。
+ * 颜色按每通道高 6 位量化，避免抗锯齿产生大量相近色。
+ */
+function detectBackgroundColor(data, w, h) {
+  const freq = new Map()
+  const step = 6
+
+  for (let y = 0; y < h; y += step) {
+    const rowBase = y * w
+    for (let x = 0; x < w; x += step) {
+      const i = (rowBase + x) * 4
+      if (data[i + 3] < 10) continue
+      const key = ((data[i] >> 2) << 12) | ((data[i + 1] >> 2) << 6) | (data[i + 2] >> 2)
+      freq.set(key, (freq.get(key) || 0) + 1)
+    }
+  }
+
+  let bestKey = -1
+  let bestCount = -1
+  for (const [key, count] of freq) {
+    if (count > bestCount) {
+      bestKey = key
+      bestCount = count
+    }
+  }
+
+  if (bestKey < 0) return [255, 255, 255]
+  return [
+    ((bestKey >> 12) & 0x3f) << 2,
+    ((bestKey >> 6) & 0x3f) << 2,
+    (bestKey & 0x3f) << 2
+  ]
+}
+
 function rebuildOccupancy() {
   const canvas = document.getElementById('canvasCtrl')
   if (!canvas) return
   const ctx  = canvas.getContext('2d')
+  if (!ctx) return
+  const w = canvas.width
+  const h = canvas.height
   const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const s    = GRID_STRIDE
   logicalCols = Math.ceil(MAP_X_GRID_COUNT / s)
   logicalRows = Math.ceil(MAP_Y_GRID_COUNT / s)
+
+  const bg = detectBackgroundColor(data, w, h)
+  const isObstaclePixel = (px, py) => {
+    const i = (py * w + px) * 4
+    if (data[i + 3] < 10) return true
+    const dr = data[i] - bg[0]
+    const dg = data[i + 1] - bg[1]
+    const db = data[i + 2] - bg[2]
+    return dr * dr + dg * dg + db * db > OBSTACLE_COLOR_DISTANCE
+  }
+
   walkableGrid = []
   for (let cj = 0; cj < logicalRows; cj++) {
     const row = []
+    const y0 = cj * s
+    const yEnd = Math.min(h, y0 + s)
     for (let ci = 0; ci < logicalCols; ci++) {
-      const px   = Math.min(canvas.width - 1,  ci * s + Math.floor(s / 2))
-      const py   = Math.min(canvas.height - 1, cj * s + Math.floor(s / 2))
-      const base = (py * canvas.width + px) * 4
-      const r = data[base], g = data[base + 1], b = data[base + 2], a = data[base + 3]
-      row.push(a < 10 ? false : (0.2126 * r + 0.7152 * g + 0.0722 * b) >= LUMA_THRESHOLD)
+      const x0 = ci * s
+      const xEnd = Math.min(w, x0 + s)
+
+      // 扫描整个逻辑格，而不是只取中心像素。格内命中任意墙体、家具描边
+      // 或透明区域即判障碍，避免细线被跳过后路线穿墙。
+      let obstacle = false
+      for (let py = y0; py < yEnd && !obstacle; py++) {
+        for (let px = x0; px < xEnd; px++) {
+          if (isObstaclePixel(px, py)) {
+            obstacle = true
+            break
+          }
+        }
+      }
+      row.push(!obstacle)
     }
     walkableGrid.push(row)
   }
@@ -712,6 +786,10 @@ function astar(start, goal) {
       const [dx, dy] = NEI8[dir]
       const nc = cc + dx, nr = cr + dy
       if (nc < 0 || nr < 0 || nc >= cols || nr >= rows || !walkableGrid[nr][nc]) continue
+      // 斜向移动时，两侧正交格也必须可走，禁止从墙角缝隙切过去。
+      if (dx !== 0 && dy !== 0) {
+        if (!walkableGrid[cr][nc] || !walkableGrid[nr][cc]) continue
+      }
       const ni       = idx(nc, nr)
       const turnCost = (cameDir[cur] === -1 || cameDir[cur] === dir) ? 0 : TURN_PENALTY
       const tentative = gScore[cur] + stepCost(dx, dy) + wallCost(nc, nr) + turnCost
@@ -806,12 +884,15 @@ function toggleNavigation() {
 
 function startNavigation() {
   if (!map || !modelLoaded.value) return
+  navError.value = ''
   isNavigating.value = true
   map.on('click', handleMapClick)
   map.getCanvas().style.cursor = 'crosshair'
 }
 
 function stopNavigation() {
+  clearTimeout(errorTimer)
+  navError.value = ''
   clearInterval(animIntervalId)
   animIntervalId = null
   stopWalkAnimation()
@@ -827,7 +908,9 @@ function stopNavigation() {
 function handleMapClick(e) {
   if (!isNavigating.value || !map) return
   const lngLat = [e.lngLat.lng, e.lngLat.lat]
-  placeTargetMarker(lngLat)
+  clearTimeout(errorTimer)
+  navError.value = ''
+  navSuccess.value = false
 
   if (walkableGrid) {
     const startPx  = lngLatToPixel(robotLngLat.value[0], robotLngLat.value[1])
@@ -839,11 +922,14 @@ function handleMapClick(e) {
       const goalC  = nearestWalkable(goalL.ci, goalL.cj)
       if (startC && goalC) {
         const rawPath = astar(startC, goalC)
-        if (rawPath && rawPath.length > 1) {
+        if (rawPath?.length) {
           const smoothed  = smoothPathCells(rawPath)
-          const waypoints = smoothed.slice(1).map(c => logicalCenterToLngLat(c.ci, c.cj))
+          // 首个栅格中心也保留：机器人可能位于格内任意位置，先移动到已确认
+          // 全格可通行的中心，再沿规划路线行走；目标也使用吸附后的安全格中心。
+          const waypoints = smoothed.map(c => logicalCenterToLngLat(c.ci, c.cj))
           if (waypoints.length > 0) {
-            waypoints[waypoints.length - 1] = lngLat
+            const safeTarget = waypoints[waypoints.length - 1]
+            placeTargetMarker(safeTarget)
             drawPathLine(robotLngLat.value, waypoints)
             animateRobotAlongPath(waypoints)
             return
@@ -853,9 +939,9 @@ function handleMapClick(e) {
     }
   }
 
-  // 兜底：直线
-  drawPathLine(robotLngLat.value, [lngLat])
-  animateRobotAlongPath([lngLat])
+  // 规划失败时不能退化成直线移动，否则会直接穿过墙体或家具。
+  removeTargetMarker()
+  showNavigationError(walkableGrid ? '目标点不可达，请选择可通行区域' : '路径栅格尚未就绪，请稍后重试')
 }
 
 function placeTargetMarker(lngLat) {
@@ -878,6 +964,14 @@ function showSuccessToast() {
     navSuccess.value = false
     removeTargetMarker()
     clearPathLine()
+  }, 3000)
+}
+
+function showNavigationError(message) {
+  navError.value = message
+  clearTimeout(errorTimer)
+  errorTimer = setTimeout(() => {
+    navError.value = ''
   }, 3000)
 }
 </script>
@@ -1014,6 +1108,27 @@ function showSuccessToast() {
   font-size: 13px;
   white-space: nowrap;
   box-shadow: 0 4px 20px rgba(10, 120, 60, 0.35);
+  pointer-events: none;
+}
+
+.error-toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 31;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(180, 55, 40, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 150, 130, 0.35);
+  border-radius: 99px;
+  color: #fff1ee;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(160, 40, 25, 0.32);
   pointer-events: none;
 }
 

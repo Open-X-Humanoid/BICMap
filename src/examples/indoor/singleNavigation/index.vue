@@ -30,6 +30,13 @@
       </div>
     </Transition>
 
+    <Transition name="toast-fade">
+      <div v-if="navError" class="error-toast" role="alert">
+        <TriangleAlert :size="15" />
+        <span>{{ navError }}</span>
+      </div>
+    </Transition>
+
     <main class="map-area">
       <div class="grid-bg"></div>
       <div class="map-container" :class="{ 'nav-mode': isNavigating }">
@@ -44,13 +51,13 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
-import { MapPin, Navigation, X, CheckCircle } from 'lucide-vue-next'
+import { CheckCircle, MapPin, Navigation, TriangleAlert, X } from 'lucide-vue-next'
 
 import AppHeader from '../../components/AppHeader.vue'
 import AppFooter from '../../components/AppFooter.vue'
 
 import bicMap from '../../../bicMap/core/bicmap-gl'
-import slamImage from '../../assets/slam_transparent.png'
+import slamImage from '../../assets/slam_pathplan.png'
 import robotIcon from '../../assets/bicmap_robot.png'
 
 // ===== SLAM 地图参数 =====
@@ -69,7 +76,8 @@ const ICON_HEAD_OFFSET = 90
 // ===== 路径规划参数（与 pathPlanning 示例对齐） =====
 const MAP_ZOOM_FACTOR = 2
 const GRID_STRIDE = 10         // 逻辑栅格步长（像素）
-const LUMA_THRESHOLD = 120     // 障碍物亮度阈值
+// 像素颜色与可通行背景色的距离平方超过此值即视为障碍
+const OBSTACLE_COLOR_DISTANCE = 600
 const WALL_PENALTY = 2.6       // 贴墙惩罚：离障碍越近代价越高
 const TURN_PENALTY = 4.0       // 拐弯惩罚：减少频繁转向
 const DIAGONAL_PENALTY = 1.2   // 斜走惩罚：偏向水平/垂直行走
@@ -81,12 +89,14 @@ const cacheCameraBound = ref(null)
 const robotController = ref(null)
 const isNavigating = ref(false)
 const navSuccess = ref(false)
+const navError = ref('')
 
 let currentRobotLngLat = null
 let currentRobotRotation = 0
 let animIntervalId = null
 let targetMarkerCtrl = null
 let successTimer = null
+let errorTimer = null
 // 路径进度追踪（用于已走/待走双色渲染）
 let navStartPos = null
 let navWaypoints = []
@@ -111,6 +121,7 @@ onMounted(() => { initMap() })
 
 onBeforeUnmount(() => {
   clearTimeout(successTimer)
+  clearTimeout(errorTimer)
   if (animIntervalId) {
     clearInterval(animIntervalId)
     animIntervalId = null
@@ -233,48 +244,6 @@ function calcSteps(from, to) {
   return Math.max(2, Math.round(durationMs / ANIM_FRAME_MS))
 }
 
-// 直线动画（匀速，头部朝向目标）
-function animateRobotTo(targetLngLat) {
-  if (!robotController.value || !currentRobotLngLat) return
-
-  // 清除上次导航的到达定时器，防止它在本次移动结束前触发
-  clearTimeout(successTimer)
-  navSuccess.value = false
-
-  if (animIntervalId) {
-    clearInterval(animIntervalId)
-    animIntervalId = null
-  }
-
-  const startPos = [...currentRobotLngLat]
-  const targetBearing = calcBearing(startPos, targetLngLat)
-  const steps = calcSteps(startPos, targetLngLat)
-  let step = 0
-
-  // 出发前立即朝向目标方向
-  currentRobotRotation = targetBearing
-  robotController.value?.setRotation(currentRobotRotation - ICON_HEAD_OFFSET)
-
-  animIntervalId = setInterval(() => {
-    step++
-    const t = step / steps
-    const isLast = step >= steps
-
-    currentRobotLngLat = [
-      startPos[0] + (targetLngLat[0] - startPos[0]) * t,
-      startPos[1] + (targetLngLat[1] - startPos[1]) * t
-    ]
-
-    robotController.value?.setPosition(currentRobotLngLat)
-
-    if (isLast) {
-      clearInterval(animIntervalId)
-      animIntervalId = null
-      showSuccessToast()
-    }
-  }, ANIM_FRAME_MS)
-}
-
 // 多航点动画（每段按真实距离计算步数，全程匀速，头部朝向当前路段方向）
 function animateRobotAlongPath(waypoints) {
   if (!robotController.value || !currentRobotLngLat || !waypoints?.length) return
@@ -376,28 +345,86 @@ function logicalCenterToLngLat(ci, cj) {
   return [gps.longitude, gps.latitude]
 }
 
+/**
+ * 从非透明像素中统计主色，自动识别 SLAM 图的可通行区域背景色。
+ * 颜色按每通道高 6 位量化，减少抗锯齿产生的相近色碎片。
+ */
+function detectBackgroundColor(data, w, h) {
+  const freq = new Map()
+  const step = 6
+
+  for (let y = 0; y < h; y += step) {
+    const rowBase = y * w
+    for (let x = 0; x < w; x += step) {
+      const i = (rowBase + x) * 4
+      if (data[i + 3] < 10) continue
+      const key = ((data[i] >> 2) << 12) | ((data[i + 1] >> 2) << 6) | (data[i + 2] >> 2)
+      freq.set(key, (freq.get(key) || 0) + 1)
+    }
+  }
+
+  let bestKey = -1
+  let bestCount = -1
+  for (const [key, count] of freq) {
+    if (count > bestCount) {
+      bestKey = key
+      bestCount = count
+    }
+  }
+
+  if (bestKey < 0) return [255, 255, 255]
+  return [
+    ((bestKey >> 12) & 0x3f) << 2,
+    ((bestKey >> 6) & 0x3f) << 2,
+    (bestKey & 0x3f) << 2
+  ]
+}
+
 /** 从 canvasMap 构建可通行栅格 + clearance 距离场 */
 function rebuildOccupancy() {
   const canvas = document.getElementById('canvasMap')
   if (!canvas) return
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  const w = canvas.width
+  const h = canvas.height
+  const { data } = ctx.getImageData(0, 0, w, h)
 
   const s = GRID_STRIDE
   logicalCols = Math.ceil(MAP_X_GRID_COUNT / s)
   logicalRows = Math.ceil(MAP_Y_GRID_COUNT / s)
 
+  const bg = detectBackgroundColor(data, w, h)
+  const isObstaclePixel = (px, py) => {
+    const i = (py * w + px) * 4
+    if (data[i + 3] < 10) return true
+    const dr = data[i] - bg[0]
+    const dg = data[i + 1] - bg[1]
+    const db = data[i + 2] - bg[2]
+    return dr * dr + dg * dg + db * db > OBSTACLE_COLOR_DISTANCE
+  }
+
   walkableGrid = []
   for (let cj = 0; cj < logicalRows; cj++) {
     const row = []
+    const y0 = cj * s
+    const yEnd = Math.min(h, y0 + s)
     for (let ci = 0; ci < logicalCols; ci++) {
-      const px = Math.min(canvas.width - 1, ci * s + Math.floor(s / 2))
-      const py = Math.min(canvas.height - 1, cj * s + Math.floor(s / 2))
-      const base = (py * canvas.width + px) * 4
-      const r = data[base], g = data[base + 1], b = data[base + 2], a = data[base + 3]
-      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
-      row.push(a < 10 ? false : luma >= LUMA_THRESHOLD)
+      const x0 = ci * s
+      const xEnd = Math.min(w, x0 + s)
+
+      // 扫描整个逻辑格：命中任意墙体、家具描边或透明区即判为障碍，
+      // 避免只取中心像素时漏掉细线，导致路径穿墙。
+      let obstacle = false
+      for (let py = y0; py < yEnd && !obstacle; py++) {
+        for (let px = x0; px < xEnd; px++) {
+          if (isObstaclePixel(px, py)) {
+            obstacle = true
+            break
+          }
+        }
+      }
+      row.push(!obstacle)
     }
     walkableGrid.push(row)
   }
@@ -533,6 +560,10 @@ function astar(start, goal) {
       const nc = cc + dx, nr = cr + dy
       if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) continue
       if (!walkableGrid[nr][nc]) continue
+      // 斜向移动时两侧正交格都必须可走，禁止从墙角缝隙切过。
+      if (dx !== 0 && dy !== 0) {
+        if (!walkableGrid[cr][nc] || !walkableGrid[nr][cc]) continue
+      }
       const ni = idx(nc, nr)
       const prevDir = cameDir[cur]
       const turnCost = (prevDir === -1 || prevDir === dir) ? 0 : TURN_PENALTY
@@ -657,12 +688,15 @@ function toggleNavigation() {
 
 function startNavigation() {
   if (!map.value) return
+  navError.value = ''
   isNavigating.value = true
   map.value.on('click', handleMapClick)
   map.value.getCanvas().style.cursor = 'crosshair'
 }
 
 function stopNavigation() {
+  clearTimeout(errorTimer)
+  navError.value = ''
   if (animIntervalId) {
     clearInterval(animIntervalId)
     animIntervalId = null
@@ -678,7 +712,9 @@ function handleMapClick(e) {
   if (!isNavigating.value || !map.value) return
 
   const lngLat = [e.lngLat.lng, e.lngLat.lat]
-  placeTargetMarker(lngLat)
+  clearTimeout(errorTimer)
+  navError.value = ''
+  navSuccess.value = false
 
   // 使用与 pathPlanning 相同的 A* 流程：当前位置 → 目标点
   if (walkableGrid && currentRobotLngLat) {
@@ -694,12 +730,13 @@ function handleMapClick(e) {
 
       if (startCell && goalCell) {
         const rawPath = astar(startCell, goalCell)
-        if (rawPath && rawPath.length > 1) {
+        if (rawPath?.length) {
           const smoothed = smoothPathCells(rawPath)
-          // 跳过第一个格（机器人当前位置），其余转为 GPS
-          const waypoints = smoothed.slice(1).map(c => logicalCenterToLngLat(c.ci, c.cj))
+          // 保留首个安全格中心，并把点击目标吸附到最终安全格中心。
+          const waypoints = smoothed.map(c => logicalCenterToLngLat(c.ci, c.cj))
           if (waypoints.length > 0) {
-            waypoints[waypoints.length - 1] = lngLat  // 末点精确对齐点击坐标
+            const safeTarget = waypoints[waypoints.length - 1]
+            placeTargetMarker(safeTarget)
             drawPathLine(currentRobotLngLat, waypoints)
             animateRobotAlongPath(waypoints)
             return
@@ -709,8 +746,9 @@ function handleMapClick(e) {
     }
   }
 
-  // 兜底：直线移动
-  animateRobotTo(lngLat)
+  // 规划失败时禁止退化为直线移动，否则机器人会穿过墙体或家具。
+  removeTargetMarker()
+  showNavigationError(walkableGrid ? '目标点不可达，请选择可通行区域' : '路径栅格尚未就绪，请稍后重试')
 }
 
 function placeTargetMarker(lngLat) {
@@ -740,6 +778,14 @@ function showSuccessToast() {
     navSuccess.value = false
     removeTargetMarker()
     clearPathLine()
+  }, 3000)
+}
+
+function showNavigationError(message) {
+  navError.value = message
+  clearTimeout(errorTimer)
+  errorTimer = setTimeout(() => {
+    navError.value = ''
   }, 3000)
 }
 </script>
@@ -863,6 +909,27 @@ function showSuccessToast() {
   font-size: 13px;
   white-space: nowrap;
   box-shadow: 0 4px 20px rgba(10, 120, 60, 0.35);
+  pointer-events: none;
+}
+
+.error-toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 31;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(180, 55, 40, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 150, 130, 0.35);
+  border-radius: 99px;
+  color: #fff1ee;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(160, 40, 25, 0.32);
   pointer-events: none;
 }
 
