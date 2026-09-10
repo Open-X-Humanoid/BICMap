@@ -33,6 +33,8 @@ class FreeDrawPlugin {
         evented: false
       });
     }
+    // 属性补齐后再记录历史，保证撤销/重做还原出的对象带有 id 与橡皮擦标识
+    this.editor.saveState?.();
   };
 
   // 生成圆形光标（基于离屏Canvas → PNG dataURL），用来预览笔刷大小

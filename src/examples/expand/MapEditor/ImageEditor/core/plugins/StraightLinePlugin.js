@@ -53,12 +53,7 @@ class StraightLinePlugin {
     this.canvas.selection = false;
     
     // 确保所有直线对象保持不可选中状态
-    this.canvas.getObjects().forEach((obj) => {
-      obj.selectable = false;
-      obj.hasControls = false;
-      obj.evented = false;
-      obj.active = false;
-    });
+    this._lockObjects();
 
     this._bindEventListeners();
   }
@@ -87,7 +82,7 @@ class StraightLinePlugin {
 
       canvas.requestRenderAll();
 
-      this.pointer = canvas.getPointer(o.e);
+      this.pointer = canvas.getScenePoint(o.e);
       this.pointerPoints = [
         this.pointer.x,
         this.pointer.y,
@@ -121,7 +116,7 @@ class StraightLinePlugin {
       canvas.discardActiveObject();
       const activeObject = canvas.getActiveObject();
       if (activeObject) return;
-      this.pointer = canvas.getPointer(o.e);
+      this.pointer = canvas.getScenePoint(o.e);
       if (o.e.shiftKey) {
         // shift+绘制直线时，约束直线角度为15度的倍数
         const startX = this.pointerPoints[0];
@@ -179,11 +174,43 @@ class StraightLinePlugin {
       canvas.skipTargetFind = false;
       
       canvas.renderAll();
+
+      if (!currentLine) return;
+
+      // 单击未拖动产生的零长度直线不保留，也不写入历史
+      if (currentLine.x1 === currentLine.x2 && currentLine.y1 === currentLine.y2) {
+        canvas.remove(currentLine);
+        canvas.renderAll();
+        return;
+      }
+
+      // fabric 通过 canvas.add 添加的直线不会触发 path:created，需主动记录历史
+      this.editor.saveState?.();
+    };
+
+    // 撤销 / 重做会重建画布对象，需重新锁定为绘制模式下的不可交互状态
+    this._onHistoryChange = () => {
+      if (!this.isDrawingLine) return;
+      this._lockObjects();
+      canvas.selection = false;
+      canvas.discardActiveObject();
+      canvas.requestRenderAll();
     };
 
     canvas.on("mouse:down", this._onMouseDown);
     canvas.on("mouse:move", this._onMouseMove);
     canvas.on("mouse:up", this._onMouseUp);
+    canvas.on("history:undo", this._onHistoryChange);
+    canvas.on("history:redo", this._onHistoryChange);
+  }
+
+  _lockObjects() {
+    this.canvas.getObjects().forEach((obj) => {
+      obj.selectable = false;
+      obj.hasControls = false;
+      obj.evented = false;
+      obj.active = false;
+    });
   }
 
   _removeEventListeners() {
@@ -196,6 +223,10 @@ class StraightLinePlugin {
     }
     if (this._onMouseUp) {
       canvas.off("mouse:up", this._onMouseUp);
+    }
+    if (this._onHistoryChange) {
+      canvas.off("history:undo", this._onHistoryChange);
+      canvas.off("history:redo", this._onHistoryChange);
     }
   }
 

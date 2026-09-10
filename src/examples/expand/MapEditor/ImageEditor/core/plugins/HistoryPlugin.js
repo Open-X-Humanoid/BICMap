@@ -20,8 +20,9 @@ class HistoryPlugin {
   }
 
   _init() {
+    // 新增对象由各绘制插件在一笔绘制完成后主动调用 saveState()，
+    // 避免 fabric 的 object:added / path:created 在插件补齐 id、name 等属性前就抓取快照。
     const events = {
-      "path:created": () => this.saveState(),
       "object:removed": () => this.saveState(),
       "canvas:cleared": () => this.saveState(),
     };
@@ -41,6 +42,7 @@ class HistoryPlugin {
       "name",
       "selectable",
       "hasControls",
+      "evented",
       "excludeFromExport",
       "absolutePositioned",
     ];
@@ -58,9 +60,19 @@ class HistoryPlugin {
   saveState() {
     if (this.isProcessing) return;
 
+    const state = this.getCurrentState();
+
+    // 与当前状态完全一致说明是空操作（例如零长度直线被立即移除），不入栈也不截断重做链
+    const currentState = this.stack[this.currentIndex - 1];
+    if (
+      currentState &&
+      JSON.stringify(currentState) === JSON.stringify(state)
+    ) {
+      return;
+    }
+
     // 新操作产生后，丢弃重做链
     this.stack.splice(this.currentIndex);
-    const state = this.getCurrentState();
     this.stack.push(state);
 
     // 控制最大长度（丢弃最早）

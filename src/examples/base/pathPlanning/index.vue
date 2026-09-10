@@ -14,6 +14,29 @@
       <div class="map-container">
         <div id="slamMap" class="map-gl"></div>
 
+        <div v-if="planFailReason" class="plan-alert" role="alert" aria-live="assertive">
+          <TriangleAlert class="plan-alert-icon" :size="22" />
+          <div class="plan-alert-body">
+            <p class="plan-alert-title">本次路径规划失败，请清除后重新绘制</p>
+            <p class="plan-alert-desc">{{ planFailReason }}</p>
+          </div>
+          <button
+            type="button"
+            class="plan-alert-btn"
+            @click="resetAll"
+          >
+            清除并重绘
+          </button>
+          <button
+            type="button"
+            class="plan-alert-close"
+            aria-label="关闭提示"
+            @click="planFailReason = ''"
+          >
+            <X :size="16" />
+          </button>
+        </div>
+
         <aside class="overlay-panel overlay-hint" aria-label="规划说明">
           <div class="panel-title">路径规划</div>
           <p v-if="!slamMapReady" class="hint-wait">正在加载地图底图…</p>
@@ -132,11 +155,11 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
-import { Info } from "lucide-vue-next";
+import { Info, TriangleAlert, X } from "lucide-vue-next";
 import AppHeader from "../../components/AppHeader.vue";
 import AppFooter from "../../components/AppFooter.vue";
 import bicMap from "../../../bicMap/core/bicmap-gl.js";
-import slamImage from "../../assets/slam_transparent.png";
+import slamImage from "../../assets/slam_pathplan.png";
 
 const MAP_START_X = -58.999993705749512;
 const MAP_START_Y = -21.349997329711914;
@@ -154,8 +177,10 @@ const polylineController = ref(null);
 const poiController = ref(null);
 
 const gridStride = ref(10);
-const lumaThreshold = ref(120);
-const invertObstacle = ref(false);
+// 障碍色彩距离阈值：像素颜色与“背景色（可通行区域颜色）”的欧式距离平方
+// 超过该值即判定为障碍（墙体/桌椅等家具细描边）。背景色由底图自动采样得出，
+// 无需手动标定，可适配不同底图。建议范围 300~1200，值越小越敏感。
+const obstacleColorDistance = ref(600);
 // 贴墙惩罚：越靠近障碍代价越高，使路径更倾向走廊中间
 const wallPenalty = ref(2.6); // 0 关闭；建议 1~4
 // 拐弯惩罚：降低“贴墙锯齿”和频繁转向，更接近人为画直线段
@@ -178,6 +203,7 @@ const viaCells = ref([]); // 中间途径点（不含起终点）
 const pickedCells = ref([]); // 全部点位（按点击顺序）
 const pathLngLats = ref([]);
 const planStatus = ref("—");
+const planFailReason = ref(""); // 非空时在地图上展示规划失败告警
 const pickMode = ref("none"); // 'none' | 'start'
 
 const pickHint = computed(() => {
@@ -291,6 +317,39 @@ function pixelToLogical(px, py) {
   };
 }
 
+/**
+ * 稀疏采样统计出现频率最高的颜色，作为底图“背景色”（即可通行区域颜色）基准。
+ * 采用自动检测而非硬编码固定 RGB，可适配不同底图无需手动标定。
+ */
+function detectBackgroundColor(data, w, h) {
+  const freq = new Map();
+  const step = 6; // 稀疏采样，兼顾速度与准确性
+  for (let y = 0; y < h; y += step) {
+    const rowBase = y * w;
+    for (let x = 0; x < w; x += step) {
+      const i = (rowBase + x) * 4;
+      if (data[i + 3] < 10) continue; // 跳过透明区域（画布外部）
+      // 颜色量化（每通道保留高 6 位），合并抗锯齿产生的相近色阶碎片
+      const key = ((data[i] >> 2) << 12) | ((data[i + 1] >> 2) << 6) | (data[i + 2] >> 2);
+      freq.set(key, (freq.get(key) || 0) + 1);
+    }
+  }
+  let bestKey = -1;
+  let bestCount = -1;
+  for (const [key, count] of freq) {
+    if (count > bestCount) {
+      bestCount = count;
+      bestKey = key;
+    }
+  }
+  if (bestKey < 0) return [255, 255, 255];
+  return [
+    ((bestKey >> 12) & 0x3f) << 2,
+    ((bestKey >> 6) & 0x3f) << 2,
+    (bestKey & 0x3f) << 2,
+  ];
+}
+
 function rebuildOccupancy() {
   const canvas = document.getElementById("canvasMap");
   if (!canvas) return;
@@ -304,25 +363,42 @@ function rebuildOccupancy() {
   logicalCols = Math.ceil(MAP_X_GRID_COUNT / s);
   logicalRows = Math.ceil(MAP_Y_GRID_COUNT / s);
 
+  // 背景色（可通行区域颜色）+ 色彩距离阈值，用于判定像素是否为障碍
+  // （墙体/桌椅家具等细描边）。可通行区域＝背景色，其余（墙+细描边）均不可通行。
+  const bg = detectBackgroundColor(data, w, h);
+  const distThreshold = obstacleColorDistance.value;
+
+  const isObstaclePixel = (px, py) => {
+    const i = (py * w + px) * 4;
+    if (data[i + 3] < 10) return true; // 极低透明度直接当障碍（避免透明背景被误判为可走）
+    const dr = data[i] - bg[0];
+    const dg = data[i + 1] - bg[1];
+    const db = data[i + 2] - bg[2];
+    return dr * dr + dg * dg + db * db > distThreshold;
+  };
+
   walkableGrid = [];
   for (let cj = 0; cj < logicalRows; cj++) {
     const row = [];
+    const y0 = cj * s;
+    const yEnd = Math.min(h, y0 + s);
     for (let ci = 0; ci < logicalCols; ci++) {
-      const px = Math.min(w - 1, ci * s + Math.floor(s / 2));
-      const py = Math.min(h - 1, cj * s + Math.floor(s / 2));
-      const base = (py * w + px) * 4;
-      const r = data[base];
-      const g = data[base + 1];
-      const b = data[base + 2];
-      const a = data[base + 3];
+      const x0 = ci * s;
+      const xEnd = Math.min(w, x0 + s);
 
-      // 该底图多数区域为不透明，alpha 无法区分可走/障碍；改用亮度判定：
-      // - 墙线/外部黑底亮度更低 → 视为障碍
-      // - 室内浅色区域亮度更高 → 视为可走
-      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      // 极低透明度直接当障碍（避免透明背景被误判为可走）
-      const obstacleByLuma = a < 10 ? true : luma < lumaThreshold.value;
-      const obstacle = invertObstacle.value ? !obstacleByLuma : obstacleByLuma;
+      // 关键修复：逐一扫描整块像素（而非只取格子中心一个采样点）。
+      // 桌椅/门窗等细描边通常仅 1 像素宽，若只采样中心点极易被“跳过”，
+      // 导致细边框被误判为可走、路径贴着家具边框穿模。整块扫描 + 命中即判障碍，
+      // 可确保任意落在该格内的细描边都会被正确识别为不可通行。
+      let obstacle = false;
+      for (let py = y0; py < yEnd && !obstacle; py++) {
+        for (let px = x0; px < xEnd; px++) {
+          if (isObstaclePixel(px, py)) {
+            obstacle = true;
+            break;
+          }
+        }
+      }
       row.push(!obstacle);
     }
     walkableGrid.push(row);
@@ -336,6 +412,7 @@ function rebuildOccupancy() {
   pickMode.value = "none";
   pathLngLats.value = [];
   planStatus.value = "栅格已更新，请重新选点";
+  planFailReason.value = "";
   syncPoiMarkers();
   if (polylineController.value) {
     polylineController.value.clear();
@@ -649,10 +726,26 @@ function ensurePolylineController(path) {
   }
 }
 
+/** 按点击顺序给出点位的可读名称，用于失败提示定位到具体路段 */
+function nodeLabel(index, total) {
+  if (index === 0) return "起点";
+  if (index === total - 1) return "终点";
+  return `途径点${index}`;
+}
+
+/** 规划失败：清掉旧路线并弹出告警，等用户清除后重新绘制 */
+function failPlan(status, reason) {
+  planStatus.value = status;
+  planFailReason.value = reason;
+  pathLngLats.value = [];
+  if (polylineController.value) polylineController.value.clear();
+}
+
 function runPlan() {
   if (!canPlan.value) return;
   if (pickedCells.value.length < 2) return;
   planStatus.value = "正在规划…";
+  planFailReason.value = "";
 
   // 以点击顺序分段规划：起点 -> 途径点... -> 终点
   const nodes = pickedCells.value;
@@ -660,12 +753,26 @@ function runPlan() {
   for (let i = 0; i < nodes.length - 1; i++) {
     const a = nodes[i];
     const b = nodes[i + 1];
-    const raw = astar(a, b);
+    let raw = null;
+    try {
+      raw = astar(a, b);
+    } catch (error) {
+      console.error("路径规划异常:", error);
+      failPlan(
+        "规划异常，请重新绘制",
+        `第 ${i + 1} 段规划过程出错：${error?.message || error}`
+      );
+      return;
+    }
     const seg = raw ? smoothPathCells(raw) : null;
     if (!seg || seg.length < 2) {
-      planStatus.value = `无可行路径（第 ${i + 1} 段失败）`;
-      pathLngLats.value = [];
-      if (polylineController.value) polylineController.value.clear();
+      failPlan(
+        `无可行路径（第 ${i + 1} 段失败）`,
+        `第 ${i + 1} 段「${nodeLabel(i, nodes.length)} → ${nodeLabel(
+          i + 1,
+          nodes.length
+        )}」被障碍物阻断，未找到可通行路线。可尝试把点位移到空白区域。`
+      );
       return;
     }
     // 拼接时避免重复点
@@ -717,6 +824,7 @@ function resetAll() {
   pickMode.value = "none";
   pathLngLats.value = [];
   planStatus.value = "已重置";
+  planFailReason.value = "";
   setMapCursor("");
   syncPoiMarkers();
   if (polylineController.value) {
@@ -785,8 +893,9 @@ function attachMapClick() {
         viaCells.value = pickedCells.value.slice(1, -1);
         planStatus.value = `已添加 ${pickedCells.value.length} 个点，可继续添加或点击「规划路径」`;
       }
-      // 点位变化后不自动规划，只清除旧路线
+      // 点位变化后不自动规划，只清除旧路线与上一次的失败提示
       pathLngLats.value = [];
+      planFailReason.value = "";
       if (polylineController.value) polylineController.value.clear();
       syncPoiMarkers();
     }, 170);
@@ -943,6 +1052,106 @@ async function initMap() {
 .map-gl {
   width: 100%;
   height: 100%;
+}
+
+.plan-alert {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: max-content;
+  max-width: min(520px, calc(100% - 24px));
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 241, 242, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  box-shadow:
+    0 10px 34px rgba(239, 68, 68, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  color: #7f1d1d;
+  animation: plan-alert-in 0.28s ease-out;
+}
+
+@keyframes plan-alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.plan-alert-icon {
+  flex: none;
+  margin-top: 1px;
+  color: #dc2626;
+}
+
+.plan-alert-body {
+  min-width: 0;
+  text-align: left;
+}
+
+.plan-alert-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.plan-alert-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9f1239;
+}
+
+.plan-alert-btn {
+  flex: none;
+  align-self: center;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(to right, #ef4444, #f87171);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.plan-alert-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+}
+.plan-alert-btn:active {
+  transform: scale(0.97);
+}
+
+.plan-alert-close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.plan-alert-close:hover {
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .overlay-panel {
