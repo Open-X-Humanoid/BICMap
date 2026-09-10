@@ -127,11 +127,17 @@ const DEFAULT_OPACITY = 1.0
 const TILE_SIZES = [256, 512]
 const URL_PLACEHOLDER = 'https://example.com/{z}/{x}/{y}.png'
 
+const OSM_SUBDOMAINS = ['a', 'b', 'c']
+const OSM_MAX_ZOOM = 19
 const TILE_PRESETS = [
   {
     name: 'OpenStreetMap',
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    tiles: OSM_SUBDOMAINS.map(
+      (s) => `https://${s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+    ),
     tileSize: 256,
+    maxzoom: OSM_MAX_ZOOM,
     attribution: '© OpenStreetMap contributors'
   }
 ]
@@ -150,7 +156,7 @@ const footerButtons = computed(() => [
   {
     label: '应用瓦片',
     icon: Layers,
-    onClick: applyTiles,
+    onClick: () => applyTiles(),
     disabled: !tileUrl.value || !!urlError.value
   },
   {
@@ -180,12 +186,17 @@ async function initMap() {
       container: 'mapTilesMap',
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
+      fadeDuration: 0,
+      maxParallelImageRequests: 32
     })
     bicMap.addZoomControl(map.value, 'bottom-right')
     map.value.on('zoom', () => {
       currentZoom.value = map.value.getZoom().toFixed(1)
     })
+    const applyDefaultOsm = () => selectPreset(TILE_PRESETS[0])
+    if (map.value.loaded()) applyDefaultOsm()
+    else map.value.once('load', applyDefaultOsm)
   } catch (error) {
     console.error('初始化地图失败:', error)
   }
@@ -203,6 +214,28 @@ function validateUrl(url) {
   return ''
 }
 
+/**
+ * 将 Leaflet 风格 {s} 模板展开为 MapLibre 可用的多域名瓦片地址，便于并行下载。
+ * 官方 OSM 单域名也会展开为 a/b/c 子域。
+ * @param {string} url
+ * @param {string[]} [presetTiles]
+ * @returns {string[]}
+ */
+function expandTileUrls(url, presetTiles) {
+  if (presetTiles?.length) return presetTiles
+  const trimmed = url.trim()
+  if (trimmed.includes('{s}')) {
+    return OSM_SUBDOMAINS.map((s) => trimmed.replaceAll('{s}', s))
+  }
+  const osmHost = '://tile.openstreetmap.org/'
+  if (trimmed.includes(osmHost)) {
+    return OSM_SUBDOMAINS.map((s) =>
+      trimmed.replace(osmHost, `://${s}.tile.openstreetmap.org/`)
+    )
+  }
+  return [trimmed]
+}
+
 function onUrlInput() {
   selectedPreset.value = ''
   currentAttribution.value = ''
@@ -217,7 +250,7 @@ function onOpacityChange() {
 
 /**
  * 选择预设瓦片，自动填充 URL 并应用
- * @param {{ name: string, url: string, tileSize: number, attribution: string }} preset
+ * @param {{ name: string, url: string, tiles?: string[], tileSize: number, maxzoom?: number, attribution: string }} preset
  */
 function selectPreset(preset) {
   selectedPreset.value = preset.name
@@ -225,7 +258,7 @@ function selectPreset(preset) {
   tileSize.value = preset.tileSize
   currentAttribution.value = preset.attribution
   urlError.value = ''
-  applyTiles()
+  applyTiles(preset)
 }
 
 /**
@@ -239,8 +272,9 @@ function removeTileLayer() {
 
 /**
  * 应用瓦片：校验 URL → 重建 raster source + layer
+ * @param {{ tiles?: string[], maxzoom?: number, attribution?: string }} [preset]
  */
-function applyTiles() {
+function applyTiles(preset) {
   const error = validateUrl(tileUrl.value)
   if (error) {
     urlError.value = error
@@ -248,14 +282,25 @@ function applyTiles() {
   }
   if (!map.value) return
 
+  const matchedPreset =
+    preset?.tiles || preset?.name
+      ? preset
+      : TILE_PRESETS.find((item) => item.name === selectedPreset.value)
+  const isOsm =
+    matchedPreset?.name === 'OpenStreetMap' ||
+    tileUrl.value.includes('openstreetmap.org')
+  const maxzoom = matchedPreset?.maxzoom ?? (isOsm ? OSM_MAX_ZOOM : 22)
+
   removeTileLayer()
 
   map.value.addSource(SOURCE_ID, {
     type: 'raster',
-    tiles: [tileUrl.value.trim()],
+    tiles: expandTileUrls(tileUrl.value, matchedPreset?.tiles),
     tileSize: tileSize.value,
     minzoom: 0,
-    maxzoom: 22
+    maxzoom,
+    scheme: 'xyz',
+    attribution: currentAttribution.value || matchedPreset?.attribution || ''
   })
 
   map.value.addLayer({
@@ -264,7 +309,8 @@ function applyTiles() {
     source: SOURCE_ID,
     paint: {
       'raster-opacity': tileOpacity.value,
-      'raster-fade-duration': 300
+      'raster-fade-duration': 0,
+      'raster-resampling': 'linear'
     }
   })
 

@@ -17,7 +17,9 @@ export function createMap(maplibregl, options) {
     bearing = 0,
     maxPitch = 60,
     antialias = false,
-    backgroundColor = '#808080'
+    backgroundColor = '#808080',
+    style: userStyle,
+    ...mapOptions
   } = options;
 
   if (!container) {
@@ -42,7 +44,7 @@ export function createMap(maplibregl, options) {
 
   return new maplibregl.Map({
     container,
-    style: blankStyle,
+    style: userStyle || blankStyle,
     center,
     zoom,
     pitch,
@@ -50,6 +52,7 @@ export function createMap(maplibregl, options) {
     maxPitch,
     antialias,
     maxZoom: 23.99,
-    minZoom: 0
+    minZoom: 0,
+    ...mapOptions
   });
 } 
