@@ -61,12 +61,59 @@ export const SLAM_CENTER = [SLAM_MAP.startX + SLAM_WIDTH / 2, SLAM_MAP.startY + 
 // 高度方向必须用同一系数，否则点云会被竖直拉伸
 export const SLAM_GEO_SCALE = SLAM_MAP.resolution * SLAM_MAP.zoomFactor
 
+// 场景底图类型：空白深色背景 / OpenStreetMap 栅格瓦片
+export const BASEMAP = {
+  BLANK: 'blank',
+  OSM: 'osm'
+}
+
+// 点云摆放模式：
+//   SLAM  —— 贴合 SLAM 栅格底图，走 resolution × zoomFactor 压缩（见 slamPlacement）
+//   WORLD —— 1:1 米制摆到真实经纬度锚点上（见 worldPlacement）
+export const PLACEMENT = {
+  SLAM: 'slam',
+  WORLD: 'world'
+}
+
+// OpenStreetMap 官方瓦片。展开 a/b/c 子域提升并行下载量，最大层级 19
+export const OSM_SUBDOMAINS = ['a', 'b', 'c']
+export const OSM_MAX_ZOOM = 19
+export const OSM_TILES = OSM_SUBDOMAINS.map(
+  (sub) => `https://${sub}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+)
+export const OSM_ATTRIBUTION = '© OpenStreetMap contributors'
+
+// 世界地图场景的锚点：北京亦庄 科创街 × 经海路 交叉口，WGS84。
+// 取两条路中心线的交点，由 OSM 实测几何拟合得到，点云正是绕这个点生成的
+export const WORLD_ANCHOR = { lng: 116.5466141, lat: 39.795319 }
+
 // 内置场景点云。pcd 放在本目录 samples/，由 index.vue 用 Vite ?url 引入，
 // 这样 dev / build:web 都会打进产物，npm 库发布不会带上示例资源。
 // 底图是点云的俯视投影，XY 原位贴合；但点云是 2.5D 高度场，最低点贴地后
 // 主体（墙体/楼面，大约 7~8m）仍悬在平面底图上方，所以要再压一截离地高度。
 export const SCENE_PRESETS = [
-  { id: 'campus', label: '园区扫描' }
+  {
+    id: 'campus',
+    label: '园区扫描',
+    placement: PLACEMENT.SLAM,
+    basemap: BASEMAP.BLANK,
+    background: '#051230cc'
+  },
+  {
+    id: 'intersection',
+    label: '世界地图',
+    placement: PLACEMENT.WORLD,
+    basemap: BASEMAP.OSM,
+    // 瓦片未就位时露出的底色，取 OSM 的陆地色，避免闪黑
+    background: '#f2efe9',
+    anchor: WORLD_ANCHOR,
+    // 真实材质色（沥青灰、草绿）叠在 OSM 瓦片上会糊成一片，
+    // 默认改用反射强度着色，走和园区扫描同一条 turbo 色带
+    colorMode: COLOR_MODE.INTENSITY,
+    // bearing 取 -32，正好让科创街在屏幕上横平、经海路竖直（科创街实测方位角 57.9°）。
+    // zoom 写死而不用 cameraForBounds：后者按 pitch 0 计算，叠加俯仰后画面会明显偏小
+    view: { pitch: 55, bearing: -32, zoom: 17.1 }
+  }
 ]
 
 // 点云在 SLAM 坐标系中的摆放参数：x/y 为平移量（米）、rotation 为绕 Z 轴角度、z 为离地高度。

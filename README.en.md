@@ -158,10 +158,10 @@ Thanks to the following developers for their contributions to BicMap:
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/tianxiangLee">
-        <img src="https://github.com/tianxiangLee.png" width="80" height="80" style="border-radius:50%" alt="tianxiangLee"/>
+      <a href="https://github.com/Bret0226">
+        <img src="https://github.com/Bret0226.png" width="80" height="80" style="border-radius:50%" alt="Bret0226"/>
         <br/>
-        <sub><b>tianxiangLee</b></sub>
+        <sub><b>Bret0226</b></sub>
       </a>
     </td>
     <td align="center">

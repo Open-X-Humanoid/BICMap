@@ -25,27 +25,31 @@
             点云信息
           </div>
 
-          <!-- <div class="hud-legend-row">
+          <div class="hud-legend-row">
             <span class="hud-label">内置场景</span>
           </div>
           <div class="hud-modes">
             <button
-              v-for="preset in scenePresets"
-              :key="preset.url"
+              v-for="preset in SCENE_PRESETS"
+              :key="preset.id"
               class="hud-mode"
-              :class="{ 'hud-mode--active': preset.url === activeSceneUrl }"
+              :class="{ 'hud-mode--active': preset.id === activeSceneId }"
               :disabled="loading"
-              @click="loadScene(preset.url)"
+              @click="loadScene(preset.id)"
             >
               {{ preset.label }}
             </button>
-          </div> -->
+          </div>
 
           <div class="hud-divider"></div>
 
           <div class="hud-row">
             <span class="hud-label">文件</span>
             <span class="hud-value hud-value--ellipsis" :title="fileName">{{ fileName || '-' }}</span>
+          </div>
+          <div v-if="isWorldScene" class="hud-row">
+            <span class="hud-label">地理锚点</span>
+            <span class="hud-value hud-value--ellipsis" :title="anchorText">{{ anchorText }}</span>
           </div>
           <div class="hud-row">
             <span class="hud-label">存储格式</span>
@@ -195,6 +199,17 @@
             <span>{{ align.scale.toFixed(1) }}×</span>
           </div> -->
         </div>
+
+        <!-- 合规声明挂在地图上而不是 HUD 里：HUD 内容超高会滚动，声明会被折到看不见的地方 -->
+        <div v-if="isWorldScene" class="map-legal">
+          <div class="map-legal__title">⚠ 合规声明</div>
+          <p>
+            底图为 <strong>OpenStreetMap</strong> 第三方公开瓦片服务，<strong>仅供示例演示</strong>，不得用于生产环境；使用须遵守
+            ODbL 协议并保留归因信息。
+          </p>
+          <p>在中国境内使用网络地图服务须取得相应<strong>测绘资质</strong>，并确保符合《测绘法》坐标系要求。</p>
+          <p>叠加的点云由程序<strong>模拟生成</strong>，非真实采集数据，不代表现场实际地物。</p>
+        </div>
       </div>
     </main>
 
@@ -212,10 +227,12 @@ import { Eye, EyeOff, FolderOpen, Maximize } from 'lucide-vue-next'
 import AppFooter from '../../components/AppFooter.vue'
 import AppHeader from '../../components/AppHeader.vue'
 
+import intersectionPcdUrl from './samples/intersection.pcd?url'
 import campusPcdUrl from './samples/samples.pcd?url'
 import bicMap from '../../../bicMap/core/bicmap-gl'
 import {
   ALIGN_STEP,
+  BASEMAP,
   BG_COLOR,
   COLOR_MODE,
   COLOR_MODE_LABEL,
@@ -233,6 +250,10 @@ import {
   MIN_POINT_SIZE,
   OFFSET_X_RANGE,
   OFFSET_Y_RANGE,
+  OSM_ATTRIBUTION,
+  OSM_MAX_ZOOM,
+  OSM_TILES,
+  PLACEMENT,
   POINT_SIZE_STEP,
   ROTATION_STEP,
   SCALE_RANGE,
@@ -244,18 +265,20 @@ import {
 import { parsePcd } from './pclLoader'
 import { availableColorModes, buildColors } from './pointColors'
 import { placeOnSlamMap, slamMapBounds, slamToLngLat } from './slamPlacement'
+import { placeOnWorldMap, worldSceneBounds } from './worldPlacement'
 
-const SCENE_PCD_URLS = { campus: campusPcdUrl }
-const scenePresets = SCENE_PRESETS.map((preset) => ({
-  ...preset,
-  url: SCENE_PCD_URLS[preset.id]
-}))
-const SCENE_PCD_URL = scenePresets[0].url
+const SCENE_PCD_URLS = { campus: campusPcdUrl, intersection: intersectionPcdUrl }
+const DEFAULT_SCENE = SCENE_PRESETS[0]
 
 // 对齐参数一变就要重投影全部点位，拖动滑块时做一次合并，避免每帧重算
 const ALIGN_DEBOUNCE_MS = 150
 const MAP_FIT_PADDING = 30
 const SLAM_BOUNDS = slamMapBounds()
+
+// createPointCloud3D 内部固定用这个图层 id，底图必须插在它下面才不会盖住点云
+const CLOUD_LAYER_ID = 'point-cloud-3d-layer'
+const OSM_SOURCE_ID = 'pcd-osm-source'
+const OSM_LAYER_ID = 'pcd-osm-layer'
 
 const fileInput = ref(null)
 
@@ -275,7 +298,10 @@ const align = reactive({ ...DEFAULT_ALIGN })
 const renderedCount = ref(0)
 const mapStride = ref(1)
 // 导入本地文件后置空，内置场景按钮就不会有高亮项
-const activeSceneUrl = ref('')
+const activeSceneId = ref('')
+// 决定摆放模式、锚点与底图。导入本地文件时保持不变，这样自带的 PCD
+// 也能直接落在当前场景（例如叠在 OSM 底图的真实路口上）
+const activeScene = ref(DEFAULT_SCENE)
 
 const stats = reactive({
   rawCount: 0,
@@ -298,6 +324,13 @@ let alignTimer = null
 const heightLegend = `linear-gradient(to right, ${HEIGHT_COLOR_STOPS.map(([, color]) => color).join(', ')})`
 
 const isDownsampled = computed(() => stats.rawCount > 0 && renderedCount.value < stats.rawCount)
+
+const isWorldScene = computed(() => activeScene.value?.placement === PLACEMENT.WORLD)
+
+const anchorText = computed(() => {
+  const anchor = activeScene.value?.anchor
+  return anchor ? `${anchor.lng.toFixed(6)}, ${anchor.lat.toFixed(6)}` : '-'
+})
 
 const strideTip = computed(() => {
   if (mapStride.value <= 1) return ''
@@ -338,7 +371,7 @@ onBeforeUnmount(() => {
   sourceBuffer = null
 })
 
-/** 创建空白地图，只用来承载点云，不加载 SLAM 栅格底图 */
+/** 创建地图容器。底图由场景决定：SLAM 场景留空，世界地图场景挂 OSM 栅格瓦片 */
 async function initMap() {
   loadingText.value = '正在初始化地图…'
   loading.value = true
@@ -351,7 +384,10 @@ async function initMap() {
     pitch: MAP_VIEW.pitch,
     bearing: MAP_VIEW.bearing,
     backgroundColor: BG_COLOR,
-    antialias: true
+    antialias: true,
+    // 栅格瓦片相关：关掉淡入并放开并发，切到世界地图场景时出图更快
+    fadeDuration: 0,
+    maxParallelImageRequests: 32
   })
   bicMap.addZoomControl(map, 'bottom-right')
 
@@ -362,32 +398,81 @@ async function initMap() {
 }
 
 /**
- * 加载内置场景点云。XY 用文件自带坐标，离地高度用场景预设（压到和平面底图共面）。
- * @param {string} url 场景 PCD 地址
+ * 按场景切换底图。OSM 瓦片必须插在点云图层下面，否则会把点云整个盖住。
+ * @param {object} [preset] 场景预设
  */
-async function loadScenePcd(url = SCENE_PCD_URL) {
+function applyBasemap(preset) {
+  if (!map) return
+
+  if (map.getLayer(OSM_LAYER_ID)) map.removeLayer(OSM_LAYER_ID)
+  if (map.getSource(OSM_SOURCE_ID)) map.removeSource(OSM_SOURCE_ID)
+
+  if (map.getLayer('background')) {
+    map.setPaintProperty('background', 'background-color', preset?.background ?? BG_COLOR)
+  }
+
+  if (preset?.basemap !== BASEMAP.OSM) return
+
+  map.addSource(OSM_SOURCE_ID, {
+    type: 'raster',
+    tiles: OSM_TILES,
+    tileSize: 256,
+    minzoom: 0,
+    maxzoom: OSM_MAX_ZOOM,
+    scheme: 'xyz',
+    attribution: OSM_ATTRIBUTION
+  })
+
+  map.addLayer(
+    {
+      id: OSM_LAYER_ID,
+      type: 'raster',
+      source: OSM_SOURCE_ID,
+      paint: {
+        'raster-opacity': 1,
+        'raster-fade-duration': 0,
+        'raster-resampling': 'linear'
+      }
+    },
+    map.getLayer(CLOUD_LAYER_ID) ? CLOUD_LAYER_ID : undefined
+  )
+}
+
+/**
+ * 加载内置场景点云。XY 用点云自带坐标，离地高度用场景预设。
+ * @param {object} [preset] 场景预设
+ */
+async function loadScenePcd(preset = DEFAULT_SCENE) {
   loading.value = true
   errorText.value = ''
   loadingText.value = '正在下载场景点云…'
 
+  const url = SCENE_PCD_URLS[preset.id]
   const response = await fetch(url)
   if (!response.ok) throw new Error(`场景点云下载失败：${response.status}`)
-
   sourceBuffer = await response.arrayBuffer()
   fileName.value = url.split('/').pop()
-  activeSceneUrl.value = url
+
+  activeScene.value = preset
+  activeSceneId.value = preset.id
+  // 场景可以指定默认着色模式；放在这里而不是 renderBuffer 里，
+  // 滤波参数变化时才不会把用户手动选的模式顶掉
+  colorMode.value = preset.colorMode ?? DEFAULT_COLOR_MODE
+  applyBasemap(preset)
   resetAlign()
   await renderBuffer()
 }
 
 /**
  * 切换内置场景
- * @param {string} url 场景 PCD 地址
+ * @param {string} id 场景 id
  */
-async function loadScene(url) {
-  if (loading.value || url === activeSceneUrl.value) return
+async function loadScene(id) {
+  if (loading.value || id === activeSceneId.value) return
+  const preset = SCENE_PRESETS.find((item) => item.id === id)
+  if (!preset) return
   try {
-    await loadScenePcd(url)
+    await loadScenePcd(preset)
   } catch (error) {
     fail(error)
   }
@@ -414,7 +499,8 @@ async function openLocalFile(event) {
     loadingText.value = '正在读取本地文件…'
     sourceBuffer = await file.arrayBuffer()
     fileName.value = file.name
-    activeSceneUrl.value = ''
+    // 只取消场景高亮，摆放模式与底图沿用当前场景
+    activeSceneId.value = ''
     resetAlign()
     await renderBuffer()
   } catch (error) {
@@ -459,11 +545,15 @@ function applyCloud() {
   resetView()
 }
 
-/** 按当前对齐参数把点云投到 SLAM 地图上 */
+/** 按当前对齐参数把点云投到地图上，SLAM 场景走栅格压缩，世界地图场景按 1:1 米制落到真实锚点 */
 function renderMapCloud() {
   if (!map || !cloud) return
 
-  const placed = placeOnSlamMap(cloud, align, activeColors)
+  const scene = activeScene.value
+  const placed =
+    scene?.placement === PLACEMENT.WORLD
+      ? placeOnWorldMap(cloud, align, activeColors, scene.anchor)
+      : placeOnSlamMap(cloud, align, activeColors)
   mapStride.value = placed.stride
   renderedCount.value = placed.points.length
 
@@ -493,15 +583,23 @@ function toggleCloudVisible() {
  */
 function applyView({ animate = true } = {}) {
   if (!map) return
-  const camera = map.cameraForBounds(SLAM_BOUNDS, { padding: MAP_FIT_PADDING })
+
+  const scene = activeScene.value
+  const bounds =
+    scene?.placement === PLACEMENT.WORLD && cloud
+      ? worldSceneBounds(cloud, align, scene.anchor)
+      : SLAM_BOUNDS
+  const view = { ...MAP_VIEW, ...(scene?.view ?? {}) }
+
+  const camera = map.cameraForBounds(bounds, { padding: MAP_FIT_PADDING })
   if (!camera) return
 
   const next = {
     ...camera,
-    pitch: MAP_VIEW.pitch,
-    bearing: MAP_VIEW.bearing
+    pitch: view.pitch,
+    bearing: view.bearing
   }
-  if (MAP_VIEW.zoom != null) next.zoom = MAP_VIEW.zoom
+  if (view.zoom != null) next.zoom = view.zoom
 
   if (animate) map.easeTo({ ...next, duration: 800 })
   else map.jumpTo(next)
@@ -526,7 +624,7 @@ function changeColorMode(mode) {
 
 /** 对齐参数回到当前场景的默认值（内置场景带离地高度，外部文件清零） */
 function resetAlign() {
-  const preset = scenePresets.find((item) => item.url === activeSceneUrl.value)
+  const preset = SCENE_PRESETS.find((item) => item.id === activeSceneId.value)
   Object.assign(align, DEFAULT_ALIGN, preset?.align ?? {})
 }
 
@@ -672,6 +770,45 @@ function round(value) {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.map-legal {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 30;
+  max-width: 430px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 208, 63, 0.55);
+  border-left-width: 3px;
+  background: rgba(5, 18, 48, 0.86);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 24px rgba(0, 20, 80, 0.35);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: rgba(232, 220, 182, 0.9);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+
+  .map-legal__title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f6d97a;
+  }
+
+  p {
+    margin: 0;
+
+    strong {
+      font-weight: 600;
+      color: #ffe9a8;
+    }
   }
 }
 
